@@ -8,8 +8,8 @@ const HARDCODED_URL = '';
 const HARDCODED_KEY = '';
 
 // Tenta pegar do ambiente (Vite)
-const envUrl = process.env.VITE_SUPABASE_URL;
-const envKey = process.env.VITE_SUPABASE_ANON_KEY;
+const envUrl = (import.meta as any).env?.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const envKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 // Tenta pegar do localStorage (caso o usuário configure via UI)
 const storedUrl = typeof window !== 'undefined' ? localStorage.getItem('ad_hoc_supabase_url') : null;
