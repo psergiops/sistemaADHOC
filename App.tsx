@@ -97,17 +97,19 @@ const App: React.FC = () => {
     }
 
     // Flatten Documents (Staff)
-    if (table === 'staff' && flat.documents) {
-      flat.cpf = flat.documents.cpf;
-      flat.rg = flat.documents.rg;
-      flat.rgissuedate = flat.documents.rgIssueDate;
-      flat.cnv = flat.documents.cnv;
-      flat.pis = flat.documents.pis;
-      flat.cnhnumber = flat.documents.cnhNumber;
-      flat.cnhtype = flat.documents.cnhType;
-      flat.voterid = flat.documents.voterId;
-      flat.reservistcertificate = flat.documents.reservistCertificate;
-      flat.reservistnotapplicable = flat.documents.reservistNotApplicable;
+    // Handle nested objects by moving them to top-level for SQL columns
+    // This handles 'address' and 'documents' for all tables (staff, clients, etc.)
+    if (flat.address) {
+      Object.keys(flat.address).forEach(k => {
+        flat[k.toLowerCase()] = flat.address[k];
+      });
+      delete flat.address;
+    }
+
+    if (flat.documents) {
+      Object.keys(flat.documents).forEach(k => {
+        flat[k.toLowerCase()] = flat.documents[k];
+      });
       delete flat.documents;
     }
 
@@ -131,10 +133,17 @@ const App: React.FC = () => {
       'relatedClientId': 'relatedclientid', 'relatedSupplierId': 'relatedsupplierid'
     };
 
+
+    Object.keys(replacements).forEach(key => {
+      if (flat[key] !== undefined) {
+        flat[replacements[key]] = flat[key];
+        delete flat[key];
+      }
+    });
+
     const result: any = {};
     Object.keys(flat).forEach(key => {
-      const newKey = replacements[key] || key.toLowerCase();
-      // Convert undefined to null for SQL
+      const newKey = key.toLowerCase();
       result[newKey] = flat[key] === undefined ? null : flat[key];
     });
 
