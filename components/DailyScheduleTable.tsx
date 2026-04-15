@@ -112,8 +112,8 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
   return (
     <div className="flex flex-col h-full bg-[#EBEBEB] overflow-hidden">
       
-      {/* Date Navigation Header */}
-      <div className="bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between shadow-sm shrink-0 z-20">
+      {/* Date Navigation Header - Sticky */}
+      <div className="bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between shadow-sm shrink-0 sticky top-0 z-20 transition-all">
         <button onClick={handlePrevDay} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-800 transition-colors">
           <ChevronLeft size={24} />
         </button>
@@ -129,11 +129,8 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
         </button>
       </div>
 
-      {/* Main Scrollable Content */}
-      <div 
-        className="flex-grow overflow-y-auto overflow-x-hidden p-4 md:p-6 flex flex-col gap-4 min-h-0 relative"
-        style={{ height: '0', flexBasis: '0' }}
-      >
+      {/* Main Items List - Now expands naturally */}
+      <div className="p-4 md:p-6 flex flex-col gap-4">
         {clients.length === 0 && (
            <div className="text-center text-slate-400 py-10">
               <Building2 size={48} className="mx-auto mb-2 opacity-20"/>

@@ -620,7 +620,26 @@ const App: React.FC = () => {
                     >
                       <Menu size={24} />
                     </button>
-                    <h2 className="text-xl font-bold text-slate-800">Escala Mensal</h2>
+                    <div className="flex items-center gap-4">
+                      <h2 className="text-xl font-bold text-slate-800">Escala Mensal</h2>
+                      <div className="hidden lg:flex items-center bg-slate-100 rounded-lg px-3 py-1.5 border border-slate-200">
+                        <Search size={16} className="text-slate-400 mr-2" />
+                        <input 
+                          type="text" 
+                          list="clients-list" 
+                          placeholder="Buscar cliente..." 
+                          className="bg-transparent border-none text-sm focus:ring-0 w-48"
+                          value={selectedClientId === 'all' ? '' : clients.find(c => c.id === selectedClientId)?.name || ''}
+                          onChange={(e) => {
+                            const client = clients.find(c => c.name === e.target.value);
+                            setSelectedClientId(client ? client.id : 'all');
+                          }}
+                        />
+                        <datalist id="clients-list">
+                          {clients.map(c => <option key={c.id} value={c.name} />)}
+                        </datalist>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => setCalendarViewMode('day')} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200">
@@ -639,19 +658,37 @@ const App: React.FC = () => {
                     currentDate={currentDate}
                     shifts={shifts}
                     staff={staff}
+                    selectedClientId={selectedClientId}
                     onShiftClick={(shift) => { setEditingShift(shift); setIsShiftModalOpen(true); }}
                     onDayClick={(date) => { setCurrentDate(date); setCalendarViewMode('day'); }}
                   />
                 </div>
               </div>
             ) : (
-              <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-                <div className="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center shrink-0">
+              <div className="flex-1 flex flex-col h-full overflow-hidden min-h-0">
+                <div className="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center shrink-0 z-30 shadow-sm">
                   <div className="flex items-center gap-3">
                     <button onClick={() => setCalendarViewMode('month')} className="text-slate-500 hover:text-slate-800">
                       &larr; Voltar ao Mês
                     </button>
                     <h2 className="text-xl font-bold text-slate-800">Escala Diária</h2>
+                    <div className="hidden lg:flex items-center bg-slate-100 rounded-lg px-3 py-1.5 border border-slate-200 ml-4">
+                      <Search size={16} className="text-slate-400 mr-2" />
+                      <input 
+                        type="text" 
+                        list="clients-list-day" 
+                        placeholder="Filtrar condomínio..." 
+                        className="bg-transparent border-none text-sm focus:ring-0 w-48"
+                        value={selectedClientId === 'all' ? '' : clients.find(c => c.id === selectedClientId)?.name || ''}
+                        onChange={(e) => {
+                          const client = clients.find(c => c.name === e.target.value);
+                          setSelectedClientId(client ? client.id : 'all');
+                        }}
+                      />
+                      <datalist id="clients-list-day">
+                        {clients.map(c => <option key={c.id} value={c.name} />)}
+                      </datalist>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditingShift(null); setIsShiftModalOpen(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
@@ -659,13 +696,14 @@ const App: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                <div className="flex-1 overflow-y-auto flex flex-col bg-[#EBEBEB]">
                    <DailyScheduleTable
                      currentDate={currentDate}
                      onDateChange={setCurrentDate}
                      shifts={shifts}
                      staff={staff}
                      clients={clients}
+                     selectedClientId={selectedClientId}
                      onAddShift={(s) => handleAddShift([s])}
                      onUpdateShift={handleUpdateShift}
                      onDeleteShift={handleDeleteShift}
