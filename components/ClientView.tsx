@@ -97,8 +97,9 @@ const ClientView: React.FC<ClientViewProps> = ({ clients, staff, onAddClient, on
     document.body.removeChild(link);
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  const formatCurrency = (value: number | null | undefined) => {
+    const safeValue = Number(value) || 0;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(safeValue);
   };
 
   return (
@@ -202,7 +203,9 @@ const ClientView: React.FC<ClientViewProps> = ({ clients, staff, onAddClient, on
                   <div className="space-y-3 pt-2">
                     <div className="flex items-start gap-3 text-sm text-slate-600">
                       <MapPin size={16} className="text-slate-400 mt-0.5 shrink-0" />
-                      <span className="line-clamp-2">{client.address.street}, {client.address.number} - {client.address.city}</span>
+                      <span className="line-clamp-2">
+                        {client.address?.street || 'Sem rua'}, {client.address?.number || 'S/N'} - {client.address?.city || 'Sem cidade'}
+                      </span>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-2 text-xs">
