@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { format, addMonths, startOfMonth, subMonths, eachMonthOfInterval, isSameMonth, parseISO, endOfDay, isWithinInterval, setDate } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import SearchPicker from './SearchPicker';
+import { Building2, PlusCircle, MinusCircle } from 'lucide-react';
 
 interface FinancialViewProps {
   transactions: Transaction[];
@@ -49,6 +51,7 @@ const FinancialView: React.FC<FinancialViewProps> = ({
 
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedClientId, setSelectedClientId] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // --- Merge Logic for Table View ---
@@ -166,6 +169,11 @@ const FinancialView: React.FC<FinancialViewProps> = ({
         combined = combined.filter(t => t.type === filterType);
     }
 
+    // Apply Client Filter
+    if (selectedClientId !== 'all') {
+        combined = combined.filter(t => t.relatedClientId === selectedClientId);
+    }
+
     // Apply Search
     if (searchTerm) {
         const lower = searchTerm.toLowerCase();
@@ -179,7 +187,7 @@ const FinancialView: React.FC<FinancialViewProps> = ({
     // Sort Descending for List View, Ascending for Cash Flow logic
     return combined.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  }, [transactions, clients, staff, dateRange, filterType, searchTerm]);
+  }, [transactions, clients, staff, dateRange, filterType, searchTerm, selectedClientId]);
 
   // --- Cash Flow Logic (Chronological Order + Running Balance) ---
   const cashFlowList = useMemo(() => {
@@ -417,48 +425,65 @@ const FinancialView: React.FC<FinancialViewProps> = ({
             </div>
 
             {/* Filters Bar */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-                 <div className="flex items-center gap-2 w-full md:w-auto">
-                    <Filter size={16} className="text-slate-400" />
-                    <select 
-                        className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-100 bg-white text-slate-700 min-w-[120px]"
-                        value={filterType}
-                        onChange={(e) => setFilterType(e.target.value as any)}
-                    >
-                        <option value="all">Todos os tipos</option>
-                        <option value="income">Receitas</option>
-                        <option value="expense">Despesas</option>
-                    </select>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-4 items-center">
+                 <div className="flex items-center gap-2 w-full lg:w-auto">
+                    <SearchPicker 
+                      title="Tipo de Transação"
+                      allLabel="Todos os Tipos"
+                      items={[
+                        { id: 'income', label: 'Receitas', icon: PlusCircle },
+                        { id: 'expense', label: 'Despesas', icon: MinusCircle }
+                      ]}
+                      selectedId={filterType}
+                      onSelect={(id) => setFilterType(id as any)}
+                      className="w-full lg:w-48"
+                    />
+                </div>
+
+                <div className="flex items-center gap-2 w-full lg:w-auto">
+                    <SearchPicker 
+                      title="Filtrar por Cliente"
+                      allLabel="Todos os Clientes"
+                      items={clients.map(c => ({ id: c.id, label: c.name, sublabel: c.code, icon: Building2 }))}
+                      selectedId={selectedClientId}
+                      onSelect={setSelectedClientId}
+                      className="w-full lg:w-64"
+                    />
                 </div>
                 
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                    <Calendar size={16} className="text-slate-400" />
-                    <div className="flex items-center gap-2">
-                        <input 
-                            type="date" 
-                            value={dateRange.start}
-                            onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                            className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-100 bg-white text-slate-700"
-                        />
-                        <span className="text-slate-400">-</span>
-                        <input 
-                            type="date" 
-                            value={dateRange.end}
-                            onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                            className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-100 bg-white text-slate-700"
-                        />
+                <div className="flex items-center gap-2 w-full lg:w-auto bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl h-[58px]">
+                    <Calendar size={18} className="text-slate-400" />
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Período</span>
+                      <div className="flex items-center gap-2">
+                          <input 
+                              type="date" 
+                              value={dateRange.start}
+                              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                              className="bg-transparent border-none p-0 text-sm font-bold text-slate-700 focus:ring-0 w-24"
+                          />
+                          <span className="text-slate-400">-</span>
+                          <input 
+                              type="date" 
+                              value={dateRange.end}
+                              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                              className="bg-transparent border-none p-0 text-sm font-bold text-slate-700 focus:ring-0 w-24"
+                          />
+                      </div>
                     </div>
                 </div>
 
-                <div className="relative flex-1 w-full">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                    <input 
-                        type="text" 
-                        placeholder="Buscar transação..." 
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-blue-100 bg-white text-slate-700"
-                    />
+                <div className="relative flex-1 w-full lg:w-auto">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input 
+                          type="text" 
+                          placeholder="Buscar transação..." 
+                          value={searchTerm}
+                          onChange={e => setSearchTerm(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 text-sm rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-100 bg-white text-slate-700 transition-all hover:border-slate-300"
+                      />
+                    </div>
                 </div>
             </div>
 

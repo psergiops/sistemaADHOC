@@ -8,6 +8,8 @@ import {
 import PatrolFormModal from './PatrolFormModal';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import SearchPicker from './SearchPicker';
+import { Building2 } from 'lucide-react';
 
 interface PatrolViewProps {
   patrols: Patrol[];
@@ -21,6 +23,7 @@ interface PatrolViewProps {
 
 const PatrolView: React.FC<PatrolViewProps> = ({ patrols, staff, clients, onAddPatrol, currentUser, onToggleMenu, onShowHelp }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedClientId, setSelectedClientId] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // State for Detail View & Lightbox
@@ -32,9 +35,13 @@ const PatrolView: React.FC<PatrolViewProps> = ({ patrols, staff, clients, onAddP
       const clientName = clients.find(c => c.id === p.clientId)?.name || '';
       const search = searchTerm.toLowerCase();
       
-      return staffName.toLowerCase().includes(search) || 
-             clientName.toLowerCase().includes(search) ||
-             p.report.toLowerCase().includes(search);
+      const matchesSearch = staffName.toLowerCase().includes(search) || 
+                            clientName.toLowerCase().includes(search) ||
+                            p.report.toLowerCase().includes(search);
+      
+      const matchesClient = selectedClientId === 'all' || p.clientId === selectedClientId;
+      
+      return matchesSearch && matchesClient;
   }).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const getStaffName = (id: string) => staff.find(s => s.id === id)?.name || 'Desconhecido';
@@ -92,14 +99,26 @@ const PatrolView: React.FC<PatrolViewProps> = ({ patrols, staff, clients, onAddP
             <span className="hidden md:inline">Tutorial</span>
           </button>
 
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Buscar por agente, local..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm bg-white text-slate-900"
+          <div className="flex-1 md:w-64">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="Buscar por agente, local..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm bg-white text-slate-900 transition-all hover:border-slate-300 shadow-sm"
+              />
+            </div>
+          </div>
+
+          <div className="hidden lg:block">
+            <SearchPicker 
+              title="Filtrar por Condomínio"
+              allLabel="Todos os Condomínios"
+              items={clients.map(c => ({ id: c.id, label: c.name, sublabel: c.code, icon: Building2 }))}
+              selectedId={selectedClientId}
+              onSelect={setSelectedClientId}
             />
           </div>
           <button 

@@ -4,6 +4,8 @@ import { VehicleChecklist, Staff, Client } from '../types';
 import { Plus, Search, Car, Calendar, User, Fuel, Gauge, AlertTriangle, CheckCircle2, Menu, Image as ImageIcon, HelpCircle } from 'lucide-react';
 import ChecklistFormModal from './ChecklistFormModal';
 import { format, parseISO } from 'date-fns';
+import SearchPicker from './SearchPicker';
+import { Building2 } from 'lucide-react';
 
 interface ChecklistViewProps {
   checklists: VehicleChecklist[];
@@ -17,12 +19,18 @@ interface ChecklistViewProps {
 
 const ChecklistView: React.FC<ChecklistViewProps> = ({ checklists, staff, clients, onAddChecklist, currentUser, onToggleMenu, onShowHelp }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedClientId, setSelectedClientId] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredChecklists = checklists.filter(c => 
-    c.vehiclePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.vehicleModel.toLowerCase().includes(searchTerm.toLowerCase())
-  ).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const filteredChecklists = checklists.filter(c => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = c.vehiclePlate.toLowerCase().includes(term) ||
+                          c.vehicleModel.toLowerCase().includes(term);
+    
+    const matchesClient = selectedClientId === 'all' || c.clientId === selectedClientId;
+    
+    return matchesSearch && matchesClient;
+  }).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const getStaffName = (id: string) => staff.find(s => s.id === id)?.name || 'Desconhecido';
   const getClientName = (id: string) => clients.find(c => c.id === id)?.name || 'Local desconhecido';
@@ -52,14 +60,26 @@ const ChecklistView: React.FC<ChecklistViewProps> = ({ checklists, staff, client
             <span className="hidden md:inline">Tutorial</span>
           </button>
 
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Buscar placa ou modelo..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm bg-white text-slate-900"
+          <div className="flex-1 md:w-64">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="Buscar placa ou modelo..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm bg-white text-slate-900 transition-all hover:border-slate-300 shadow-sm"
+              />
+            </div>
+          </div>
+
+          <div className="hidden lg:block">
+            <SearchPicker 
+              title="Filtrar por Condomínio"
+              allLabel="Todos os Condomínios"
+              items={clients.map(c => ({ id: c.id, label: c.name, sublabel: c.code, icon: Building2 }))}
+              selectedId={selectedClientId}
+              onSelect={setSelectedClientId}
             />
           </div>
           <button 

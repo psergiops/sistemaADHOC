@@ -21,7 +21,8 @@ import DailyScheduleTable from './components/DailyScheduleTable';
 import CreateShiftModal from './components/CreateShiftModal';
 import ShiftCheckinReportModal from './components/ShiftCheckinReportModal';
 import HelpCenterModal from './components/HelpCenterModal';
-import ClientPicker from './components/ClientPicker';
+import SearchPicker, { PickerItem } from './components/SearchPicker';
+import { Building2 } from 'lucide-react';
 
 import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
@@ -625,9 +626,11 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <h2 className="text-xl font-bold text-slate-800">Escala Mensal</h2>
                       <div className="hidden lg:flex ml-4">
-                        <ClientPicker 
-                          clients={clients}
-                          selectedClientId={selectedClientId}
+                        <SearchPicker 
+                          title="Unidade / Cliente"
+                          allLabel="Todos os Condomínios"
+                          items={clients.map(c => ({ id: c.id, label: c.name, sublabel: c.code, icon: Building2 }))}
+                          selectedId={selectedClientId}
                           onSelect={setSelectedClientId}
                         />
                       </div>
@@ -665,9 +668,11 @@ const App: React.FC = () => {
                     </button>
                     <h2 className="text-xl font-bold text-slate-800">Escala Diária</h2>
                     <div className="hidden lg:flex ml-4">
-                      <ClientPicker 
-                        clients={clients}
-                        selectedClientId={selectedClientId}
+                      <SearchPicker 
+                        title="Unidade / Cliente"
+                        allLabel="Todos os Condomínios"
+                        items={clients.map(c => ({ id: c.id, label: c.name, sublabel: c.code, icon: Building2 }))}
+                        selectedId={selectedClientId}
                         onSelect={setSelectedClientId}
                       />
                     </div>
