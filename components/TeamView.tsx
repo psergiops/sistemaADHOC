@@ -67,7 +67,6 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
     });
     
     onBulkAddStaff(staffToImport);
-    alert(`${staffToImport.length} colaboradores importados com sucesso!`);
   };
 
   const handleExport = () => {

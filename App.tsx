@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured, createStaffAuthClient } from './lib/supabaseClient';
+import { supabase, isSupabaseConfigured, createStaffAuthClient, supabaseAdmin } from './lib/supabaseClient';
 import LoginView from './components/LoginView';
 import ChangePasswordView from './components/ChangePasswordView';
 import Sidebar from './components/Sidebar';
@@ -473,14 +472,11 @@ const App: React.FC = () => {
 
   const handleBulkAddStaff = async (list: Staff[]) => {
     let finalStaffList = [...list];
-
-    // Se temos a chave de admin, tentaremos criar os logins de acesso no Auth
-    const { supabaseAdmin, isSupabaseConfigured: isConfig } = await import('./lib/supabaseClient');
     
-    console.log("[DEBUG] Supabase Configurado:", isConfig);
+    console.log("[DEBUG] Supabase Configurado:", isSupabaseConfigured);
     console.log("[DEBUG] Admin Client existe?", !!supabaseAdmin);
 
-    if (isConfig && supabaseAdmin) {
+    if (isSupabaseConfigured && supabaseAdmin) {
       const createLogins = confirm(`Deseja criar automaticamente os acessos (logins) para estes ${list.length} colaboradores?\n\nA senha padrão será os 4 primeiros dígitos do CPF.`);
       
       if (createLogins) {
@@ -508,10 +504,9 @@ const App: React.FC = () => {
 
             if (authError) {
               console.error(`Erro ao criar Auth para ${staffMember.email}:`, authError.message);
-              updatedList.push(staffMember); // Mantém o ID original se falhar
+              updatedList.push(staffMember); 
             } else if (authData.user) {
               console.log(`✅ Login criado para ${staffMember.email}`);
-              // Vincula o ID do Auth ao perfil do funcionário
               updatedList.push({ ...staffMember, id: authData.user.id });
             }
           } catch (err) {
@@ -519,12 +514,14 @@ const App: React.FC = () => {
           }
         }
         finalStaffList = updatedList;
-        alert("Processo de criação de logins concluído. Verifique o console para detalhes de falhas, se houver.");
       }
+    } else {
+      alert("⚠️ Atenção: A chave de Administrador (Service Role) não foi detectada. Os funcionários serão salvos na tabela, mas os LOGINS de acesso não serão criados.\n\nVerifique o arquivo .env.local e reinicie o servidor.");
     }
 
     setStaff(prev => [...prev, ...finalStaffList]);
-    saveToSupabase('staff', finalStaffList);
+    await saveToSupabase('staff', finalStaffList);
+    alert(`${finalStaffList.length} colaboradores processados com sucesso!`);
   };
 
   // --- Render ---
