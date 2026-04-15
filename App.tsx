@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured, createStaffAuthClient, supabaseAdmin } from './lib/supabaseClient';
+import { supabase, isSupabaseConfigured, createStaffAuthClient } from './lib/supabaseClient';
 import LoginView from './components/LoginView';
 import ChangePasswordView from './components/ChangePasswordView';
 import Sidebar from './components/Sidebar';
@@ -472,66 +472,49 @@ const App: React.FC = () => {
 
   const handleBulkAddStaff = async (list: Staff[]) => {
     try {
-      alert(`[PASSO 1] Verificando configuração... (Colaboradores: ${list.length})`);
+      const createLogins = confirm(`Deseja criar automaticamente os logins de acesso para estes ${list.length} colaboradores?\n\nA senha inicial será os 4 primeiros dígitos do CPF.`);
       
       let finalStaffList = [...list];
-      
-      if (!isSupabaseConfigured) {
-        alert("⚠️ Supabase não configurado. Abortando criação de logins.");
-        setStaff(prev => [...prev, ...finalStaffList]);
-        return;
-      }
 
-      if (!supabaseAdmin) {
-        alert("⚠️ Chave Service Role (Admin) não encontrada! Verifique o .env.local e reinicie o servidor.\n\nSomente a tabela será atualizada.");
-      } else {
-        const createLogins = confirm(`Deseja criar automaticamente os logins para estes ${list.length} colaboradores?`);
+      if (createLogins && isSupabaseConfigured) {
+        alert("🚀 Iniciando criação segura de logins via servidor...");
         
-        if (createLogins) {
-          alert("[PASSO 2] Iniciando criação de logins Auth...");
-          const updatedList: Staff[] = [];
-          
-          for (const staffMember of list) {
-            try {
-              const cleanCpf = staffMember.documents.cpf.replace(/\D/g, '');
-              let password = cleanCpf.substring(0, 4);
-              if (password.length < 4) password = password.padEnd(4, '0');
+        // Prepara os dados para a função de servidor
+        const usersToCreate = list.map(s => {
+          const cleanCpf = s.documents.cpf.replace(/\D/g, '');
+          let password = cleanCpf.substring(0, 4);
+          if (password.length < 4) password = password.padEnd(4, '0');
+          return { email: s.email, password, name: s.name, role: s.role };
+        });
 
-              const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-                email: staffMember.email,
-                password: password,
-                email_confirm: true,
-                user_metadata: { 
-                  name: staffMember.name, 
-                  role: staffMember.role,
-                  must_change_password: true,
-                  initial_password: password
-                }
-              });
+        // Chama a Edge Function no Supabase
+        const { data, error: funcError } = await supabase.functions.invoke('bulk-create-users', {
+          body: { users: usersToCreate }
+        });
 
-              if (authError) {
-                console.error(`Erro Auth para ${staffMember.email}:`, authError.message);
-                updatedList.push(staffMember); 
-              } else if (authData.user) {
-                updatedList.push({ ...staffMember, id: authData.user.id });
-              }
-            } catch (err) {
-              updatedList.push(staffMember);
-            }
-          }
-          finalStaffList = updatedList;
-          alert("[PASSO 3] Criação de logins finalizada.");
+        if (funcError) {
+          throw new Error(`Erro ao chamar função de servidor: ${funcError.message}`);
         }
+
+        // Mapeia os IDs retornados para os registros locais
+        if (data?.results) {
+          finalStaffList = list.map(s => {
+            const result = data.results.find((r: any) => r.email === s.email);
+            return result && result.status === 'success' ? { ...s, id: result.id } : s;
+          });
+        }
+        
+        alert("✅ Logins processados pelo servidor com sucesso!");
       }
 
-      alert("[PASSO 4] Salvando dados na tabela staff...");
+      // Salva na tabela staff (com os IDs vinculados, se houver)
       setStaff(prev => [...prev, ...finalStaffList]);
       await saveToSupabase('staff', finalStaffList);
-      alert("✅ FIM: Processo concluído com sucesso!");
+      alert(`${finalStaffList.length} colaboradores importados com sucesso.`);
 
     } catch (error: any) {
-      alert(`❌ ERRO CRÍTICO NA IMPORTAÇÃO: ${error.message}`);
-      console.error(error);
+      console.error("Erro na importação segura:", error);
+      alert(`Erro na importação: ${error.message}`);
     }
   };
 
