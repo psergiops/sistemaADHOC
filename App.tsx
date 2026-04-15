@@ -477,8 +477,6 @@ const App: React.FC = () => {
       let finalStaffList = [...list];
 
       if (createLogins && isSupabaseConfigured) {
-        alert("🚀 Iniciando criação segura de logins via servidor...");
-        
         // Prepara os dados para a função de servidor
         const usersToCreate = list.map(s => {
           const cleanCpf = s.documents.cpf.replace(/\D/g, '');
@@ -493,7 +491,7 @@ const App: React.FC = () => {
         });
 
         if (funcError) {
-          throw new Error(`Erro ao chamar função de servidor: ${funcError.message}`);
+          throw new Error(`Erro ao criar logins no servidor: ${funcError.message}`);
         }
 
         // Mapeia os IDs retornados para os registros locais
@@ -503,17 +501,25 @@ const App: React.FC = () => {
             return result && result.status === 'success' ? { ...s, id: result.id } : s;
           });
         }
-        
-        alert("✅ Logins processados pelo servidor com sucesso!");
       }
 
-      // Salva na tabela staff (com os IDs vinculados, se houver)
-      setStaff(prev => [...prev, ...finalStaffList]);
-      await saveToSupabase('staff', finalStaffList);
-      alert(`${finalStaffList.length} colaboradores importados com sucesso.`);
+      // IMPORTANTE: Remove duplicatas da lista (evita o erro "ON CONFLICT")
+      const uniqueStaff = finalStaffList.filter((v, i, a) => 
+        a.findIndex(t => t.email === v.email) === i
+      );
+
+      // Salva na tabela staff
+      setStaff(prev => {
+        const existingEmails = new Set(prev.map(s => s.email));
+        const newItems = uniqueStaff.filter(s => !existingEmails.has(s.email));
+        return [...prev, ...newItems];
+      });
+
+      await saveToSupabase('staff', uniqueStaff);
+      alert(`${uniqueStaff.length} colaboradores importados com sucesso!`);
 
     } catch (error: any) {
-      console.error("Erro na importação segura:", error);
+      console.error("Erro na importação:", error);
       alert(`Erro na importação: ${error.message}`);
     }
   };
