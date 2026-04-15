@@ -113,7 +113,7 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
     <div className="flex flex-col h-full bg-[#EBEBEB] overflow-hidden">
       
       {/* Date Navigation Header */}
-      <div className="bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between shadow-sm z-10">
+      <div className="bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between shadow-sm shrink-0 z-20">
         <button onClick={handlePrevDay} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-800 transition-colors">
           <ChevronLeft size={24} />
         </button>
@@ -129,8 +129,11 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
         </button>
       </div>
 
-      {/* Main Scrollable Content - Height fixed to screen calc to ensure scrollbar */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 custom-scrollbar content-start" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+      {/* Main Scrollable Content */}
+      <div 
+        className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-4 content-start min-h-0"
+        style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+      >
         {clients.length === 0 && (
            <div className="text-center text-slate-400 py-10">
               <Building2 size={48} className="mx-auto mb-2 opacity-20"/>
@@ -220,22 +223,22 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
                                                        {staffMember?.avatar ? <img src={staffMember.avatar} className="w-full h-full object-cover" /> : <User size={12} />}
                                                     </div>
 
-                                                    {/* Info Row: [ROLE] Name */}
-                                                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                    {/* Info Row: [NAME] [ROLE] */}
+                                                    <div className="flex-1 min-w-0 flex items-center gap-4">
+                                                       <input 
+                                                          list="staff-list-global"
+                                                          type="text" 
+                                                          placeholder="Nome do colaborador..."
+                                                          className="bg-transparent text-sm font-bold text-slate-800 w-full outline-none placeholder:text-slate-300 truncate"
+                                                          defaultValue={shift.staffId ? (staff.find(s => s.id === shift.staffId || s.name === shift.staffId)?.name || shift.staffId) : (shift.customStaffName || '')}
+                                                          onBlur={(e) => handleUpdateShiftStaff(shift.id, e.target.value)}
+                                                       />
                                                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0 
                                                           ${staffMember?.role === 'Segurança' ? 'bg-indigo-100 text-indigo-700 font-bold' : 
                                                             staffMember?.role === 'Portaria' ? 'bg-teal-100 text-teal-700 font-bold' : 
                                                             'bg-slate-100 text-slate-600'}`}>
                                                           {staffMember?.role || 'POSTO'}
                                                        </span>
-                                                       <input 
-                                                          list="staff-list-global"
-                                                          type="text" 
-                                                          placeholder="Nome do colaborador..."
-                                                          className="bg-transparent text-sm font-bold text-slate-800 w-full outline-none placeholder:text-slate-300 truncate pr-8"
-                                                          defaultValue={shift.staffId ? (staff.find(s => s.id === shift.staffId || s.name === shift.staffId)?.name || shift.staffId) : (shift.customStaffName || '')}
-                                                          onBlur={(e) => handleUpdateShiftStaff(shift.id, e.target.value)}
-                                                       />
                                                     </div>
 
                                                     {/* Times */}
@@ -263,7 +266,7 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
                                                          e.stopPropagation();
                                                          handleRemoveShift(shift.id);
                                                       }}
-                                                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all z-30 flex-shrink-0 ml-1"
+                                                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all z-30 flex-shrink-0"
                                                       title="Remover Colaborador"
                                                     >
                                                        <Trash2 size={14} />

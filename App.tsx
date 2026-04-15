@@ -645,8 +645,8 @@ const App: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="h-full flex flex-col">
-                <div className="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+              <div className="flex-1 flex flex-col overflow-hidden min-h-0 h-full">
+                <div className="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center shrink-0">
                   <div className="flex items-center gap-3">
                     <button onClick={() => setCalendarViewMode('month')} className="text-slate-500 hover:text-slate-800">
                       &larr; Voltar ao Mês
@@ -659,16 +659,18 @@ const App: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <DailyScheduleTable
-                  currentDate={currentDate}
-                  onDateChange={setCurrentDate}
-                  shifts={shifts}
-                  staff={staff}
-                  clients={clients}
-                  onAddShift={(s) => handleAddShift([s])}
-                  onUpdateShift={handleUpdateShift}
-                  onDeleteShift={handleDeleteShift}
-                />
+                <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                   <DailyScheduleTable
+                     currentDate={currentDate}
+                     onDateChange={setCurrentDate}
+                     shifts={shifts}
+                     staff={staff}
+                     clients={clients}
+                     onAddShift={(s) => handleAddShift([s])}
+                     onUpdateShift={handleUpdateShift}
+                     onDeleteShift={handleDeleteShift}
+                   />
+                </div>
               </div>
             )}
           </div>
