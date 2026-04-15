@@ -475,10 +475,13 @@ const App: React.FC = () => {
     let finalStaffList = [...list];
 
     // Se temos a chave de admin, tentaremos criar os logins de acesso no Auth
-    const { supabaseAdmin } = await import('./lib/supabaseClient');
+    const { supabaseAdmin, isSupabaseConfigured: isConfig } = await import('./lib/supabaseClient');
     
-    if (isSupabaseConfigured && supabaseAdmin) {
-      const createLogins = confirm(`Deseja criar automaticamente os acessos (logins) para estes ${list.length} colaboradores?\n\nA senha padrão será o CPF (apenas números).`);
+    console.log("[DEBUG] Supabase Configurado:", isConfig);
+    console.log("[DEBUG] Admin Client existe?", !!supabaseAdmin);
+
+    if (isConfig && supabaseAdmin) {
+      const createLogins = confirm(`Deseja criar automaticamente os acessos (logins) para estes ${list.length} colaboradores?\n\nA senha padrão será os 4 primeiros dígitos do CPF.`);
       
       if (createLogins) {
         console.log("🚀 Iniciando criação de logins em lote...");
