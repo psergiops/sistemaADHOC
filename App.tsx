@@ -286,6 +286,8 @@ const App: React.FC = () => {
     if (isSupabaseConfigured) {
       const fetchData = async () => {
         try {
+          console.log("🔄 Buscando todos os dados do Supabase...");
+          
           const { data: staffData } = await supabase.from('staff').select('*');
           if (staffData) setStaff(staffData.map(d => unflattenData('staff', d)));
 
@@ -298,8 +300,51 @@ const App: React.FC = () => {
           const { data: shiftData } = await supabase.from('shifts').select('*');
           if (shiftData) setShifts(shiftData.map(mapShiftFromDB));
 
+          const { data: transData } = await supabase.from('transactions').select('*');
+          if (transData) setTransactions(transData);
+
+          const { data: payData } = await supabase.from('paystubs').select('*');
+          if (payData) setPaystubs(payData);
+
+          const { data: annData } = await supabase.from('announcements').select('*').order('date', { ascending: false });
+          if (annData) setAnnouncements(annData);
+
+          const { data: reqData } = await supabase.from('change_requests').select('*');
+          if (reqData) setChangeRequests(reqData);
+
+          const { data: chkData } = await supabase.from('vehicle_checklists').select('*');
+          if (chkData) setChecklists(chkData);
+
+          const { data: patData } = await supabase.from('patrols').select('*');
+          if (patData) setPatrols(patData);
+
+          const { data: postData } = await supabase.from('posts').select('*');
+          if (postData) setPosts(postData);
+
+          const { data: logData } = await supabase.from('entry_logs').select('*');
+          if (logData) setEntryLogs(logData);
+
+          const { data: guestData } = await supabase.from('guest_lists').select('*');
+          if (guestData) setGuestLists(guestData);
+
+          const { data: resData } = await supabase.from('reservations').select('*');
+          if (resData) setReservations(resData);
+
+          const { data: matData } = await supabase.from('material_requests').select('*');
+          if (matData) setMaterialRequests(matData);
+
+          const { data: invData } = await supabase.from('inventory_items').select('*');
+          if (invData) setInventoryItems(invData);
+
+          const { data: movData } = await supabase.from('inventory_movements').select('*');
+          if (movData) setInventoryMovements(movData);
+
+          const { data: auditData } = await supabase.from('audit_logs').select('*');
+          if (auditData) setAuditLogs(auditData);
+
+          console.log("✅ Dados carregados com sucesso!");
         } catch (error: any) {
-          console.error("Error loading data:", error);
+          console.error("Erro geral no carregamento:", error);
         }
       };
       fetchData();
@@ -307,22 +352,29 @@ const App: React.FC = () => {
   }, []);
 
   // --- Handlers for CRUD Operations with Supabase ---
-  const saveToSupabase = async (table: string, data: any) => {
+  const saveToSupabase = async (table: string, data: any | any[]) => {
     if (!isSupabaseConfigured) {
-      console.warn("Supabase not configured, skipping save.");
+      console.warn(`Supabase not configured, skipping save to ${table}.`);
       return;
     }
 
-    // Apply Flattening
-    const payload = flattenData(table, data);
-    console.log(`[DEBUG] Saving to ${table}:`, payload);
+    try {
+      // Apply Flattening for bulk or single item
+      const payload = Array.isArray(data) 
+        ? data.map(item => flattenData(table, item))
+        : flattenData(table, data);
+      
+      console.log(`[DEBUG] Saving to ${table}:`, payload);
 
-    const { error } = await supabase.from(table).upsert(payload);
+      const { error } = await supabase.from(table).upsert(payload);
 
-    if (error) {
-      console.error(`Erro ao salvar em ${table}:`, error);
-    } else {
-      console.log(`[DEBUG] Saved successfully to ${table}`);
+      if (error) {
+        console.error(`Erro ao salvar em ${table}:`, error.message, error.details);
+      } else {
+        console.log(`[DEBUG] Saved successfully to ${table}`);
+      }
+    } catch (err) {
+      console.error(`Erro inesperado ao salvar em ${table}:`, err);
     }
   };
 
@@ -453,11 +505,11 @@ const App: React.FC = () => {
           </div>
         );
       case 'team':
-        return <TeamView staff={staff} onAddStaff={handleAddStaff} onBulkAddStaff={(list) => { setStaff([...staff, ...list]); list.forEach(s => saveToSupabase('staff', s)); }} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <TeamView staff={staff} onAddStaff={handleAddStaff} onBulkAddStaff={(list) => { setStaff([...staff, ...list]); saveToSupabase('staff', list); }} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'clients':
-        return <ClientView clients={clients} staff={staff} onAddClient={(c) => { setClients([...clients, c]); saveToSupabase('clients', c); }} onBulkAddClients={(list) => { setClients([...clients, ...list]); list.forEach(c => saveToSupabase('clients', c)); }} onUpdateClient={(c) => { setClients(clients.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('clients', c); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <ClientView clients={clients} staff={staff} onAddClient={(c) => { setClients([...clients, c]); saveToSupabase('clients', c); }} onBulkAddClients={(list) => { setClients([...clients, ...list]); saveToSupabase('clients', list); }} onUpdateClient={(c) => { setClients(clients.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('clients', c); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'suppliers':
-        return <SupplierView suppliers={suppliers} onAddSupplier={(s) => { setSuppliers([...suppliers, s]); saveToSupabase('suppliers', s); }} onBulkAddSuppliers={(list) => { setSuppliers([...suppliers, ...list]); list.forEach(s => saveToSupabase('suppliers', s)); }} onUpdateSupplier={(s) => { setSuppliers(suppliers.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('suppliers', s); }} onDeleteSupplier={(id) => { setSuppliers(suppliers.filter(s => s.id !== id)); if (isSupabaseConfigured) supabase.from('suppliers').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <SupplierView suppliers={suppliers} onAddSupplier={(s) => { setSuppliers([...suppliers, s]); saveToSupabase('suppliers', s); }} onBulkAddSuppliers={(list) => { setSuppliers([...suppliers, ...list]); saveToSupabase('suppliers', list); }} onUpdateSupplier={(s) => { setSuppliers(suppliers.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('suppliers', s); }} onDeleteSupplier={(id) => { setSuppliers(suppliers.filter(s => s.id !== id)); if (isSupabaseConfigured) supabase.from('suppliers').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'financial':
         return <FinancialView transactions={transactions} clients={clients} suppliers={suppliers} staff={staff} onAddTransaction={(t) => { setTransactions([...transactions, t]); saveToSupabase('transactions', t); }} onUpdateTransaction={(t) => { setTransactions(transactions.map(ex => ex.id === t.id ? t : ex)); saveToSupabase('transactions', t); }} onDeleteTransaction={(id) => { setTransactions(transactions.filter(t => t.id !== id)); if (isSupabaseConfigured) supabase.from('transactions').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'portal':

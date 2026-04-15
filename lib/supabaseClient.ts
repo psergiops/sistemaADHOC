@@ -29,13 +29,15 @@ let clientUrl = supabaseUrl;
 let clientKey = supabaseKey;
 
 if (!isSupabaseConfigured) {
-  console.log('ℹ️ Modo Demo: Nenhuma conexão de banco de dados ativa. Usando dados locais (Mocks).');
+  console.log('ℹ️ [CONFIG] Modo Demo Ativo: Nenhuma conexão de banco de dados ativa. Usando dados locais (Mocks).');
+  console.log('👉 Para ativar o Supabase: Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no seu arquivo .env.local');
   // Valores placeholder apenas para não quebrar a inicialização do client, 
   // mas as chamadas não serão feitas se isSupabaseConfigured for false no App.tsx
   clientUrl = 'https://placeholder.supabase.co';
   clientKey = 'placeholder';
 } else {
-  console.log('✅ Supabase Client configurado.');
+  console.log('✅ [CONFIG] Supabase Client configurado com sucesso!');
+  console.log(`🔗 URL: ${supabaseUrl}`);
 }
 
 export const supabase = createClient(clientUrl as string, clientKey as string);
