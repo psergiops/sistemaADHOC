@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Lock, ShieldCheck, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Lock, ShieldCheck, Loader2, AlertCircle, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 interface ChangePasswordViewProps {
@@ -67,11 +67,23 @@ const ChangePasswordView: React.FC<ChangePasswordViewProps> = ({ initialPassword
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden z-10 relative border border-white/20">
         <div className="p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-100">
-              <Lock size={32} className="text-blue-600" />
+            <div className="w-16 h-16 bg-white border border-slate-100 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-slate-200">
+              <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-red-600">
+                <defs>
+                  <mask id="target-mask-change">
+                    <rect x="0" y="0" width="100" height="100" fill="white" />
+                    <rect x="43" y="0" width="14" height="100" fill="black" />
+                    <rect x="0" y="43" width="100" height="14" fill="black" />
+                  </mask>
+                </defs>
+                <g mask="url(#target-mask-change)">
+                  <circle cx="50" cy="50" r="24" stroke="currentColor" strokeWidth="12" />
+                  <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="12" />
+                </g>
+              </svg>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Segurança Obrigatória</h1>
-            <p className="text-sm text-slate-500 font-medium mt-1 text-center">Este é seu primeiro acesso. Por favor, defina sua senha definitiva.</p>
+            <h1 className="text-3xl font-serif font-bold text-slate-900 tracking-tight">AD-HOC</h1>
+            <p className="text-xs text-slate-500 font-medium mt-1 uppercase tracking-widest">Segurança do Primeiro Acesso</p>
           </div>
 
           <div className="mb-6 p-4 rounded-xl bg-orange-50 border border-orange-100 text-orange-800 flex items-start gap-3">
@@ -130,9 +142,14 @@ const ChangePasswordView: React.FC<ChangePasswordViewProps> = ({ initialPassword
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full bg-[#EA2D01] hover:bg-[#C92701] text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2 group"
               >
-                {isLoading ? <Loader2 size={20} className="animate-spin" /> : 'Atualizar e Entrar'}
+                {isLoading ? <Loader2 size={20} className="animate-spin" /> : (
+                  <>
+                    Atualizar e Entrar
+                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </button>
               
               <button
