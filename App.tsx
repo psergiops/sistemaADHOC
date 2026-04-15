@@ -144,7 +144,10 @@ const App: React.FC = () => {
     const result: any = {};
     Object.keys(flat).forEach(key => {
       const newKey = key.toLowerCase();
-      result[newKey] = flat[key] === undefined ? null : flat[key];
+      // Only include valid keys and convert undefined to null
+      if (flat[key] !== undefined) {
+        result[newKey] = flat[key];
+      }
     });
 
     return result;
@@ -379,6 +382,7 @@ const App: React.FC = () => {
 
       if (error) {
         console.error(`Erro ao salvar em ${table}:`, error.message, error.details);
+        alert(`Erro ao salvar no banco (${table}): ${error.message}\n\nVerifique o console para mais detalhes.`);
       } else {
         console.log(`[DEBUG] Saved successfully to ${table}`);
       }
