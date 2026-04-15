@@ -46,7 +46,6 @@ const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, onImport, ty
       headers: ['Nome Empresa', 'Responsavel', 'Email', 'Telefone', 'CEP', 'Endereco', 'Valor Contrato'],
       keys: ['name', 'contactPerson', 'email', 'phone', 'zipCode', 'street', 'contractValue'],
       sample: 'Condominio Solar;Maria Souza;síndico@solar.com;(11)3333-3333;01000-000;Rua das Flores, 123;5000'
-    },
     }
   };
 
