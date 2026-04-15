@@ -167,18 +167,6 @@ const TUTORIAL_DATA = [
     ]
   },
   {
-    id: 'suppliers',
-    title: 'Fornecedores',
-    icon: Truck,
-    description: 'Gestão de parceiros e compras.',
-    steps: [
-      {
-        title: 'Contratos Recorrentes',
-        content: 'Ao cadastrar um fornecedor, marque "Contrato Recorrente" se houver um pagamento mensal fixo. Isso gerará uma previsão no módulo Financeiro.'
-      }
-    ]
-  },
-  {
     id: 'checklist',
     title: 'Vistoria (Checklist)',
     icon: ClipboardCheck,

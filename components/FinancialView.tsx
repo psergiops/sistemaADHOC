@@ -242,7 +242,7 @@ const FinancialView: React.FC<FinancialViewProps> = ({
             expense
         };
     });
-  }, [transactions, clients, suppliers, staff]);
+  }, [transactions, clients, staff]);
 
 
   // Formatters

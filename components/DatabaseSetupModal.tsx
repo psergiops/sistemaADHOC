@@ -123,7 +123,6 @@ DROP TABLE IF EXISTS change_requests CASCADE;
 DROP TABLE IF EXISTS announcements CASCADE;
 DROP TABLE IF EXISTS paystubs CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
-DROP TABLE IF EXISTS suppliers CASCADE;
 DROP TABLE IF EXISTS shifts CASCADE;
 DROP TABLE IF EXISTS clients CASCADE;
 DROP TABLE IF EXISTS staff CASCADE;
@@ -223,27 +222,6 @@ CREATE TABLE shifts (
     recurrenceid text
 );
 ALTER TABLE shifts DISABLE ROW LEVEL SECURITY;
-
-CREATE TABLE suppliers (
-    id text PRIMARY KEY,
-    code text,
-    name text NOT NULL,
-    category text,
-    contactperson text,
-    email text,
-    phone text,
-    zipcode text,
-    street text,
-    "number" text,
-    district text,
-    city text,
-    state text,
-    notes text,
-    isrecurring boolean DEFAULT false,
-    contractvalue numeric DEFAULT 0,
-    paymentday integer
-);
-ALTER TABLE suppliers DISABLE ROW LEVEL SECURITY;
 
 CREATE TABLE transactions (
     id text PRIMARY KEY,
