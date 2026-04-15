@@ -41,7 +41,7 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
   const handleAddPosto = (clientId: string) => {
     // Creates a new Shift with empty staff but with a default Station name
     const newShift: Shift = {
-      id: `sh-${Date.now()}`,
+      id: `temp-sh-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       staffId: '',
       locationId: clientId,
       station: 'Novo Posto',
@@ -81,8 +81,8 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
   };
 
   const handleUpdateShiftStaff = (shiftId: string, val: string) => {
-    // Check if val matches a staff ID
-    const foundStaff = staff.find(s => s.id === val);
+    // Check if val matches a staff ID or Name
+    const foundStaff = staff.find(s => s.id === val || s.name === val);
     const existingShift = shifts.find(s => s.id === shiftId);
     
     if (existingShift) {
@@ -103,7 +103,8 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
   };
 
   const handleRemoveShift = (shiftId: string) => {
-    if(window.confirm('Remover este turno?')) {
+    console.log('[DEBUG] Tentando remover turno ID:', shiftId);
+    if(window.confirm('Deseja remover este colaborador deste posto?')) {
         onDeleteShift(shiftId);
     }
   };
@@ -129,7 +130,7 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
       </div>
 
       {/* Main Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 custom-scrollbar content-start">
         {clients.length === 0 && (
            <div className="text-center text-slate-400 py-10">
               <Building2 size={48} className="mx-auto mb-2 opacity-20"/>
@@ -159,27 +160,29 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
             <div key={client.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
               
               {/* Condominium Header */}
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                       <Building2 size={20} />
+              <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                 <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                       <Building2 size={16} />
                     </div>
-                    <div>
-                       <h3 className="font-bold text-slate-800">{client.name}</h3>
-                       <p className="text-xs text-slate-500 flex items-center gap-1">
-                          <MapPin size={10} /> {client.address.city} - {client.address.district}
+                    <div className="overflow-hidden">
+                       <h3 className="font-bold text-sm text-slate-800 truncate" title={client.name}>{client.name}</h3>
+                       <p className="text-[10px] text-slate-400 truncate">
+                          {client.address.city}
                        </p>
                     </div>
                  </div>
                  <button 
                     onClick={() => handleAddPosto(client.id)}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+                    className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors flex-shrink-0"
+                    title="Novo Posto"
                  >
-                    <Plus size={14} /> Novo Posto
+                    <Plus size={18} />
                  </button>
               </div>
 
               {/* Stations Grid */}
+              {/* Stations List */}
               <div className="divide-y divide-slate-100">
                 {stations.length === 0 ? (
                     <div className="p-8 text-center text-slate-400 text-sm">
@@ -187,16 +190,15 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
                     </div>
                 ) : (
                     stations.map(stationName => (
-                        <div key={stationName} className="p-4 md:p-5">
-                            <div className="flex flex-col md:flex-row gap-4">
+                        <div key={stationName} className="p-4 border-b border-slate-100 last:border-0">
+                            <div className="flex flex-col gap-3">
                                 
-                                {/* Posto Name Column */}
-                                <div className="md:w-1/4 min-w-[200px] flex-shrink-0">
-                                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1 block">Posto</label>
-                                   <div className="flex items-center gap-2">
+                                {/* Posto Name */}
+                                <div>
+                                   <div className="flex items-center justify-between group/title mb-2">
                                       <input 
                                         type="text" 
-                                        className="font-bold text-slate-700 w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none transition-colors py-1"
+                                        className="font-bold text-xs text-slate-500 uppercase tracking-wider bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none transition-colors py-0.5 w-full"
                                         defaultValue={stationName}
                                         onBlur={(e) => {
                                            if (e.target.value !== stationName && e.target.value.trim() !== '') {
@@ -205,65 +207,68 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
                                         }}
                                       />
                                    </div>
-                                </div>
 
-                                {/* Team Members Column */}
-                                <div className="flex-1 overflow-x-auto">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1 block">Equipe</label>
-                                    <div className="flex items-start gap-3 flex-wrap">
-                                        {stationsMap.get(stationName)?.map((shift) => (
-                                            <div key={shift.id} className="bg-slate-50 rounded-lg border border-slate-200 p-2 min-w-[200px] group relative hover:border-blue-200 transition-colors">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
-                                                       <User size={16} />
+                                    {/* Team Members Vertical List */}
+                                    <div className="space-y-2">
+                                        {stationsMap.get(stationName)?.map((shift) => {
+                                            const staffMember = staff.find(s => s.id === shift.staffId || s.name === shift.staffId);
+                                            return (
+                                                <div key={shift.id} className="bg-slate-50 rounded-lg border border-slate-200 p-2 group relative hover:border-blue-200 transition-colors">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex-shrink-0 flex items-center justify-center text-slate-400 overflow-hidden">
+                                                           {staffMember?.avatar ? <img src={staffMember.avatar} className="w-full h-full object-cover" /> : <User size={16} />}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                           <input 
+                                                              list={`staff-list-${client.id}`}
+                                                              type="text" 
+                                                              placeholder="Nome ou Cargo..."
+                                                              className="bg-transparent text-sm font-bold text-slate-800 w-full outline-none placeholder:text-slate-400 truncate"
+                                                              defaultValue={shift.staffId ? staff.find(s => s.id === shift.staffId || s.name === shift.staffId)?.name : shift.customStaffName || ''}
+                                                              onBlur={(e) => handleUpdateShiftStaff(shift.id, e.target.value)}
+                                                           />
+                                                           <div className="text-[10px] text-slate-400 font-medium uppercase truncate">
+                                                              {staffMember?.role || 'Cargo não definido'}
+                                                           </div>
+                                                        </div>
                                                     </div>
-                                                    <input 
-                                                        list={`staff-list-${client.id}`}
-                                                        type="text" 
-                                                        placeholder="Buscar ou digitar nome..."
-                                                        className="bg-transparent text-sm font-medium text-slate-800 w-full outline-none placeholder:text-slate-400"
-                                                        defaultValue={shift.staffId ? staff.find(s => s.id === shift.staffId)?.name : shift.customStaffName || ''}
-                                                        onBlur={(e) => handleUpdateShiftStaff(shift.id, e.target.value)}
-                                                    />
+                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-white/50 rounded p-1">
+                                                        <Clock size={12} className="text-slate-300" />
+                                                        <input 
+                                                           type="time" 
+                                                           className="bg-transparent outline-none w-14"
+                                                           defaultValue={shift.startTime}
+                                                           onBlur={(e) => onUpdateShift({ ...shift, startTime: e.target.value })}
+                                                        />
+                                                        <span className="text-slate-300">-</span>
+                                                        <input 
+                                                           type="time" 
+                                                           className="bg-transparent outline-none w-14"
+                                                           defaultValue={shift.endTime}
+                                                           onBlur={(e) => onUpdateShift({ ...shift, endTime: e.target.value })}
+                                                        />
+                                                    </div>
+                                                    <button 
+                                                      type="button"
+                                                      onClick={(e) => {
+                                                         e.stopPropagation();
+                                                         handleRemoveShift(shift.id);
+                                                      }}
+                                                      className="absolute top-2 right-2 p-2 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 rounded-lg z-30 cursor-pointer"
+                                                      title="Remover Colaborador"
+                                                    >
+                                                       <Trash2 size={16} />
+                                                    </button>
                                                 </div>
-                                                <div className="flex items-center gap-2 text-xs text-slate-500 pl-1">
-                                                    <Clock size={12} />
-                                                    <input 
-                                                       type="time" 
-                                                       className="bg-transparent outline-none w-16"
-                                                       defaultValue={shift.startTime}
-                                                       onBlur={(e) => {
-                                                          const updated = { ...shift, startTime: e.target.value };
-                                                          onUpdateShift(updated);
-                                                       }}
-                                                    />
-                                                    <span>-</span>
-                                                    <input 
-                                                       type="time" 
-                                                       className="bg-transparent outline-none w-16"
-                                                       defaultValue={shift.endTime}
-                                                       onBlur={(e) => {
-                                                          const updated = { ...shift, endTime: e.target.value };
-                                                          onUpdateShift(updated);
-                                                       }}
-                                                    />
-                                                </div>
-                                                <button 
-                                                  onClick={() => handleRemoveShift(shift.id)}
-                                                  className="absolute top-1 right-1 p-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                >
-                                                   <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                         
-                                        {/* Add Member Button */}
+                                        {/* Add Member Button Inline */}
                                         <button 
                                            onClick={() => handleAddStaffToPosto(client.id, stationName)}
-                                           className="h-[74px] w-[60px] rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-blue-300 hover:text-blue-500 hover:bg-blue-50 transition-all gap-1"
+                                           className="w-full py-2 rounded-lg border border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-blue-300 hover:text-blue-500 hover:bg-blue-50 transition-all gap-2 text-xs font-bold"
                                         >
-                                           <Plus size={20} />
-                                           <span className="text-[9px] font-bold">ADD</span>
+                                           <Plus size={14} /> Adicionar Colaborador
                                         </button>
                                     </div>
                                 </div>
@@ -278,14 +283,14 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
 
         {/* Datalist for Staff Autocomplete */}
         <datalist id="staff-list-global">
-           {staff.map(s => (
-              <option key={s.id} value={s.id}>{s.name}</option> 
-           ))}
+            {staff.map(s => (
+               <option key={s.id} value={s.name}>{s.role}</option> 
+            ))}
         </datalist>
         {clients.map(c => (
              <datalist key={c.id} id={`staff-list-${c.id}`}>
                 {staff.map(s => (
-                   <option key={s.id} value={s.id}>{s.name}</option>
+                   <option key={s.id} value={s.name}>{s.role}</option>
                 ))}
              </datalist>
         ))}

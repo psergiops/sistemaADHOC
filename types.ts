@@ -44,7 +44,7 @@ export interface Staff {
   // New Personal Info
   birthDate?: string;
   birthPlace?: string; // Natural de
-  maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed' | 'Separated';
+  maritalStatus?: 'Solteiro(a)' | 'Casado(a)' | 'Divorciado(a)' | 'Viúvo(a)' | 'Separado(a)';
   race?: string; // Cor
   weight?: number;
   height?: number;
@@ -55,13 +55,13 @@ export interface Staff {
   educationLevel?: string; // Escolaridade
 
   // Job Details
-  role: 'Security' | 'Concierge' | 'Supervisor' | 'Diretoria' | 'RH' | 'Administração';
+  role: 'Segurança' | 'Portaria' | 'Supervisor' | 'Diretoria' | 'RH' | 'Administração';
   sector?: string; // Setor/Departamento
-  regime: 'CLT' | 'PJ' | 'Freelance';
-  contractType: 'Determined' | 'Undetermined' | 'Temporary';
+  regime: 'CLT' | 'PJ' | 'Freelancer';
+  contractType: 'Determinado' | 'Indeterminado' | 'Temporário';
   contractEndDate?: string; // Data de término para contratos determinados/temporários
   admissionDate: string;
-  preferredShifts: ('Day' | 'Night')[];
+  preferredShifts: ('Diurno' | 'Noturno')[];
   
   // Financial Details
   salary: number; // Salário base

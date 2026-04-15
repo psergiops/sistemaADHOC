@@ -202,11 +202,11 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                   <select className={inputClassName}
                     value={formData.maritalStatus} onChange={e => handleChange('maritalStatus', e.target.value)}
                   >
-                      <option value="Single">Solteiro(a)</option>
-                      <option value="Married">Casado(a)</option>
-                      <option value="Divorced">Divorciado(a)</option>
-                      <option value="Widowed">Viúvo(a)</option>
-                      <option value="Separated">Separado(a)</option>
+                      <option value="Solteiro(a)">Solteiro(a)</option>
+                      <option value="Casado(a)">Casado(a)</option>
+                      <option value="Divorciado(a)">Divorciado(a)</option>
+                      <option value="Viúvo(a)">Viúvo(a)</option>
+                      <option value="Separado(a)">Separado(a)</option>
                   </select>
                 </div>
                 <div className="space-y-1.5">
@@ -458,8 +458,8 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                           <label className="text-sm font-medium text-slate-700">Cargo</label>
                           <select className={inputClassName}
                           value={formData.role} onChange={e => handleChange('role', e.target.value)}>
-                          <option value="Security">Segurança/Vigilante</option>
-                          <option value="Concierge">Porteiro/Controlador</option>
+                          <option value="Segurança">Segurança/Vigilante</option>
+                          <option value="Portaria">Porteiro/Controlador</option>
                           <option value="Supervisor">Supervisor</option>
                           <option value="RH">Recursos Humanos</option>
                           <option value="Administração">Administração</option>
@@ -476,16 +476,16 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                           value={formData.regime} onChange={e => handleChange('regime', e.target.value)}>
                           <option value="CLT">CLT</option>
                           <option value="PJ">PJ</option>
-                          <option value="Freelance">Freelance</option>
+                          <option value="Freelancer">Freelance / Diarista</option>
                           </select>
                       </div>
                       <div className="space-y-1.5">
                           <label className="text-sm font-medium text-slate-700">Tipo de Contrato</label>
                           <select className={inputClassName}
                           value={formData.contractType} onChange={e => handleChange('contractType', e.target.value)}>
-                          <option value="Undetermined">Prazo Indeterminado</option>
-                          <option value="Determined">Prazo Determinado</option>
-                          <option value="Temporary">Temporário</option>
+                          <option value="Indeterminado">Prazo Indeterminado</option>
+                          <option value="Determinado">Prazo Determinado</option>
+                          <option value="Temporário">Temporário</option>
                           </select>
                       </div>
 

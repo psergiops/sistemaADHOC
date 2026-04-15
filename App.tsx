@@ -71,7 +71,7 @@ const App: React.FC = () => {
 
   // --- Calendar Specific State ---
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'day'>('month');
+  const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'day'>('day');
   const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -191,17 +191,27 @@ const App: React.FC = () => {
           voterId: d('voterid'), reservistCertificate: d('reservistcertificate'),
           reservistNotApplicable: d('reservistnotapplicable')
         },
-        birthDate: d('birthdate'), birthPlace: d('birthplace'), maritalStatus: d('maritalstatus'),
+        maritalStatus: (d('maritalstatus') === 'Single' ? 'Solteiro(a)' : 
+                        d('maritalstatus') === 'Married' ? 'Casado(a)' : 
+                        d('maritalstatus') === 'Divorced' ? 'Divorciado(a)' : 
+                        d('maritalstatus') === 'Widowed' ? 'Viúvo(a)' : 
+                        d('maritalstatus') === 'Separated' ? 'Separado(a)' : 
+                        d('maritalstatus')),
         race: d('race'), weight: d('weight'), height: d('height'), bloodType: d('bloodtype'),
         emergencyPhone: d('emergencyphone') || '', 
         educationLevel: d('educationlevel') || '',
-        role: d('role') || 'Setor', 
+        role: (d('role') === 'Security' ? 'Segurança' : 
+               d('role') === 'Concierge' ? 'Portaria' : 
+               d('role') || 'Setor'), 
         sector: d('sector') || '', 
-        regime: d('regime') || 'CLT', 
-        contractType: d('contracttype') || 'Indeterminado',
+        regime: (d('regime') === 'Freelance' ? 'Freelancer' : d('regime') || 'CLT'), 
+        contractType: (d('contracttype') === 'Undetermined' ? 'Indeterminado' : 
+                       d('contracttype') === 'Determined' ? 'Determinado' : 
+                       d('contracttype') === 'Temporary' ? 'Temporário' : 
+                       d('contracttype') || 'Indeterminado'),
         contractEndDate: d('contractenddate') || '', 
         admissionDate: d('admissiondate') || '',
-        preferredShifts: d('preferredshifts') || [], 
+        preferredShifts: (Array.isArray(d('preferredshifts')) ? d('preferredshifts').map((s: string) => s === 'Day' ? 'Diurno' : s === 'Night' ? 'Noturno' : s) : []), 
         salary: Number(d('salary')) || 0, 
         paymentDay: Number(d('paymentday')) || 5,
         takesAdvance: d('takesadvance') || false, 
@@ -424,9 +434,30 @@ const App: React.FC = () => {
     saveToSupabase('shifts', updatedShift);
   };
 
-  const handleDeleteShift = (id: string) => {
-    setShifts(prev => prev.filter(s => s.id !== id));
-    if (isSupabaseConfigured) supabase.from('shifts').delete().eq('id', id);
+  const handleDeleteShift = async (id: string) => {
+     try {
+       console.log('[DEBUG] App: Deletando turno', id);
+       // SEMPRE filtra o estado local imediatamente
+       setShifts(prev => {
+          const filtered = prev.filter(s => s.id !== id);
+          console.log('[DEBUG] App: Estado filtrado de', prev.length, 'para', filtered.length);
+          return filtered;
+       });
+       
+       if (isSupabaseConfigured) {
+          // IDs temporários começam com 'temp-' ou 'sh-' e Date.now
+          if (id.startsWith('sh-') || id.startsWith('temp-')) {
+            console.log('[DEBUG] App: ID local detectado, pulando DELETE do DB');
+            return;
+          }
+          const { error } = await supabase.from('shifts').delete().eq('id', id);
+          if (error) {
+             console.warn('[DEBUG] App: Erro ao excluir do Supabase (ignorado):', error.message);
+          }
+       }
+     } catch (err) {
+       console.error('Erro ao deletar escala:', err);
+     }
   };
 
   const handleAddStaff = async (staffData: Staff) => {
