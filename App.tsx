@@ -545,14 +545,25 @@ const App: React.FC = () => {
       case 'home':
         return (
           <div className="flex-1 flex flex-col items-center justify-center bg-[#EBEBEB] p-8 text-center animate-in fade-in zoom-in duration-500">
-             <div className="w-24 h-24 bg-slate-900 rounded-2xl flex items-center justify-center mb-8 shadow-xl">
-                <span className="text-4xl font-black text-white italic tracking-tighter">H</span>
+             <div className="w-20 h-20 bg-white border border-slate-200 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-slate-300">
+                <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-red-600">
+                  <defs>
+                    <mask id="target-mask-home">
+                      <rect x="0" y="0" width="100" height="100" fill="white" />
+                      <rect x="43" y="0" width="14" height="100" fill="black" />
+                      <rect x="0" y="43" width="100" height="14" fill="black" />
+                    </mask>
+                  </defs>
+                  <g mask="url(#target-mask-home)">
+                    <circle cx="50" cy="50" r="24" stroke="currentColor" strokeWidth="12" />
+                    <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="12" />
+                  </g>
+                </svg>
              </div>
-             <h1 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">
-               Bem vindo ao ADHOC
-             </h1>
-             <p className="text-xl text-slate-600 font-medium">
-               Olá, <span className="text-blue-600 font-bold">{currentUser?.name || 'Usuário'}</span>
+             <h1 className="text-4xl font-serif font-bold text-slate-900 mb-2 tracking-tight">AD-HOC</h1>
+             <p className="text-sm text-slate-400 font-medium uppercase tracking-[0.2em] mb-6">Developed by Underdog AID</p>
+             <p className="text-xl text-slate-600 font-medium mt-4">
+               Olá, <span className="text-red-600 font-bold">{currentUser?.name || 'Usuário'}</span>
              </p>
              <div className="mt-12 max-w-md text-slate-400 text-sm">
                Selecione um módulo no menu lateral para começar as operações.
