@@ -471,57 +471,68 @@ const App: React.FC = () => {
   };
 
   const handleBulkAddStaff = async (list: Staff[]) => {
-    let finalStaffList = [...list];
-    
-    console.log("[DEBUG] Supabase Configurado:", isSupabaseConfigured);
-    console.log("[DEBUG] Admin Client existe?", !!supabaseAdmin);
-
-    if (isSupabaseConfigured && supabaseAdmin) {
-      const createLogins = confirm(`Deseja criar automaticamente os acessos (logins) para estes ${list.length} colaboradores?\n\nA senha padrão será os 4 primeiros dígitos do CPF.`);
+    try {
+      alert(`[PASSO 1] Verificando configuração... (Colaboradores: ${list.length})`);
       
-      if (createLogins) {
-        console.log("🚀 Iniciando criação de logins em lote...");
-        const updatedList: Staff[] = [];
-        
-        for (const staffMember of list) {
-          try {
-            const cleanCpf = staffMember.documents.cpf.replace(/\D/g, '');
-            let password = cleanCpf.substring(0, 4); // Usando 4 dígitos do CPF como senha inicial
-            if (password.length < 4) password = password.padEnd(4, '0');
-
-            // Cria o usuário no Supabase Auth usando a Service Role
-            const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-              email: staffMember.email,
-              password: password,
-              email_confirm: true,
-              user_metadata: { 
-                name: staffMember.name, 
-                role: staffMember.role,
-                must_change_password: true,
-                initial_password: password // Mantemos para validação na troca
-              }
-            });
-
-            if (authError) {
-              console.error(`Erro ao criar Auth para ${staffMember.email}:`, authError.message);
-              updatedList.push(staffMember); 
-            } else if (authData.user) {
-              console.log(`✅ Login criado para ${staffMember.email}`);
-              updatedList.push({ ...staffMember, id: authData.user.id });
-            }
-          } catch (err) {
-            updatedList.push(staffMember);
-          }
-        }
-        finalStaffList = updatedList;
+      let finalStaffList = [...list];
+      
+      if (!isSupabaseConfigured) {
+        alert("⚠️ Supabase não configurado. Abortando criação de logins.");
+        setStaff(prev => [...prev, ...finalStaffList]);
+        return;
       }
-    } else {
-      alert("⚠️ Atenção: A chave de Administrador (Service Role) não foi detectada. Os funcionários serão salvos na tabela, mas os LOGINS de acesso não serão criados.\n\nVerifique o arquivo .env.local e reinicie o servidor.");
-    }
 
-    setStaff(prev => [...prev, ...finalStaffList]);
-    await saveToSupabase('staff', finalStaffList);
-    alert(`${finalStaffList.length} colaboradores processados com sucesso!`);
+      if (!supabaseAdmin) {
+        alert("⚠️ Chave Service Role (Admin) não encontrada! Verifique o .env.local e reinicie o servidor.\n\nSomente a tabela será atualizada.");
+      } else {
+        const createLogins = confirm(`Deseja criar automaticamente os logins para estes ${list.length} colaboradores?`);
+        
+        if (createLogins) {
+          alert("[PASSO 2] Iniciando criação de logins Auth...");
+          const updatedList: Staff[] = [];
+          
+          for (const staffMember of list) {
+            try {
+              const cleanCpf = staffMember.documents.cpf.replace(/\D/g, '');
+              let password = cleanCpf.substring(0, 4);
+              if (password.length < 4) password = password.padEnd(4, '0');
+
+              const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+                email: staffMember.email,
+                password: password,
+                email_confirm: true,
+                user_metadata: { 
+                  name: staffMember.name, 
+                  role: staffMember.role,
+                  must_change_password: true,
+                  initial_password: password
+                }
+              });
+
+              if (authError) {
+                console.error(`Erro Auth para ${staffMember.email}:`, authError.message);
+                updatedList.push(staffMember); 
+              } else if (authData.user) {
+                updatedList.push({ ...staffMember, id: authData.user.id });
+              }
+            } catch (err) {
+              updatedList.push(staffMember);
+            }
+          }
+          finalStaffList = updatedList;
+          alert("[PASSO 3] Criação de logins finalizada.");
+        }
+      }
+
+      alert("[PASSO 4] Salvando dados na tabela staff...");
+      setStaff(prev => [...prev, ...finalStaffList]);
+      await saveToSupabase('staff', finalStaffList);
+      alert("✅ FIM: Processo concluído com sucesso!");
+
+    } catch (error: any) {
+      alert(`❌ ERRO CRÍTICO NA IMPORTAÇÃO: ${error.message}`);
+      console.error(error);
+    }
   };
 
   // --- Render ---

@@ -57,6 +57,7 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
   };
 
   const handleImportStaff = (data: any[]) => {
+    alert(`Iniciando processamento de planilha com ${data.length} linhas...`);
     let currentMax = getNextCode(staff);
     const staffToImport: Staff[] = [];
 
