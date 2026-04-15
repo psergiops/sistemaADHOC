@@ -45,8 +45,21 @@ serve(async (req) => {
       })
 
       if (error) {
-        console.error(`❌ Erro ao criar ${user.email}:`, error.message)
-        results.push({ email: user.email, status: 'error', message: error.message })
+        // Se o erro for que o usuário já existe, vamos tentar buscar o ID dele
+        if (error.message.includes('already exists') || error.status === 422) {
+          const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers()
+          const existingUser = listData?.users.find(u => u.email === user.email)
+          
+          if (existingUser) {
+            console.log(`🔗 Usuário já existia, vinculado ID: ${user.email}`)
+            results.push({ email: user.email, status: 'success', id: existingUser.id })
+          } else {
+            results.push({ email: user.email, status: 'error', message: error.message })
+          }
+        } else {
+          console.error(`❌ Erro ao criar ${user.email}:`, error.message)
+          results.push({ email: user.email, status: 'error', message: error.message })
+        }
       } else {
         console.log(`✅ Usuário criado: ${user.email}`)
         results.push({ email: user.email, status: 'success', id: data.user.id })
