@@ -90,7 +90,8 @@ CREATE TABLE staff (
     -- Parentesco
     fathername text,
     mothername text,
-    dependents jsonb DEFAULT '[]'::jsonb
+    dependents jsonb DEFAULT '[]'::jsonb,
+    isactive boolean DEFAULT true
 );
 ALTER TABLE staff DISABLE ROW LEVEL SECURITY;
 
