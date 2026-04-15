@@ -5,6 +5,7 @@ import LoginView from './components/LoginView';
 import ChangePasswordView from './components/ChangePasswordView';
 import Sidebar from './components/Sidebar';
 import TeamView from './components/TeamView';
+import ClientView from './components/ClientView';
 import FinancialView from './components/FinancialView';
 import HRPortalView from './components/HRPortalView';
 import ChecklistView from './components/ChecklistView';
