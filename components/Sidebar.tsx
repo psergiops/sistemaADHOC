@@ -23,7 +23,7 @@ import {
 import { Staff, PermissionConfig, AppModule } from '../types';
 
 interface SidebarProps {
-  currentView: 'calendar' | 'team' | 'clients' | 'suppliers' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory';
+  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'suppliers' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory';
   onNavigate: (view: any) => void;
   onLogout: () => void;
   onOpenHelp: () => void; // New Prop
@@ -114,7 +114,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
         md:translate-x-0 md:static
       `}>
         {/* Header - Fixed at top */}
-        <div className="shrink-0 p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-[#EBEBEB] dark:bg-slate-800 transition-colors duration-200">
+        <div 
+          className="shrink-0 p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-[#EBEBEB] dark:bg-slate-800 transition-colors duration-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/50"
+          onClick={() => handleNavClick('home')}
+        >
           <div className="flex items-center gap-3">
             <div className="bg-[#EBEBEB] dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
               <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-red-600">
