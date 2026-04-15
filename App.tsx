@@ -187,32 +187,43 @@ const App: React.FC = () => {
         },
         birthDate: d('birthdate'), birthPlace: d('birthplace'), maritalStatus: d('maritalstatus'),
         race: d('race'), weight: d('weight'), height: d('height'), bloodType: d('bloodtype'),
-        emergencyPhone: d('emergencyphone'), educationLevel: d('educationlevel'),
-        role: d('role'), sector: d('sector'), regime: d('regime'), contractType: d('contracttype'),
-        contractEndDate: d('contractenddate'), admissionDate: d('admissiondate'),
-        preferredShifts: d('preferredshifts') || [], salary: d('salary'), paymentDay: d('paymentday'),
-        takesAdvance: d('takesadvance'), advanceValue: d('advancevalue'), advanceDay: d('advanceday'),
-        fatherName: d('fathername'), motherName: d('mothername'), dependents: d('dependents') || []
+        emergencyPhone: d('emergencyphone') || '', 
+        educationLevel: d('educationlevel') || '',
+        role: d('role') || 'Setor', 
+        sector: d('sector') || '', 
+        regime: d('regime') || 'CLT', 
+        contractType: d('contracttype') || 'Indeterminado',
+        contractEndDate: d('contractenddate') || '', 
+        admissionDate: d('admissiondate') || '',
+        preferredShifts: d('preferredshifts') || [], 
+        salary: Number(d('salary')) || 0, 
+        paymentDay: Number(d('paymentday')) || 5,
+        takesAdvance: d('takesadvance') || false, 
+        advanceValue: Number(d('advancevalue')) || 0, 
+        advanceDay: Number(d('advanceday')) || 20,
+        fatherName: d('fathername') || '', 
+        motherName: d('mothername') || '', 
+        dependents: d('dependents') || []
       } as Staff;
     }
 
     if (table === 'clients') {
       return {
-        id: d('id'),
-        code: d('code'),
-        name: d('name'),
-        contactPerson: d('contactperson'),
-        email: d('email'),
-        phone: d('phone'),
-        avatar: d('avatar'),
+        id: d('id') || `cli-${Date.now()}`,
+        code: d('code') || '',
+        name: d('name') || 'Empresa sem nome',
+        contactPerson: d('contactperson') || '',
+        email: d('email') || '',
+        phone: d('phone') || '',
+        avatar: d('avatar') || '',
         address,
         serviceType: d('servicetype') || 'Geral',
         contractValue: Number(d('contractvalue')) || 0,
         contractStartDate: d('contractstartdate') || '',
         paymentDay: d('paymentday') || 5,
-        isActive: d('isactive'),
-        notes: d('notes'),
-        requiredStaffCount: d('requiredstaffcount'),
+        isActive: d('isactive') !== false, // Default to true if not explicitly false
+        notes: d('notes') || '',
+        requiredStaffCount: Number(d('requiredstaffcount')) || 0,
         assignedStaffIds: d('assignedstaffids') || []
       } as Client;
     }

@@ -22,9 +22,9 @@ const ClientView: React.FC<ClientViewProps> = ({ clients, staff, onAddClient, on
   const [editingClient, setEditingClient] = useState<Client | null>(null);
 
   const filteredClients = clients.filter(c => 
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.code?.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.contactPerson || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.code || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddNewClick = () => {
