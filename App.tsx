@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { supabase, isSupabaseConfigured, createStaffAuthClient } from './lib/supabaseClient';
 import LoginView from './components/LoginView';
 import ChangePasswordView from './components/ChangePasswordView';
@@ -78,6 +78,7 @@ const App: React.FC = () => {
 
   // --- System Modals State ---
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<string>('all');
 
   // --- MAPPERS: DB (Lowercase) <-> APP (CamelCase) ---
 

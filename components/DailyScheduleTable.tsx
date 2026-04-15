@@ -17,6 +17,7 @@ interface DailyScheduleTableProps {
   onAddShift: (shift: Shift) => void;
   onUpdateShift: (shift: Shift) => void;
   onDeleteShift: (id: string) => void;
+  selectedClientId: string;
 }
 
 const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
@@ -27,13 +28,19 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
   clients,
   onAddShift,
   onUpdateShift,
-  onDeleteShift
+  onDeleteShift,
+  selectedClientId
 }) => {
   const dateKey = format(currentDate, 'yyyy-MM-dd');
   const [editingPostoId, setEditingPostoId] = useState<string | null>(null);
 
   // Filter shifts for the current day
   const dailyShifts = shifts.filter(s => s.date === dateKey);
+
+  // Filter clients based on global selection
+  const filteredClients = selectedClientId === 'all' 
+    ? clients 
+    : clients.filter(c => c.id === selectedClientId);
 
   const handlePrevDay = () => onDateChange(subDays(currentDate, 1));
   const handleNextDay = () => onDateChange(addDays(currentDate, 1));
@@ -131,14 +138,14 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
 
       {/* Main Items List - Now expands naturally */}
       <div className="p-4 md:p-6 flex flex-col gap-4">
-        {clients.length === 0 && (
+        {filteredClients.length === 0 && (
            <div className="text-center text-slate-400 py-10">
               <Building2 size={48} className="mx-auto mb-2 opacity-20"/>
               <p>Nenhum condomínio cadastrado.</p>
            </div>
         )}
 
-        {clients.map(client => {
+        {filteredClients.map(client => {
           // Get all shifts for this client today
           const clientShifts = dailyShifts.filter(s => s.locationId === client.id);
           

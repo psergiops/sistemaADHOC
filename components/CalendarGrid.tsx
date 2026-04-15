@@ -22,6 +22,7 @@ interface CalendarGridProps {
   staff: Staff[];
   onShiftClick: (shift: Shift) => void;
   onDayClick: (date: Date) => void;
+  selectedClientId: string;
 }
 
 const CalendarGrid: React.FC<CalendarGridProps> = ({ 
@@ -29,7 +30,8 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   shifts, 
   staff,
   onShiftClick,
-  onDayClick
+  onDayClick,
+  selectedClientId
 }) => {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -43,7 +45,11 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   const getShiftsForDay = (date: Date) => {
-    return shifts.filter(shift => isSameDay(parseISO(shift.date), date));
+    return shifts.filter(shift => {
+      const isDayMatch = isSameDay(parseISO(shift.date), date);
+      const isClientMatch = selectedClientId === 'all' || shift.locationId === selectedClientId;
+      return isDayMatch && isClientMatch;
+    });
   };
 
   const getStaffName = (id: string) => staff.find(s => s.id === id)?.name || 'Unknown';
