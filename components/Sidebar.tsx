@@ -23,7 +23,7 @@ import {
 import { Staff, PermissionConfig, AppModule } from '../types';
 
 interface SidebarProps {
-  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'suppliers' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory';
+  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory';
   onNavigate: (view: any) => void;
   onLogout: () => void;
   onOpenHelp: () => void; // New Prop
@@ -249,16 +249,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {/* 11. Fornecedores */}
-              {canAccess('suppliers') && (
-                <NavItem 
-                  icon={<Truck size={20}/>} 
-                  label="Fornecedores" 
-                  active={currentView === 'suppliers'} 
-                  onClick={() => handleNavClick('suppliers')}
-                />
-              )}
-              
+               
               <div className="pt-6 pb-2">
                 <p className="px-4 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Sistema</p>
               </div>

@@ -106,22 +106,6 @@ export interface Client {
   assignedStaffIds?: string[];
 }
 
-export interface Supplier {
-  id: string;
-  code: string; // Sequential code
-  name: string;
-  category: string; // ex: Uniformes, Equipamentos, Limpeza
-  contactPerson: string;
-  email: string;
-  phone: string;
-  address: Address;
-  notes?: string;
-  
-  // Recurring Contract Details
-  isRecurring?: boolean;
-  contractValue?: number;
-  paymentDay?: number;
-}
 
 export type TransactionType = 'income' | 'expense';
 
@@ -368,7 +352,7 @@ export interface ShiftCheckin {
 // --- Audit Log Types ---
 
 export type AuditAction = 'Create' | 'Update' | 'Delete';
-export type AuditCategory = 'Equipe' | 'Clientes' | 'Fornecedores' | 'Escala' | 'Financeiro' | 'Estoque';
+export type AuditCategory = 'Equipe' | 'Clientes' | 'Escala' | 'Financeiro' | 'Estoque';
 
 export interface AuditLog {
   id: string;
@@ -384,7 +368,7 @@ export interface AuditLog {
 
 // --- Access Control / Permissions Types ---
 
-export type AppModule = 'calendar' | 'team' | 'clients' | 'suppliers' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory';
+export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory';
 
 export interface ModulePermissions {
   view: string[];

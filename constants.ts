@@ -1,5 +1,5 @@
 
-import { Staff, Shift, Client, Supplier, Transaction, Paystub, Announcement, DataChangeRequest, VehicleChecklist, Patrol, PermissionConfig, Post, EntryLog, GuestList, Reservation, AuditLog, MaterialRequest, InventoryItem, InventoryMovement } from './types';
+import { Staff, Shift, Client, Transaction, Paystub, Announcement, DataChangeRequest, VehicleChecklist, Patrol, PermissionConfig, Post, EntryLog, GuestList, Reservation, AuditLog, MaterialRequest, InventoryItem, InventoryMovement } from './types';
 import { subDays, format, subHours, addDays } from 'date-fns';
 
 export const MOCK_STAFF: Staff[] = [
@@ -164,33 +164,6 @@ export const MOCK_CLIENTS: Client[] = [
     isActive: true,
     requiredStaffCount: 8,
     assignedStaffIds: ['stf-4']
-  }
-];
-
-export const MOCK_SUPPLIERS: Supplier[] = [
-  {
-    id: 'sup-1',
-    code: '0001',
-    name: 'SegurEquip LTDA',
-    category: 'Equipamentos',
-    contactPerson: 'Marcos Vendas',
-    email: 'vendas@segurequip.com',
-    phone: '(11) 5555-0000',
-    address: { street: 'Av. Industrial', number: '500', district: 'Barra Funda', city: 'São Paulo', state: 'SP', zipCode: '01100-000' },
-    isRecurring: false
-  },
-  {
-    id: 'sup-2',
-    code: '0002',
-    name: 'Uniforme & Cia',
-    category: 'Uniformes',
-    contactPerson: 'Julia Silva',
-    email: 'contato@uniformecia.com',
-    phone: '(11) 5555-1111',
-    address: { street: 'Rua da Moda', number: '20', district: 'Bom Retiro', city: 'São Paulo', state: 'SP', zipCode: '01120-000' },
-    isRecurring: true,
-    contractValue: 1200.00,
-    paymentDay: 10
   }
 ];
 
@@ -562,10 +535,6 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     edit: ['Diretoria', 'Administração', 'RH']
   },
   clients: {
-    view: ['Diretoria', 'Administração', 'Supervisor'],
-    edit: ['Diretoria', 'Administração']
-  },
-  suppliers: {
     view: ['Diretoria', 'Administração', 'Supervisor'],
     edit: ['Diretoria', 'Administração']
   },

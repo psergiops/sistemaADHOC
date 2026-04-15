@@ -5,8 +5,6 @@ import LoginView from './components/LoginView';
 import ChangePasswordView from './components/ChangePasswordView';
 import Sidebar from './components/Sidebar';
 import TeamView from './components/TeamView';
-import ClientView from './components/ClientView';
-import SupplierView from './components/SupplierView';
 import FinancialView from './components/FinancialView';
 import HRPortalView from './components/HRPortalView';
 import ChecklistView from './components/ChecklistView';
@@ -24,14 +22,14 @@ import ShiftCheckinReportModal from './components/ShiftCheckinReportModal';
 import HelpCenterModal from './components/HelpCenterModal';
 
 import {
-  Staff, Client, Shift, Supplier, Transaction, Paystub, Announcement,
+  Staff, Client, Shift, Transaction, Paystub, Announcement,
   DataChangeRequest, VehicleChecklist, Patrol, Post, EntryLog, GuestList,
   Reservation, MaterialRequest, InventoryItem, InventoryMovement, AuditLog,
   PermissionConfig
 } from './types';
 
 import {
-  MOCK_STAFF, MOCK_CLIENTS, INITIAL_SHIFTS, MOCK_SUPPLIERS, MOCK_TRANSACTIONS,
+  MOCK_STAFF, MOCK_CLIENTS, INITIAL_SHIFTS, MOCK_TRANSACTIONS,
   MOCK_PAYSTUBS, MOCK_ANNOUNCEMENTS, MOCK_CHANGE_REQUESTS, MOCK_CHECKLISTS,
   MOCK_PATROLS, MOCK_POSTS, MOCK_ENTRY_LOGS, MOCK_GUEST_LISTS, MOCK_RESERVATIONS,
   MOCK_MATERIAL_REQUESTS, MOCK_INVENTORY_ITEMS, MOCK_INVENTORY_MOVEMENTS,
@@ -54,7 +52,6 @@ const App: React.FC = () => {
   const [staff, setStaff] = useState<Staff[]>(isSupabaseConfigured ? [] : MOCK_STAFF);
   const [clients, setClients] = useState<Client[]>(isSupabaseConfigured ? [] : MOCK_CLIENTS);
   const [shifts, setShifts] = useState<Shift[]>(isSupabaseConfigured ? [] : INITIAL_SHIFTS);
-  const [suppliers, setSuppliers] = useState<Supplier[]>(isSupabaseConfigured ? [] : MOCK_SUPPLIERS);
   const [transactions, setTransactions] = useState<Transaction[]>(isSupabaseConfigured ? [] : MOCK_TRANSACTIONS);
   const [paystubs, setPaystubs] = useState<Paystub[]>(isSupabaseConfigured ? [] : MOCK_PAYSTUBS);
   const [announcements, setAnnouncements] = useState<Announcement[]>(isSupabaseConfigured ? [] : MOCK_ANNOUNCEMENTS);
@@ -220,22 +217,6 @@ const App: React.FC = () => {
       } as Client;
     }
 
-    if (table === 'suppliers') {
-      return {
-        id: d('id'),
-        code: d('code'),
-        name: d('name'),
-        category: d('category'),
-        contactPerson: d('contactperson'),
-        email: d('email'),
-        phone: d('phone'),
-        address,
-        notes: d('notes'),
-        isRecurring: d('isrecurring'),
-        contractValue: d('contractvalue'),
-        paymentDay: d('paymentday')
-      } as Supplier;
-    }
 
     return data;
   };
@@ -308,9 +289,6 @@ const App: React.FC = () => {
 
           const { data: clientData } = await supabase.from('clients').select('*');
           if (clientData) setClients(clientData.map(d => unflattenData('clients', d)));
-
-          const { data: supplierData } = await supabase.from('suppliers').select('*');
-          if (supplierData) setSuppliers(supplierData.map(d => unflattenData('suppliers', d)));
 
           const { data: shiftData } = await supabase.from('shifts').select('*');
           if (shiftData) setShifts(shiftData.map(mapShiftFromDB));
@@ -651,10 +629,8 @@ const App: React.FC = () => {
         return <TeamView staff={staff} onAddStaff={handleAddStaff} onBulkAddStaff={handleBulkAddStaff} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'clients':
         return <ClientView clients={clients} staff={staff} onAddClient={(c) => { setClients([...clients, c]); saveToSupabase('clients', c); }} onBulkAddClients={(list) => { setClients([...clients, ...list]); saveToSupabase('clients', list); }} onUpdateClient={(c) => { setClients(clients.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('clients', c); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
-      case 'suppliers':
-        return <SupplierView suppliers={suppliers} onAddSupplier={(s) => { setSuppliers([...suppliers, s]); saveToSupabase('suppliers', s); }} onBulkAddSuppliers={(list) => { setSuppliers([...suppliers, ...list]); saveToSupabase('suppliers', list); }} onUpdateSupplier={(s) => { setSuppliers(suppliers.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('suppliers', s); }} onDeleteSupplier={(id) => { setSuppliers(suppliers.filter(s => s.id !== id)); if (isSupabaseConfigured) supabase.from('suppliers').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'financial':
-        return <FinancialView transactions={transactions} clients={clients} suppliers={suppliers} staff={staff} onAddTransaction={(t) => { setTransactions([...transactions, t]); saveToSupabase('transactions', t); }} onUpdateTransaction={(t) => { setTransactions(transactions.map(ex => ex.id === t.id ? t : ex)); saveToSupabase('transactions', t); }} onDeleteTransaction={(id) => { setTransactions(transactions.filter(t => t.id !== id)); if (isSupabaseConfigured) supabase.from('transactions').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <FinancialView transactions={transactions} clients={clients} staff={staff} onAddTransaction={(t) => { setTransactions([...transactions, t]); saveToSupabase('transactions', t); }} onUpdateTransaction={(t) => { setTransactions(transactions.map(ex => ex.id === t.id ? t : ex)); saveToSupabase('transactions', t); }} onDeleteTransaction={(id) => { setTransactions(transactions.filter(t => t.id !== id)); if (isSupabaseConfigured) supabase.from('transactions').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'portal':
         return <HRPortalView staff={staff} shifts={shifts} clients={clients} paystubs={paystubs} announcements={announcements} changeRequests={changeRequests} materialRequests={materialRequests} onAddPaystub={(p) => { setPaystubs([...paystubs, p]); saveToSupabase('paystubs', p); }} onAddAnnouncement={(a) => { setAnnouncements([a, ...announcements]); saveToSupabase('announcements', a); }} onRequestChange={(req) => { setChangeRequests([...changeRequests, req]); saveToSupabase('change_requests', req); }} onManageRequest={(id, status, just) => { const updated = changeRequests.map(r => r.id === id ? { ...r, status, hrJustification: just, resolvedAt: new Date().toISOString() } : r); setChangeRequests(updated); const req = updated.find(r => r.id === id); if (req) saveToSupabase('change_requests', req); }} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onUpdateMaterialRequest={(req) => { setMaterialRequests(materialRequests.map(m => m.id === req.id ? req : m)); saveToSupabase('material_requests', req); }} currentUser={currentUser} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'checklist':

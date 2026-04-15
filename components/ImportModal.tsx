@@ -1,9 +1,9 @@
 
 import React, { useState, useRef } from 'react';
 import { X, Download, Upload, FileSpreadsheet, Check, AlertCircle } from 'lucide-react';
-import { Staff, Client, Supplier } from '../types';
+import { Staff, Client } from '../types';
 
-type ImportType = 'staff' | 'client' | 'supplier';
+type ImportType = 'staff' | 'client';
 
 interface ImportModalProps {
   isOpen: boolean;
@@ -47,11 +47,6 @@ const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, onImport, ty
       keys: ['name', 'contactPerson', 'email', 'phone', 'zipCode', 'street', 'contractValue'],
       sample: 'Condominio Solar;Maria Souza;síndico@solar.com;(11)3333-3333;01000-000;Rua das Flores, 123;5000'
     },
-    supplier: {
-      title: 'Importar Fornecedores',
-      headers: ['Nome Empresa', 'Categoria', 'Responsavel', 'Email', 'Telefone'],
-      keys: ['name', 'category', 'contactPerson', 'email', 'phone'],
-      sample: 'Limpeza Total;Limpeza;Carlos;contato@limpeza.com;(11)5555-5555'
     }
   };
 

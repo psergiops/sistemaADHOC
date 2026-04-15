@@ -26,7 +26,6 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
     { key: 'checklist', label: 'Vistoria' },
     { key: 'inventory', label: 'Estoque' },
     { key: 'social', label: 'Social' },
-    { key: 'suppliers', label: 'Fornecedores' },
     { key: 'financial', label: 'Financeiro' },
     { key: 'portal', label: 'Portal RH' },
     { key: 'settings', label: 'Configurações' },

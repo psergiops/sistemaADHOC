@@ -8,6 +8,7 @@ interface ClientFormModalProps {
   onSave: (client: Client) => void;
   clientToEdit?: Client | null;
   staffList: Staff[];
+  clients: Client[];
 }
 
 const INITIAL_FORM_STATE: Partial<Client> = {
@@ -28,7 +29,7 @@ const INITIAL_FORM_STATE: Partial<Client> = {
   assignedStaffIds: []
 };
 
-const ClientFormModal: React.FC<ClientFormModalProps> = ({ isOpen, onClose, onSave, clientToEdit, staffList }) => {
+const ClientFormModal: React.FC<ClientFormModalProps> = ({ isOpen, onClose, onSave, clientToEdit, staffList, clients }) => {
   const [activeTab, setActiveTab] = useState<'info' | 'address' | 'contract'>('info');
   const [formData, setFormData] = useState<Partial<Client>>(INITIAL_FORM_STATE);
   const [staffSearchTerm, setStaffSearchTerm] = useState('');
@@ -72,9 +73,25 @@ const ClientFormModal: React.FC<ClientFormModalProps> = ({ isOpen, onClose, onSa
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    let clientCode = formData.code;
+    
+    // Auto-generate code if missing (new client)
+    if (!clientCode && !clientToEdit) {
+      let max = 0;
+      clients.forEach(c => {
+        if (c.code) {
+          const val = parseInt(c.code, 10);
+          if (!isNaN(val) && val > max) max = val;
+        }
+      });
+      clientCode = (max + 1).toString().padStart(4, '0');
+    }
+
     const newClient = {
       ...formData,
       id: clientToEdit ? clientToEdit.id : `cli-${Date.now()}`,
+      code: clientCode
     } as Client;
     
     onSave(newClient);

@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Transaction, Client, Supplier, Staff } from '../types';
+import { Transaction, Client, Staff } from '../types';
 import { 
     Plus, Search, TrendingUp, TrendingDown, DollarSign, 
     Trash2, ArrowUpRight, ArrowDownRight, Calendar, Filter, X, CheckCircle2, Clock, RotateCcw,
@@ -12,7 +12,6 @@ import { ptBR } from 'date-fns/locale';
 interface FinancialViewProps {
   transactions: Transaction[];
   clients: Client[];
-  suppliers: Supplier[];
   staff: Staff[];
   onAddTransaction: (t: Transaction) => void;
   onUpdateTransaction: (t: Transaction) => void;
@@ -30,7 +29,6 @@ interface UnifiedItem extends Transaction {
 const FinancialView: React.FC<FinancialViewProps> = ({ 
     transactions, 
     clients, 
-    suppliers,
     staff,
     onAddTransaction,
     onUpdateTransaction,
@@ -94,34 +92,8 @@ const FinancialView: React.FC<FinancialViewProps> = ({
         });
     });
 
-    // 3. Projected Expense (Recurring Suppliers)
+    // 3. Projected Expense (Recurring Suppliers) - REMOVIDO
     const projectedExpense: UnifiedItem[] = [];
-    monthsInRange.forEach(monthDate => {
-        suppliers.filter(s => s.isRecurring).forEach(supplier => {
-             const exists = realItems.find(t => 
-                t.relatedSupplierId === supplier.id && 
-                isSameMonth(parseISO(t.date), monthDate)
-            );
-
-            if (!exists && supplier.contractValue && supplier.paymentDay) {
-                 const projectedDate = setDate(monthDate, supplier.paymentDay);
-                 if (isWithinInterval(projectedDate, { start, end })) {
-                    projectedExpense.push({
-                        id: `proj-sup-${supplier.id}-${format(monthDate, 'yyyy-MM')}`,
-                        description: `Contrato - ${supplier.name}`,
-                        amount: supplier.contractValue,
-                        type: 'expense',
-                        date: format(projectedDate, 'yyyy-MM-dd'),
-                        category: supplier.category,
-                        status: 'pending',
-                        relatedSupplierId: supplier.id,
-                        isProjected: true,
-                        sourceName: supplier.name
-                    });
-                 }
-            }
-        });
-    });
 
     // 4. Projected Staff Expenses (Salary & Advances)
     const projectedStaff: UnifiedItem[] = [];
@@ -207,7 +179,7 @@ const FinancialView: React.FC<FinancialViewProps> = ({
     // Sort Descending for List View, Ascending for Cash Flow logic
     return combined.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  }, [transactions, clients, suppliers, staff, dateRange, filterType, searchTerm]);
+  }, [transactions, clients, staff, dateRange, filterType, searchTerm]);
 
   // --- Cash Flow Logic (Chronological Order + Running Balance) ---
   const cashFlowList = useMemo(() => {
@@ -249,12 +221,6 @@ const FinancialView: React.FC<FinancialViewProps> = ({
         clients.filter(c => c.isActive).forEach(c => {
              const hasTx = monthlyTransactions.find(t => t.relatedClientId === c.id);
              if(!hasTx) income += c.contractValue;
-        });
-
-        // Add Recurring Expense (Suppliers)
-        suppliers.filter(s => s.isRecurring && s.contractValue).forEach(s => {
-             const hasTx = monthlyTransactions.find(t => t.relatedSupplierId === s.id);
-             if(!hasTx) expense += (s.contractValue || 0);
         });
 
         // Add Recurring Expense (Staff Payroll) - Simple Projection for Chart
