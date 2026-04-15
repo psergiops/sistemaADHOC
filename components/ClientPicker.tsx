@@ -1,0 +1,144 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, ChevronDown, Building2, X, Check } from 'lucide-react';
+import { Client } from '../types';
+
+interface ClientPickerProps {
+  clients: Client[];
+  selectedClientId: string;
+  onSelect: (id: string) => void;
+  placeholder?: string;
+}
+
+const ClientPicker: React.FC<ClientPickerProps> = ({
+  clients,
+  selectedClientId,
+  onSelect,
+  placeholder = "Filtrar condomínio..."
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const selectedClient = clients.find(c => c.id === selectedClientId);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredClients = clients.filter(c => 
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {/* Trigger Button */}
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all cursor-pointer select-none min-w-[240px]
+          ${isOpen 
+            ? 'bg-white border-blue-500 shadow-lg shadow-blue-100 ring-2 ring-blue-50' 
+            : 'bg-slate-100 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-md'
+          }`}
+      >
+        <div className={`p-1.5 rounded-lg ${selectedClientId === 'all' ? 'bg-slate-200 text-slate-500' : 'bg-blue-100 text-blue-600'}`}>
+          <Building2 size={16} />
+        </div>
+        
+        <div className="flex-1 overflow-hidden">
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Unidade / Cliente</p>
+          <p className="text-sm font-bold text-slate-700 truncate">
+            {selectedClientId === 'all' ? 'Todos os Condomínios' : selectedClient?.name}
+          </p>
+        </div>
+
+        <ChevronDown size={18} className={`text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
+      </div>
+
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          
+          {/* Search Header */}
+          <div className="p-3 border-b border-slate-100 bg-slate-50/50">
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                autoFocus
+                type="text"
+                placeholder="Pesquisar por nome ou código..."
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+              {searchTerm && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setSearchTerm(''); }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Options List */}
+          <div className="max-h-[320px] overflow-y-auto py-2 custom-scrollbar">
+            {/* "All" Option */}
+            <div 
+              onClick={() => { onSelect('all'); setIsOpen(false); setSearchTerm(''); }}
+              className={`flex items-center justify-between px-4 py-2.5 mx-2 rounded-lg cursor-pointer transition-colors
+                ${selectedClientId === 'all' ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50 text-slate-600'}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 rounded-full ${selectedClientId === 'all' ? 'bg-blue-600' : 'bg-slate-300'}`} />
+                <span className="text-sm font-bold">Todos os Condomínios</span>
+              </div>
+              {selectedClientId === 'all' && <Check size={16} />}
+            </div>
+
+            <div className="h-px bg-slate-100 my-2" />
+
+            {/* Clients */}
+            {filteredClients.length > 0 ? (
+              filteredClients.map((client) => (
+                <div 
+                  key={client.id}
+                  onClick={() => { onSelect(client.id); setIsOpen(false); setSearchTerm(''); }}
+                  className={`flex items-center justify-between px-4 py-2.5 mx-2 rounded-lg cursor-pointer transition-colors mb-0.5
+                    ${selectedClientId === client.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50 text-slate-600'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+                      ${selectedClientId === client.id ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+                      <Building2 size={16} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold truncate">{client.name}</span>
+                      <span className="text-[10px] opacity-60 uppercase font-black tracking-tight">{client.code}</span>
+                    </div>
+                  </div>
+                  {selectedClientId === client.id && <Check size={16} />}
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-8 text-center">
+                <p className="text-slate-400 text-sm">Nenhum condomínio encontrado.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ClientPicker;

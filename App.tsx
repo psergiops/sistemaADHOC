@@ -21,6 +21,7 @@ import DailyScheduleTable from './components/DailyScheduleTable';
 import CreateShiftModal from './components/CreateShiftModal';
 import ShiftCheckinReportModal from './components/ShiftCheckinReportModal';
 import HelpCenterModal from './components/HelpCenterModal';
+import ClientPicker from './components/ClientPicker';
 
 import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
@@ -623,22 +624,12 @@ const App: React.FC = () => {
                     </button>
                     <div className="flex items-center gap-4">
                       <h2 className="text-xl font-bold text-slate-800">Escala Mensal</h2>
-                      <div className="hidden lg:flex items-center bg-slate-100 rounded-lg px-3 py-1.5 border border-slate-200">
-                        <Search size={16} className="text-slate-400 mr-2" />
-                        <input 
-                          type="text" 
-                          list="clients-list" 
-                          placeholder="Buscar cliente..." 
-                          className="bg-transparent border-none text-sm focus:ring-0 w-48"
-                          value={selectedClientId === 'all' ? '' : clients.find(c => c.id === selectedClientId)?.name || ''}
-                          onChange={(e) => {
-                            const client = clients.find(c => c.name === e.target.value);
-                            setSelectedClientId(client ? client.id : 'all');
-                          }}
+                      <div className="hidden lg:flex ml-4">
+                        <ClientPicker 
+                          clients={clients}
+                          selectedClientId={selectedClientId}
+                          onSelect={setSelectedClientId}
                         />
-                        <datalist id="clients-list">
-                          {clients.map(c => <option key={c.id} value={c.name} />)}
-                        </datalist>
                       </div>
                     </div>
                   </div>
@@ -673,22 +664,12 @@ const App: React.FC = () => {
                       &larr; Voltar ao Mês
                     </button>
                     <h2 className="text-xl font-bold text-slate-800">Escala Diária</h2>
-                    <div className="hidden lg:flex items-center bg-slate-100 rounded-lg px-3 py-1.5 border border-slate-200 ml-4">
-                      <Search size={16} className="text-slate-400 mr-2" />
-                      <input 
-                        type="text" 
-                        list="clients-list-day" 
-                        placeholder="Filtrar condomínio..." 
-                        className="bg-transparent border-none text-sm focus:ring-0 w-48"
-                        value={selectedClientId === 'all' ? '' : clients.find(c => c.id === selectedClientId)?.name || ''}
-                        onChange={(e) => {
-                          const client = clients.find(c => c.name === e.target.value);
-                          setSelectedClientId(client ? client.id : 'all');
-                        }}
+                    <div className="hidden lg:flex ml-4">
+                      <ClientPicker 
+                        clients={clients}
+                        selectedClientId={selectedClientId}
+                        onSelect={setSelectedClientId}
                       />
-                      <datalist id="clients-list-day">
-                        {clients.map(c => <option key={c.id} value={c.name} />)}
-                      </datalist>
                     </div>
                   </div>
                   <div className="flex gap-2">
