@@ -129,8 +129,8 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
         </button>
       </div>
 
-      {/* Main Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 custom-scrollbar content-start">
+      {/* Main Scrollable Content - Height fixed to screen calc to ensure scrollbar */}
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 custom-scrollbar content-start" style={{ maxHeight: 'calc(100vh - 120px)' }}>
         {clients.length === 0 && (
            <div className="text-center text-slate-400 py-10">
               <Building2 size={48} className="mx-auto mb-2 opacity-20"/>
@@ -213,51 +213,60 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
                                         {stationsMap.get(stationName)?.map((shift) => {
                                             const staffMember = staff.find(s => s.id === shift.staffId || s.name === shift.staffId);
                                             return (
-                                                <div key={shift.id} className="bg-slate-50 rounded-lg border border-slate-200 p-2 group relative hover:border-blue-200 transition-colors">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex-shrink-0 flex items-center justify-center text-slate-400 overflow-hidden">
-                                                           {staffMember?.avatar ? <img src={staffMember.avatar} className="w-full h-full object-cover" /> : <User size={16} />}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                           <input 
-                                                              list={`staff-list-${client.id}`}
-                                                              type="text" 
-                                                              placeholder="Nome ou Cargo..."
-                                                              className="bg-transparent text-sm font-bold text-slate-800 w-full outline-none placeholder:text-slate-400 truncate"
-                                                              defaultValue={shift.staffId ? staff.find(s => s.id === shift.staffId || s.name === shift.staffId)?.name : shift.customStaffName || ''}
-                                                              onBlur={(e) => handleUpdateShiftStaff(shift.id, e.target.value)}
-                                                           />
-                                                           <div className="text-[10px] text-slate-400 font-medium uppercase truncate">
-                                                              {staffMember?.role || 'Cargo não definido'}
-                                                           </div>
-                                                        </div>
+                                                <div key={shift.id} className="bg-white rounded-lg border border-slate-200 px-3 py-2 group relative hover:border-blue-200 transition-all flex items-center gap-3">
+                                                    
+                                                    {/* Avatar / Icon */}
+                                                    <div className="w-6 h-6 rounded-md bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center text-slate-400 overflow-hidden">
+                                                       {staffMember?.avatar ? <img src={staffMember.avatar} className="w-full h-full object-cover" /> : <User size={12} />}
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-white/50 rounded p-1">
-                                                        <Clock size={12} className="text-slate-300" />
+
+                                                    {/* Info Row: [ROLE] Name */}
+                                                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                       <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0 
+                                                          ${staffMember?.role === 'Segurança' ? 'bg-indigo-100 text-indigo-700 font-bold' : 
+                                                            staffMember?.role === 'Portaria' ? 'bg-teal-100 text-teal-700 font-bold' : 
+                                                            'bg-slate-100 text-slate-600'}`}>
+                                                          {staffMember?.role || 'POSTO'}
+                                                       </span>
+                                                       <input 
+                                                          list="staff-list-global"
+                                                          type="text" 
+                                                          placeholder="Nome do colaborador..."
+                                                          className="bg-transparent text-sm font-bold text-slate-800 w-full outline-none placeholder:text-slate-300 truncate pr-8"
+                                                          defaultValue={shift.staffId ? (staff.find(s => s.id === shift.staffId || s.name === shift.staffId)?.name || shift.staffId) : (shift.customStaffName || '')}
+                                                          onBlur={(e) => handleUpdateShiftStaff(shift.id, e.target.value)}
+                                                       />
+                                                    </div>
+
+                                                    {/* Times */}
+                                                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100 flex-shrink-0">
+                                                        <Clock size={10} className="text-slate-300" />
                                                         <input 
                                                            type="time" 
-                                                           className="bg-transparent outline-none w-14"
+                                                           className="bg-transparent outline-none w-10 text-center"
                                                            defaultValue={shift.startTime}
                                                            onBlur={(e) => onUpdateShift({ ...shift, startTime: e.target.value })}
                                                         />
                                                         <span className="text-slate-300">-</span>
                                                         <input 
                                                            type="time" 
-                                                           className="bg-transparent outline-none w-14"
+                                                           className="bg-transparent outline-none w-10 text-center"
                                                            defaultValue={shift.endTime}
                                                            onBlur={(e) => onUpdateShift({ ...shift, endTime: e.target.value })}
                                                         />
                                                     </div>
+
+                                                    {/* Trash Action */}
                                                     <button 
                                                       type="button"
                                                       onClick={(e) => {
                                                          e.stopPropagation();
                                                          handleRemoveShift(shift.id);
                                                       }}
-                                                      className="absolute top-2 right-2 p-2 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 rounded-lg z-30 cursor-pointer"
+                                                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all z-30 flex-shrink-0 ml-1"
                                                       title="Remover Colaborador"
                                                     >
-                                                       <Trash2 size={16} />
+                                                       <Trash2 size={14} />
                                                     </button>
                                                 </div>
                                             );

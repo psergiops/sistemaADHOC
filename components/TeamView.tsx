@@ -234,77 +234,110 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
         </div>
       </div>
 
-      {/* Staff Grid */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredStaff.map(member => (
-            <div key={member.id} className="bg-[#EBEBEB] rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg overflow-hidden border border-slate-200">
-                      {member.avatar ? <img src={member.avatar} className="w-full h-full object-cover" /> : member.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-500">
-                            #{member.code || '----'}
-                        </span>
-                        <h3 className="font-semibold text-slate-800 line-clamp-1">{member.name}</h3>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
-                        <span className={`px-2 py-0.5 rounded-full font-medium ${
-                          member.role === 'Supervisor' ? 'bg-purple-100 text-purple-700' :
-                          member.role === 'RH' ? 'bg-pink-100 text-pink-700' : 
-                          member.role === 'Security' ? 'bg-blue-100 text-blue-700' :
-                          member.role === 'Administração' ? 'bg-gray-100 text-gray-700' :
-                          'bg-emerald-100 text-emerald-700'
-                        }`}>
-                          {roleTranslations[member.role] || member.role}
-                        </span>
-                        <span>•</span>
-                        <span>{member.regime}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <button onClick={() => handleEditClick(member)} className="text-slate-300 hover:text-slate-600">
-                    <MoreHorizontal size={20} />
-                  </button>
-                </div>
+      {/* List Container */}
+      <div className="flex-1 p-4 md:p-6 overflow-hidden flex flex-col">
+        <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+          
+          {/* Table Header - Fixed */}
+          <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider hidden md:grid">
+            <div className="col-span-1">Cod</div>
+            <div className="col-span-3">Nome</div>
+            <div className="col-span-2 text-center">Cargo</div>
+            <div className="col-span-1 text-center">Regime</div>
+            <div className="col-span-3">Contato</div>
+            <div className="col-span-1 text-center">Admissão</div>
+            <div className="col-span-1 text-right">Ações</div>
+          </div>
 
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <Mail size={14} className="text-slate-400" />
-                    <span className="truncate">{member.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <Phone size={14} className="text-slate-400" />
-                    <span>{member.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <Shield size={14} className="text-slate-400" />
-                    <span>CNV: {member.documents.cnv || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-start gap-3 text-sm text-slate-600">
-                    <MapPin size={14} className="text-slate-400 mt-0.5 shrink-0" />
-                    <span className="line-clamp-1">{member.address.street}, {member.address.number} - {member.address.city}</span>
-                  </div>
-                </div>
+          {/* Table Body - Scrollable */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {filteredStaff.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-slate-400">
+                <User size={48} className="mb-4 opacity-10" />
+                <p className="text-lg font-medium">Nenhum colaborador encontrado</p>
+                <p className="text-sm opacity-60">Tente buscar por outro termo ou adicione um novo.</p>
               </div>
-              
-              <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
-                 <div className="text-xs text-slate-500">
-                    Admissão: <span className="font-medium">{new Date(member.admissionDate).toLocaleDateString()}</span>
-                 </div>
-                 <button 
-                  onClick={() => handleEditClick(member)}
-                  className="text-blue-600 text-xs font-semibold hover:underline"
-                 >
-                   Ver Detalhes
-                 </button>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {filteredStaff.map((member, idx) => (
+                  <div 
+                    key={member.id} 
+                    className={`grid grid-cols-12 gap-4 px-6 py-3 items-center hover:bg-blue-50/40 transition-colors group cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`}
+                    onClick={() => handleEditClick(member)}
+                  >
+                    {/* Code & Avatar */}
+                    <div className="col-span-12 md:col-span-1 flex items-center gap-3">
+                      <span className="md:hidden text-xs font-bold text-slate-400">#{member.code || '---'}</span>
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-bold overflow-hidden shadow-sm">
+                        {member.avatar ? <img src={member.avatar} className="w-full h-full object-cover" /> : member.name.charAt(0)}
+                      </div>
+                      <span className="hidden md:inline text-xs font-semibold text-slate-500 font-mono">
+                        {member.code || '----'}
+                      </span>
+                    </div>
+
+                    {/* Name */}
+                    <div className="col-span-12 md:col-span-3">
+                      <h3 className="text-sm font-bold text-slate-800 truncate">{member.name}</h3>
+                      <div className="md:hidden flex items-center gap-2 mt-1">
+                        <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-bold uppercase">{roleTranslations[member.role] || member.role}</span>
+                        <span className="text-[10px] text-slate-400">•</span>
+                        <span className="text-[10px] text-slate-400 font-medium">{member.phone}</span>
+                      </div>
+                    </div>
+
+                    {/* Role Badge */}
+                    <div className="hidden md:flex md:col-span-2 justify-center">
+                      <span className={`text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-tight
+                        ${member.role === 'Supervisor' ? 'bg-purple-50 text-purple-700 border border-purple-100' :
+                          member.role === 'RH' ? 'bg-pink-50 text-pink-700 border border-pink-100' : 
+                          member.role === 'Segurança' ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' :
+                          member.role === 'Portaria' ? 'bg-teal-50 text-teal-700 border border-teal-100' :
+                          'bg-slate-50 text-slate-600 border border-slate-200'
+                        }`}>
+                        {roleTranslations[member.role] || member.role}
+                      </span>
+                    </div>
+
+                    {/* Regime */}
+                    <div className="hidden md:block md:col-span-1 text-center">
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded uppercase">
+                        {member.regime}
+                      </span>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="hidden md:flex md:col-span-3 flex-col gap-0.5 min-w-0">
+                      <div className="flex items-center gap-2 text-xs text-slate-600 truncate">
+                        <Mail size={12} className="text-slate-300" />
+                        <span className="truncate">{member.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-slate-600">
+                        <Phone size={12} className="text-slate-300" />
+                        <span>{member.phone}</span>
+                      </div>
+                    </div>
+
+                    {/* Admission */}
+                    <div className="hidden md:block md:col-span-1 text-center text-[11px] font-medium text-slate-500">
+                      {new Date(member.admissionDate).toLocaleDateString()}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="col-span-12 md:col-span-1 flex justify-end">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleEditClick(member); }}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                        title="Ver Perfil Completo"
+                      >
+                         <MoreHorizontal size={20} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
+            )}
+          </div>
         </div>
         
         {filteredStaff.length === 0 && (
