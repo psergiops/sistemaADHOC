@@ -147,7 +147,12 @@ const App: React.FC = () => {
       const newKey = key.toLowerCase();
       // Only include valid keys and convert undefined to null
       if (flat[key] !== undefined) {
-        result[newKey] = flat[key];
+        // Handle Foreign Keys: Convert empty strings to null for database constraints
+        if (newKey === 'staffid' && flat[key] === '') {
+          result[newKey] = null;
+        } else {
+          result[newKey] = flat[key];
+        }
       }
     });
 
