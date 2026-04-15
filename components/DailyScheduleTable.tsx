@@ -131,8 +131,8 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
 
       {/* Main Scrollable Content */}
       <div 
-        className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-4 content-start min-h-0"
-        style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+        className="flex-grow overflow-y-auto overflow-x-hidden p-4 md:p-6 flex flex-col gap-4 min-h-0 relative"
+        style={{ height: '0', flexBasis: '0' }}
       >
         {clients.length === 0 && (
            <div className="text-center text-slate-400 py-10">
