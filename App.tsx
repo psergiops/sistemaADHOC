@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Menu } from 'lucide-react';
 import { supabase, isSupabaseConfigured, createStaffAuthClient } from './lib/supabaseClient';
 import LoginView from './components/LoginView';
 import ChangePasswordView from './components/ChangePasswordView';
@@ -544,7 +545,17 @@ const App: React.FC = () => {
     switch (currentView) {
       case 'home':
         return (
-          <div className="flex-1 flex flex-col items-center justify-center bg-[#EBEBEB] p-8 text-center animate-in fade-in zoom-in duration-500">
+          <div className="flex-1 flex flex-col items-center justify-center bg-[#EBEBEB] p-8 text-center animate-in fade-in zoom-in duration-500 relative">
+             {/* Botão de Menu para Mobile na Home */}
+             <div className="absolute top-4 left-4 md:hidden">
+               <button 
+                 onClick={() => setIsSidebarOpen(true)}
+                 className="p-2 text-slate-600 hover:bg-slate-200 rounded-xl transition-colors"
+               >
+                 <Menu size={24} />
+               </button>
+             </div>
+
              <div className="w-20 h-20 bg-white border border-slate-200 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-slate-300">
                 <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-red-600">
                   <defs>
@@ -576,7 +587,15 @@ const App: React.FC = () => {
             {calendarViewMode === 'month' ? (
               <div className="h-full flex flex-col">
                 <div className="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-                  <h2 className="text-xl font-bold text-slate-800">Escala Mensal</h2>
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => setIsSidebarOpen(true)}
+                      className="md:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+                    >
+                      <Menu size={24} />
+                    </button>
+                    <h2 className="text-xl font-bold text-slate-800">Escala Mensal</h2>
+                  </div>
                   <div className="flex gap-2">
                     <button onClick={() => setCalendarViewMode('day')} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200">
                       Ver Diário (Postos)
