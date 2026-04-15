@@ -117,7 +117,7 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#EBEBEB] overflow-hidden">
+    <div className="flex flex-col min-h-full bg-[#EBEBEB]">
       
       {/* Date Navigation Header - Sticky */}
       <div className="bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between shadow-sm shrink-0 sticky top-0 z-20 transition-all">
