@@ -66,3 +66,15 @@ export const createStaffAuthClient = () => {
     }
   });
 };
+
+// --- CLIENTE ADMINISTRATIVO (Para criação de usuários em lote) ---
+// Só funciona se a VITE_SUPABASE_SERVICE_ROLE_KEY estiver no .env.local
+const serviceRoleKey = (import.meta as any).env?.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+export const supabaseAdmin = serviceRoleKey 
+  ? createClient(clientUrl as string, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : null;

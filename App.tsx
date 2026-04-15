@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured, createStaffAuthClient } from './lib/supabaseClient';
 import LoginView from './components/LoginView';
+import ChangePasswordView from './components/ChangePasswordView';
 import Sidebar from './components/Sidebar';
 import TeamView from './components/TeamView';
 import ClientView from './components/ClientView';
@@ -45,6 +46,8 @@ const App: React.FC = () => {
   // --- Navigation State ---
   const [currentView, setCurrentView] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [initialPasswordHint, setInitialPasswordHint] = useState('');
 
   // --- App Data State ---
   // If Supabase is configured, we start empty and wait for fetch. If not, we use Mocks.
@@ -392,9 +395,18 @@ const App: React.FC = () => {
   };
 
   // --- Auth Handlers ---
-  const handleLogin = (user: any) => {
+  const handleLogin = (user: any, authData?: any) => {
+    // Se o usuário logou via Supabase Auth real, verificamos se ele deve trocar a senha
+    if (authData?.user?.user_metadata?.must_change_password) {
+      setInitialPasswordHint(authData.user.user_metadata.initial_password || '');
+      setCurrentUser(user);
+      setIsChangingPassword(true);
+      return;
+    }
+
     setCurrentUser(user);
     setIsAuthenticated(true);
+    setIsChangingPassword(false);
   };
 
   const handleLogout = async () => {
@@ -433,7 +445,15 @@ const App: React.FC = () => {
 
         const { data: authData, error: authError } = await adminAuthClient.auth.signUp({
           email: staffData.email,
-          password: password
+          password: password,
+          options: {
+            data: { 
+              name: staffData.name, 
+              role: staffData.role,
+              must_change_password: true,
+              initial_password: password // Mantemos para validação na troca
+            }
+          }
         });
 
         if (authError) {
@@ -451,10 +471,73 @@ const App: React.FC = () => {
     saveToSupabase('staff', staffData);
   };
 
+  const handleBulkAddStaff = async (list: Staff[]) => {
+    let finalStaffList = [...list];
+
+    // Se temos a chave de admin, tentaremos criar os logins de acesso no Auth
+    const { supabaseAdmin } = await import('./lib/supabaseClient');
+    
+    if (isSupabaseConfigured && supabaseAdmin) {
+      const createLogins = confirm(`Deseja criar automaticamente os acessos (logins) para estes ${list.length} colaboradores?\n\nA senha padrão será o CPF (apenas números).`);
+      
+      if (createLogins) {
+        console.log("🚀 Iniciando criação de logins em lote...");
+        const updatedList: Staff[] = [];
+        
+        for (const staffMember of list) {
+          try {
+            const cleanCpf = staffMember.documents.cpf.replace(/\D/g, '');
+            let password = cleanCpf.substring(0, 4); // Usando 4 dígitos do CPF como senha inicial
+            if (password.length < 4) password = password.padEnd(4, '0');
+
+            // Cria o usuário no Supabase Auth usando a Service Role
+            const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+              email: staffMember.email,
+              password: password,
+              email_confirm: true,
+              user_metadata: { 
+                name: staffMember.name, 
+                role: staffMember.role,
+                must_change_password: true,
+                initial_password: password // Mantemos para validação na troca
+              }
+            });
+
+            if (authError) {
+              console.error(`Erro ao criar Auth para ${staffMember.email}:`, authError.message);
+              updatedList.push(staffMember); // Mantém o ID original se falhar
+            } else if (authData.user) {
+              console.log(`✅ Login criado para ${staffMember.email}`);
+              // Vincula o ID do Auth ao perfil do funcionário
+              updatedList.push({ ...staffMember, id: authData.user.id });
+            }
+          } catch (err) {
+            updatedList.push(staffMember);
+          }
+        }
+        finalStaffList = updatedList;
+        alert("Processo de criação de logins concluído. Verifique o console para detalhes de falhas, se houver.");
+      }
+    }
+
+    setStaff(prev => [...prev, ...finalStaffList]);
+    saveToSupabase('staff', finalStaffList);
+  };
+
   // --- Render ---
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isChangingPassword) {
     return <LoginView staffList={staff} onLogin={handleLogin} />;
+  }
+
+  if (isChangingPassword) {
+    return (
+      <ChangePasswordView 
+        initialPasswordHint={initialPasswordHint} 
+        onSuccess={() => { setIsChangingPassword(false); setIsAuthenticated(true); }}
+        onLogout={handleLogout}
+      />
+    );
   }
 
   const renderContent = () => {
@@ -535,7 +618,7 @@ const App: React.FC = () => {
           </div>
         );
       case 'team':
-        return <TeamView staff={staff} onAddStaff={handleAddStaff} onBulkAddStaff={(list) => { setStaff([...staff, ...list]); saveToSupabase('staff', list); }} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <TeamView staff={staff} onAddStaff={handleAddStaff} onBulkAddStaff={handleBulkAddStaff} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'clients':
         return <ClientView clients={clients} staff={staff} onAddClient={(c) => { setClients([...clients, c]); saveToSupabase('clients', c); }} onBulkAddClients={(list) => { setClients([...clients, ...list]); saveToSupabase('clients', list); }} onUpdateClient={(c) => { setClients(clients.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('clients', c); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'suppliers':

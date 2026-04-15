@@ -84,15 +84,15 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
             name: staffProfile.name,
             role: staffProfile.role,
             avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`,
-            ...staffProfile // Keep other raw fields if needed temporarily
-          });
+            ...staffProfile 
+          }, data);
         } else if (data.user.email === 'admin@ad-hoc.com') {
           onLogin({
             id: data.user.id,
             name: 'Administrador do Sistema',
             role: 'Diretoria',
             avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
-          });
+          }, data);
         } else {
           setError('Usuário autenticado, mas nenhum perfil de Staff encontrado para este e-mail.');
           await supabase.auth.signOut();
@@ -180,14 +180,14 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
                 <input
                   type="password"
                   required
-                  placeholder="••••"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#6FADFF] transition-all font-medium text-slate-800 placeholder:text-slate-400"
+                  placeholder="Os 4 primeiros números do seu CPF"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#6FADFF] transition-all font-medium text-slate-800 placeholder:text-slate-400 text-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               <p className="text-[10px] text-slate-400 text-right pr-1">
-                Use a senha definida com a supervisão
+                Primeiro acesso: Use os 4 primeiros números do CPF
               </p>
             </div>
 
