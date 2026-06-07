@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, Search } from 'lucide-react';
-import { supabase, isSupabaseConfigured, createStaffAuthClient } from './lib/supabaseClient';
+import { supabase, isSupabaseConfigured } from './lib/supabaseClient';
 import LoginView from './components/LoginView';
 import ChangePasswordView from './components/ChangePasswordView';
 import Sidebar from './components/Sidebar';
@@ -466,33 +466,37 @@ const App: React.FC = () => {
   const handleAddStaff = async (staffData: Staff) => {
     if (isSupabaseConfigured) {
       try {
-        const adminAuthClient = createStaffAuthClient();
         const cleanCpf = staffData.documents.cpf.replace(/\D/g, '');
         // Default to a fallback if for some reason the cpf is empty or too short.
         let password = cleanCpf.substring(0, 4);
         if (password.length < 4) password = password.padEnd(4, '0');
 
-        const { data: authData, error: authError } = await adminAuthClient.auth.signUp({
-          email: staffData.email,
-          password: password,
-          options: {
-            data: { 
-              name: staffData.name, 
-              role: staffData.role,
-              must_change_password: true,
-              initial_password: password // Mantemos para validação na troca
-            }
+        const { data, error: funcError } = await supabase.functions.invoke('bulk-create-users', {
+          body: {
+            users: [{
+              email: staffData.email,
+              password: password,
+              name: staffData.name,
+              role: staffData.role
+            }]
           }
         });
 
-        if (authError) {
-          console.error("Erro ao criar login (Auth) do funcionário:", authError.message);
-          alert("O perfil do funcionário será criado, mas houve um erro ao criar a credencial de login dele no banco: " + authError.message);
-        } else if (authData.user) {
-          staffData.id = authData.user.id;
+        if (funcError) {
+          console.error("Erro ao criar login (Auth) do funcionário:", funcError.message);
+          alert("O perfil do funcionário será criado, mas houve um erro ao criar a credencial de login dele no banco: " + funcError.message);
+        } else if (data?.results?.[0]) {
+          const result = data.results[0];
+          if (result.status === 'success') {
+            staffData.id = result.id;
+          } else {
+            console.error("Erro no retorno da Edge Function ao criar login:", result.message);
+            alert("O perfil do funcionário será criado, mas houve um erro ao criar a credencial de login dele: " + result.message);
+          }
         }
-      } catch (err) {
-        console.error("Falha ao usar cliente Auth secundário:", err);
+      } catch (err: any) {
+        console.error("Falha ao criar login via Edge Function:", err);
+        alert("Falha ao conectar com o servidor para criar o login: " + err.message);
       }
     }
 
