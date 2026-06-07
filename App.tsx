@@ -504,6 +504,21 @@ const App: React.FC = () => {
     saveToSupabase('staff', staffData);
   };
 
+  const handleDeleteStaff = async (id: string) => {
+    const confirmDelete = window.confirm("Tem certeza que deseja excluir este colaborador?");
+    if (!confirmDelete) return;
+
+    setStaff(prev => prev.filter(s => s.id !== id));
+
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('staff').delete().eq('id', id);
+      if (error) {
+        console.error("Erro ao deletar colaborador do banco:", error.message);
+        alert("Erro ao deletar colaborador do banco: " + error.message);
+      }
+    }
+  };
+
   const handleBulkAddStaff = async (list: Staff[]) => {
     try {
       const createLogins = confirm(`Deseja criar automaticamente os logins de acesso para estes ${list.length} colaboradores?\n\nA senha inicial será os 4 primeiros dígitos do CPF.`);
@@ -685,6 +700,9 @@ const App: React.FC = () => {
                     <button onClick={() => { setEditingShift(null); setIsShiftModalOpen(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
                       + Nova Escala
                     </button>
+                    <button onClick={() => setIsReportModalOpen(true)} className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900">
+                      Relatório de Turno
+                    </button>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto flex flex-col bg-[#EBEBEB]">
@@ -705,7 +723,7 @@ const App: React.FC = () => {
           </div>
         );
       case 'team':
-        return <TeamView staff={staff} onAddStaff={handleAddStaff} onBulkAddStaff={handleBulkAddStaff} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <TeamView staff={staff} onAddStaff={handleAddStaff} onBulkAddStaff={handleBulkAddStaff} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onDeleteStaff={handleDeleteStaff} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'clients':
         return <ClientView clients={clients} staff={staff} onAddClient={(c) => { setClients([...clients, c]); saveToSupabase('clients', c); }} onBulkAddClients={(list) => { setClients([...clients, ...list]); saveToSupabase('clients', list); }} onUpdateClient={(c) => { setClients(clients.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('clients', c); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'financial':

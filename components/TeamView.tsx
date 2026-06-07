@@ -7,7 +7,7 @@ import SearchPicker from './SearchPicker';
 import { 
   Shield, Users, UserCog, Briefcase, Search, Plus, 
   Menu, HelpCircle, Download, Upload, User, 
-  Mail, Phone, MoreHorizontal 
+  Mail, Phone, MoreHorizontal, Trash2
 } from 'lucide-react';
 
 interface TeamViewProps {
@@ -15,11 +15,12 @@ interface TeamViewProps {
   onAddStaff: (newStaff: Staff) => void;
   onBulkAddStaff: (staffList: Staff[]) => void;
   onUpdateStaff: (updatedStaff: Staff) => void;
+  onDeleteStaff: (id: string) => void;
   onToggleMenu: () => void;
   onShowHelp: () => void;
 }
 
-const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, onUpdateStaff, onToggleMenu, onShowHelp }) => {
+const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, onUpdateStaff, onDeleteStaff, onToggleMenu, onShowHelp }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -354,13 +355,20 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
                     </div>
 
                     {/* Actions */}
-                    <div className="col-span-12 md:col-span-1 flex justify-end">
+                    <div className="col-span-12 md:col-span-1 flex justify-end gap-1">
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleEditClick(member); }}
                         className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                        title="Ver Perfil Completo"
+                        title="Ver/Editar Perfil"
                       >
                          <MoreHorizontal size={20} />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onDeleteStaff(member.id); }}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                        title="Excluir Colaborador"
+                      >
+                         <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
@@ -384,6 +392,7 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveStaff}
         staffToEdit={editingStaff}
+        onDelete={editingStaff ? () => { onDeleteStaff(editingStaff.id); setIsModalOpen(false); } : undefined}
       />
 
       <ImportModal

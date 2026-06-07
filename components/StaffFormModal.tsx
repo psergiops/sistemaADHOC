@@ -8,6 +8,7 @@ interface StaffFormModalProps {
   onClose: () => void;
   onSave: (staff: Staff) => void;
   staffToEdit?: Staff | null;
+  onDelete?: () => void;
 }
 
 const INITIAL_FORM_STATE: Partial<Staff> = {
@@ -46,7 +47,7 @@ const INITIAL_FORM_STATE: Partial<Staff> = {
   dependents: []
 };
 
-const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave, staffToEdit }) => {
+const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave, staffToEdit, onDelete }) => {
   const [activeTab, setActiveTab] = useState<'personal' | 'docs' | 'family' | 'address' | 'contract'>('personal');
   const [formData, setFormData] = useState<Partial<Staff>>(INITIAL_FORM_STATE);
   
@@ -596,21 +597,35 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
             )}
           </div>
 
-          <div className="p-6 border-t border-slate-100 flex justify-end gap-3 shrink-0 bg-white rounded-b-xl">
-             <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md transition-all"
-            >
-              <Save size={16} />
-              {staffToEdit ? 'Atualizar' : 'Salvar Cadastro'}
-            </button>
+          <div className="p-6 border-t border-slate-100 flex justify-between items-center shrink-0 bg-white rounded-b-xl">
+             <div>
+               {onDelete && (
+                 <button
+                   type="button"
+                   onClick={onDelete}
+                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                 >
+                   <Trash2 size={16} />
+                   Excluir Colaborador
+                 </button>
+               )}
+             </div>
+             <div className="flex gap-3">
+               <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md transition-all"
+              >
+                <Save size={16} />
+                {staffToEdit ? 'Atualizar' : 'Salvar Cadastro'}
+              </button>
+             </div>
           </div>
 
         </form>
