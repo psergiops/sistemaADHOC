@@ -250,6 +250,18 @@ const App: React.FC = () => {
       } as Client;
     }
 
+    if (table === 'guest_lists') {
+      return {
+        id: d('id'),
+        clientId: d('clientid'),
+        residentName: d('residentname'),
+        eventName: d('eventname'),
+        date: d('date'),
+        linkToken: d('linktoken'),
+        guests: Array.isArray(d('guests')) ? d('guests') : [],
+        createdBy: d('createdby')
+      } as GuestList;
+    }
 
     return data;
   };
@@ -397,8 +409,8 @@ const App: React.FC = () => {
           const { data: logData } = await supabase.from('entry_logs').select('*');
           if (logData) setEntryLogs(logData);
 
-          const { data: guestData } = await supabase.from('guest_lists').select('*');
-          if (guestData) setGuestLists(guestData);
+           const { data: guestData } = await supabase.from('guest_lists').select('*');
+           if (guestData) setGuestLists(guestData.map(d => unflattenData('guest_lists', d)));
 
           const { data: resData } = await supabase.from('reservations').select('*');
           if (resData) setReservations(resData);
