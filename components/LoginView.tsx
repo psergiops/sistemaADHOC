@@ -67,21 +67,15 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
       if (data.user) {
         console.log("[LOGIN] Auth OK. Buscando staff com email:", data.user.email);
         
-        // Find corresponding staff profile by email (case-insensitive)
-        let { data: staffProfile, error: profileError } = await supabase
+        // Find corresponding staff profile by email
+        const { data: staffProfile, error: profileError } = await supabase
           .from('staff')
           .select('*')
-          .ilike('email', data.user.email)
+          .eq('email', data.user.email)
           .single();
 
-        if (!staffProfile) {
-          console.warn("[LOGIN] ilike falhou, tentando busca por todos os staff...");
-          const { data: allStaff } = await supabase.from('staff').select('id, name, email');
-          console.log("[LOGIN] Todos os emails na tabela staff:", allStaff?.map(s => s.email));
-        }
-
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.error("Error fetching staff profile:", profileError);
+        if (profileError) {
+          console.error("[LOGIN] Erro ao buscar staff:", profileError.code, profileError.message);
         }
 
         if (staffProfile) {
