@@ -58,14 +58,25 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
       // Fallback for iOS or if already installed/not supported
-      alert("Para instalar o AD-HOC:\n\n📱 iOS (iPhone/iPad): Toque no botão 'Compartilhar' e selecione 'Adicionar à Tela de Início'.\n\n💻 PC/Android: Procure o ícone de instalação na barra de endereço ou no menu do navegador.");
+      const osInfo = navigator.userAgent.includes('Win') ? 'Windows' :
+                     navigator.userAgent.includes('Mac') ? 'macOS' :
+                     navigator.userAgent.includes('Android') ? 'Android' : 'seu dispositivo';
+      
+      alert(`Para instalar o AD-HOC como um aplicativo em ${osInfo}:\n\n📱 iOS (iPhone/iPad): Toque no botão 'Compartilhar' (⬆️) e selecione 'Adicionar à Tela de Início'.\n\n💻 PC/Android: Procure o ícone de instalação na barra de endereço do navegador (⬇️ ou ⋯) ou no menu do navegador.\n\nApós instalar, o app funcionará offline e terá um atalho na sua área de trabalho ou tela inicial!`);
       return;
     }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+        setDeferredPrompt(null);
+        alert('✅ AD-HOC instalado com sucesso!\n\nVocê pode acessar o app diretamente pela sua tela inicial ou área de trabalho.');
+      }
+    } catch (error) {
+      console.error('Erro ao instalar app:', error);
+      alert('Erro ao instalar o app. Tente novamente ou use o navegador para acessar.');
     }
   };
   

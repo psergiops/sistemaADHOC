@@ -53,6 +53,14 @@ const App: React.FC = () => {
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [guestEventData, setGuestEventData] = useState<any>(null);
 
+  // --- Settings State (Theme & Font Size) ---
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
+  });
+  const [currentFontSize, setCurrentFontSize] = useState<'small' | 'medium' | 'large'>(() => {
+    return (localStorage.getItem('fontSize') as 'small' | 'medium' | 'large') || 'medium';
+  });
+
   // --- App Data State ---
   // If Supabase is configured, we start empty and wait for fetch. If not, we use Mocks.
   const [staff, setStaff] = useState<Staff[]>(isSupabaseConfigured ? [] : MOCK_STAFF);
@@ -699,8 +707,56 @@ const App: React.FC = () => {
     } catch (error: any) {
       console.error("Erro na importação:", error);
       alert(`Erro na importação: ${error.message}`);
+     }
+  };
+
+  // --- Settings Handlers ---
+  const handleThemeChange = (theme: 'light' | 'dark') => {
+    setCurrentTheme(theme);
+    localStorage.setItem('theme', theme);
+    // Apply theme to document
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   };
+
+  const handleFontSizeChange = (size: 'small' | 'medium' | 'large') => {
+    setCurrentFontSize(size);
+    localStorage.setItem('fontSize', size);
+    // Apply font size to document
+    const fontSizeMap: Record<string, string> = {
+      'small': '12px',
+      'medium': '16px',
+      'large': '20px'
+    };
+    document.documentElement.style.fontSize = fontSizeMap[size];
+  };
+
+  // Apply saved theme on component mount and when theme/fontSize changes
+  React.useEffect(() => {
+    const applyTheme = () => {
+      if (currentTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+    applyTheme();
+  }, [currentTheme]);
+
+  React.useEffect(() => {
+    const applyFontSize = () => {
+      const fontSizeMap: Record<string, string> = {
+        'small': '12px',
+        'medium': '16px',
+        'large': '20px'
+      };
+      document.documentElement.style.fontSize = fontSizeMap[currentFontSize];
+    };
+    applyFontSize();
+  }, [currentFontSize]);
 
   // --- Render ---
 
@@ -874,7 +930,7 @@ const App: React.FC = () => {
       case 'audit-log':
         return <AuditLogView logs={auditLogs} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'settings':
-        return <SettingsView currentTheme="light" onThemeChange={() => { }} currentFontSize="medium" onFontSizeChange={() => { }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <SettingsView currentTheme={currentTheme} onThemeChange={handleThemeChange} currentFontSize={currentFontSize} onFontSizeChange={handleFontSizeChange} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       default:
         return <div>View Not Found</div>;
     }
@@ -882,10 +938,11 @@ const App: React.FC = () => {
 
   return (
     <>
-      {guestToken ? (
-        <GuestRegistrationView 
-          token={guestToken}
-          data={guestEventData}
+      <div className={currentTheme === 'dark' ? 'dark' : ''}>
+        {guestToken ? (
+          <GuestRegistrationView 
+            token={guestToken}
+            data={guestEventData}
           onRegister={async (name: string, doc: string) => {
             if (!guestEventData?.guestListId) return;
             
@@ -963,6 +1020,7 @@ const App: React.FC = () => {
           />
         </div>
       )}
+      </div>
     </>
   );
 };
