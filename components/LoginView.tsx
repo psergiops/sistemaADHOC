@@ -65,21 +65,19 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
       if (authError) throw authError;
 
       if (data.user) {
-        console.log("[LOGIN] Auth OK. Buscando staff com email:", data.user.email);
-        
         // Find corresponding staff profile by email
-        const { data: staffProfile, error: profileError } = await supabase
+        const { data: staffRows, error: profileError } = await supabase
           .from('staff')
           .select('*')
-          .eq('email', data.user.email)
-          .single();
+          .eq('email', data.user.email);
 
         if (profileError) {
-          console.error("[LOGIN] Erro ao buscar staff:", profileError.code, profileError.message);
+          console.error("Error fetching staff profile:", profileError);
         }
 
+        const staffProfile = staffRows && staffRows.length > 0 ? staffRows[0] : null;
+
         if (staffProfile) {
-          console.log("[LOGIN] Staff profile encontrado:", staffProfile.name, staffProfile.role);
           onLogin({
             id: staffProfile.id,
             name: staffProfile.name,
