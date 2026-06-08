@@ -414,8 +414,8 @@ const App: React.FC = () => {
 
     setCurrentUser(user);
     setIsAuthenticated(true);
-    setIsChangingPassword(false);
-  };
+    setCurrentView('home'); // ensure redirection to welcome screen
+    setIsChangingPassword(false);;
 
   const handleLogout = async () => {
     if (isSupabaseConfigured) {

@@ -527,7 +527,7 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
 // Initial Permissions Configuration (Updated for Granular View/Edit)
 export const DEFAULT_PERMISSIONS: PermissionConfig = {
   calendar: {
-    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Concierge'],
+    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
     edit: ['Diretoria', 'Administração', 'Supervisor']
   },
   team: {
@@ -543,27 +543,27 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     edit: ['Diretoria']
   },
   portal: {
-    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Concierge'],
+    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
     edit: ['Diretoria', 'RH']
   },
   checklist: {
-    view: ['Diretoria', 'Administração', 'Supervisor', 'Security', 'Concierge'],
-    edit: ['Diretoria', 'Supervisor', 'Security', 'Concierge']
+    view: ['Diretoria', 'Administração', 'Supervisor', 'Security', 'Portaria'],
+    edit: ['Diretoria', 'Supervisor', 'Security', 'Portaria']
   },
   patrol: {
     view: ['Diretoria', 'Administração', 'Supervisor', 'Security'],
     edit: ['Diretoria', 'Supervisor', 'Security']
   },
   social: {
-    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Concierge'],
-    edit: ['Diretoria', 'Supervisor', 'RH', 'Security', 'Concierge']
+    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
+    edit: ['Diretoria', 'Supervisor', 'RH', 'Security', 'Portaria']
   },
   concierge: {
-    view: ['Diretoria', 'Administração', 'Supervisor', 'Security', 'Concierge'],
-    edit: ['Diretoria', 'Concierge']
+    view: ['Diretoria', 'Administração', 'Supervisor', 'Security', 'Portaria'],
+    edit: ['Diretoria', 'Portaria']
   },
   settings: {
-    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Concierge'],
+    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
     edit: ['Diretoria']
   },
   inventory: {
