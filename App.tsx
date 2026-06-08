@@ -513,17 +513,45 @@ const App: React.FC = () => {
            const { data: pkgData } = await supabase.from('packages').select('*');
            if (pkgData) setPackages(pkgData.map(d => unflattenData('packages', d)));
 
-           const { data: corrData } = await supabase.from('correspondencias').select('*');
-           if (corrData) setCorrespondencias(corrData);
+           try {
+             const { data: corrData } = await supabase.from('correspondencias').select('*');
+             if (corrData) setCorrespondencias(corrData.map(d => ({
+               id: d.id,
+               clientId: d.clientid,
+               remetente: d.remetente,
+               destinatario: d.destinatario,
+               tipo: d.tipo,
+               status: d.status,
+               dataRecebimento: d.datarecebimento,
+               registradoPor: d.registradopor,
+               observacao: d.observacao,
+               dataEntrega: d.dataentrega,
+               entreguePor: d.entreguepor
+             })));
+           } catch (e) {
+             console.warn("Tabela 'correspondencias' não encontrada ou erro ao carregar:", e);
+           }
 
-          const { data: invData } = await supabase.from('inventory_items').select('*');
-          if (invData) setInventoryItems(invData);
+          try {
+            const { data: invData } = await supabase.from('inventory_items').select('*');
+            if (invData) setInventoryItems(invData);
+          } catch (e) {
+            console.warn("Tabela 'inventory_items' não encontrada:", e);
+          }
 
-          const { data: movData } = await supabase.from('inventory_movements').select('*');
-          if (movData) setInventoryMovements(movData);
+          try {
+            const { data: movData } = await supabase.from('inventory_movements').select('*');
+            if (movData) setInventoryMovements(movData);
+          } catch (e) {
+            console.warn("Tabela 'inventory_movements' não encontrada:", e);
+          }
 
-          const { data: auditData } = await supabase.from('audit_logs').select('*');
-          if (auditData) setAuditLogs(auditData);
+          try {
+            const { data: auditData } = await supabase.from('audit_logs').select('*');
+            if (auditData) setAuditLogs(auditData);
+          } catch (e) {
+            console.warn("Tabela 'audit_logs' não encontrada:", e);
+          }
 
           console.log("✅ Dados carregados com sucesso!");
         } catch (error: any) {
