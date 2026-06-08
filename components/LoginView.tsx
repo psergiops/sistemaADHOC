@@ -65,11 +65,11 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
       if (authError) throw authError;
 
       if (data.user) {
-        // Find corresponding staff profile by email (case-insensitive)
+        // Find corresponding staff profile by email
         const { data: staffProfile, error: profileError } = await supabase
           .from('staff')
           .select('*')
-          .ilike('email', data.user.email)
+          .eq('email', data.user.email)
           .single();
 
         if (profileError && profileError.code !== 'PGRST116') {
@@ -77,12 +77,21 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
         }
 
         if (staffProfile) {
+          // We'll let App.tsx handle the unflattening via onAuthStateChange, 
+          // but we can also trigger onLogin here as a fallback or immediate UI update
           onLogin({
             id: staffProfile.id,
             name: staffProfile.name,
             role: staffProfile.role,
             avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`,
             ...staffProfile 
+          }, data);
+        } else if (data.user.email === 'admin@ad-hoc.com') {
+          onLogin({
+            id: data.user.id,
+            name: 'Administrador do Sistema',
+            role: 'Diretoria',
+            avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
           }, data);
         } else {
           setError('Usuário autenticado, mas nenhum perfil de Staff encontrado para este e-mail.');

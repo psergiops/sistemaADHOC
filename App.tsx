@@ -11,6 +11,7 @@ import HRPortalView from './components/HRPortalView';
 import ChecklistView from './components/ChecklistView';
 import PatrolView from './components/PatrolView';
 import SocialView from './components/SocialView';
+import CorrespondenciaView from './components/CorrespondenciaView';
 import ConciergeView from './components/ConciergeView';
 import SettingsView from './components/SettingsView';
 import AccessControlView from './components/AccessControlView';
@@ -427,8 +428,16 @@ const App: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         const email = session.user.email;
-        if (email) {
-          supabase.from('staff').select('*').ilike('email', email).single().then(({ data }) => {
+        if (email === 'admin@ad-hoc.com') {
+          setCurrentUser({
+            id: session.user.id,
+            name: 'Administrador do Sistema',
+            role: 'Diretoria',
+            avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
+          });
+          setIsAuthenticated(true);
+        } else if (email) {
+          supabase.from('staff').select('*').eq('email', email).single().then(({ data }) => {
             if (data) {
               const staffProfile = unflattenData('staff', data);
               setCurrentUser({
@@ -436,9 +445,6 @@ const App: React.FC = () => {
                 avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`
               });
               setIsAuthenticated(true);
-            } else {
-              console.warn(`Sessão restaurada, mas nenhum perfil de Staff encontrado para: ${email}`);
-              supabase.auth.signOut();
             }
           });
         }
@@ -508,45 +514,17 @@ const App: React.FC = () => {
            const { data: pkgData } = await supabase.from('packages').select('*');
            if (pkgData) setPackages(pkgData.map(d => unflattenData('packages', d)));
 
-           try {
-             const { data: corrData } = await supabase.from('correspondencias').select('*');
-             if (corrData) setCorrespondencias(corrData.map(d => ({
-               id: d.id,
-               clientId: d.clientid,
-               remetente: d.remetente,
-               destinatario: d.destinatario,
-               tipo: d.tipo,
-               status: d.status,
-               dataRecebimento: d.datarecebimento,
-               registradoPor: d.registradopor,
-               observacao: d.observacao,
-               dataEntrega: d.dataentrega,
-               entreguePor: d.entreguepor
-             })));
-           } catch (e) {
-             console.warn("Tabela 'correspondencias' não encontrada ou erro ao carregar:", e);
-           }
+           const { data: corrData } = await supabase.from('correspondencias').select('*');
+           if (corrData) setCorrespondencias(corrData);
 
-          try {
-            const { data: invData } = await supabase.from('inventory_items').select('*');
-            if (invData) setInventoryItems(invData);
-          } catch (e) {
-            console.warn("Tabela 'inventory_items' não encontrada:", e);
-          }
+          const { data: invData } = await supabase.from('inventory_items').select('*');
+          if (invData) setInventoryItems(invData);
 
-          try {
-            const { data: movData } = await supabase.from('inventory_movements').select('*');
-            if (movData) setInventoryMovements(movData);
-          } catch (e) {
-            console.warn("Tabela 'inventory_movements' não encontrada:", e);
-          }
+          const { data: movData } = await supabase.from('inventory_movements').select('*');
+          if (movData) setInventoryMovements(movData);
 
-          try {
-            const { data: auditData } = await supabase.from('audit_logs').select('*');
-            if (auditData) setAuditLogs(auditData);
-          } catch (e) {
-            console.warn("Tabela 'audit_logs' não encontrada:", e);
-          }
+          const { data: auditData } = await supabase.from('audit_logs').select('*');
+          if (auditData) setAuditLogs(auditData);
 
           console.log("✅ Dados carregados com sucesso!");
         } catch (error: any) {
@@ -994,6 +972,8 @@ const App: React.FC = () => {
         return <PatrolView patrols={patrols} staff={staff} clients={clients} onAddPatrol={(p) => { setPatrols([p, ...patrols]); saveToSupabase('patrols', p); }} currentUser={currentUser} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'social':
         return <SocialView posts={posts} staff={staff} currentUser={currentUser} clients={clients} onAddPost={(p) => { setPosts([p, ...posts]); saveToSupabase('posts', p); }} onUpdatePost={(p) => { setPosts(posts.map(ex => ex.id === p.id ? p : ex)); saveToSupabase('posts', p); }} onDeletePost={(id) => { setPosts(posts.filter(p => p.id !== id)); if (isSupabaseConfigured) supabase.from('posts').delete().eq('id', id); }} onLikePost={(pid, uid) => { const updated = posts.map(p => p.id === pid ? { ...p, likes: p.likes.includes(uid) ? p.likes.filter(id => id !== uid) : [...p.likes, uid] } : p); setPosts(updated); const p = updated.find(x => x.id === pid); if (p) saveToSupabase('posts', p); }} onCommentPost={(pid, comment) => { const updated = posts.map(p => p.id === pid ? { ...p, comments: [...p.comments, comment] } : p); setPosts(updated); const p = updated.find(x => x.id === pid); if (p) saveToSupabase('posts', p); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+      case 'correspondencia':
+        return <CorrespondenciaView correspondencias={correspondencias} staff={staff} clients={clients} currentUser={currentUser} onAddCorrespondencia={(c) => { setCorrespondencias([c, ...correspondencias]); saveToSupabase('correspondencias', c); }} onUpdateCorrespondencia={(c) => { setCorrespondencias(correspondencias.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('correspondencias', c); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'concierge':
         return <ConciergeView 
           logs={entryLogs} 
