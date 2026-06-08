@@ -65,20 +65,27 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
       if (authError) throw authError;
 
       if (data.user) {
-        // Find corresponding staff profile by email
-        const { data: staffProfile, error: profileError } = await supabase
+        console.log("[LOGIN] Auth OK. Buscando staff com email:", data.user.email);
+        
+        // Find corresponding staff profile by email (case-insensitive)
+        let { data: staffProfile, error: profileError } = await supabase
           .from('staff')
           .select('*')
-          .eq('email', data.user.email)
+          .ilike('email', data.user.email)
           .single();
+
+        if (!staffProfile) {
+          console.warn("[LOGIN] ilike falhou, tentando busca por todos os staff...");
+          const { data: allStaff } = await supabase.from('staff').select('id, name, email');
+          console.log("[LOGIN] Todos os emails na tabela staff:", allStaff?.map(s => s.email));
+        }
 
         if (profileError && profileError.code !== 'PGRST116') {
           console.error("Error fetching staff profile:", profileError);
         }
 
         if (staffProfile) {
-          // We'll let App.tsx handle the unflattening via onAuthStateChange, 
-          // but we can also trigger onLogin here as a fallback or immediate UI update
+          console.log("[LOGIN] Staff profile encontrado:", staffProfile.name, staffProfile.role);
           onLogin({
             id: staffProfile.id,
             name: staffProfile.name,
