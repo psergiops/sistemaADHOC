@@ -349,6 +349,26 @@ export interface ShiftCheckin {
   status: 'Ok' | 'Late';
 }
 
+// --- Package / Delivery Types ---
+
+export type PackageStatus = 'Received' | 'Awaiting Pickup' | 'Picked Up';
+
+export interface Package {
+  id: string;
+  clientId: string;
+  senderName: string;
+  senderContact?: string;
+  recipientUnit?: string; // Apartment/Unit number
+  description: string;
+  receivedDate: string; // ISO DateTime
+  receivedBy: string; // Staff ID who received
+  deliveryNotes?: string;
+  status: PackageStatus;
+  pickedUpBy?: string; // Name of resident who picked up
+  pickedUpDate?: string; // ISO DateTime
+  pickedUpTime?: string; // HH:mm format
+}
+
 // --- Audit Log Types ---
 
 export type AuditAction = 'Create' | 'Update' | 'Delete';
@@ -366,9 +386,27 @@ export interface AuditLog {
   details?: string;
 }
 
+// --- Correspondencia Types ---
+
+export type CorrespondenciaStatus = 'Recebido' | 'Entregue' | 'Retirado';
+
+export interface Correspondencia {
+  id: string;
+  clientId: string; // Condomínio
+  remetente: string;
+  destinatario: string; // Nome do morador/apto
+  tipo: 'Carta' | 'Pacote' | 'Documento' | 'Notificação' | 'Outro';
+  status: CorrespondenciaStatus;
+  dataRecebimento: string; // ISO DateTime
+  registradoPor: string; // Staff ID
+  observacao?: string;
+  dataEntrega?: string; // ISO DateTime
+  entreguePor?: string; // Staff ID
+}
+
 // --- Access Control / Permissions Types ---
 
-export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory';
+export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'concierge' | 'settings' | 'audit-log' | 'inventory';
 
 export interface ModulePermissions {
   view: string[];

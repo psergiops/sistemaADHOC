@@ -347,6 +347,22 @@ CREATE TABLE shift_checkins (
 );
 ALTER TABLE shift_checkins DISABLE ROW LEVEL SECURITY;
 
+-- Tabela: CORRESPONDENCIAS
+CREATE TABLE correspondencias (
+    id text PRIMARY KEY,
+    clientid text NOT NULL,
+    remetente text NOT NULL,
+    destinatario text NOT NULL,
+    tipo text NOT NULL,
+    status text NOT NULL DEFAULT 'Recebido',
+    datarecebimento text,
+    registradopor text,
+    observacao text,
+    dataentrega text,
+    entreguepor text
+);
+ALTER TABLE correspondencias DISABLE ROW LEVEL SECURITY;
+
 -- Tabela: AUDIT_LOGS
 CREATE TABLE audit_logs (
     id text PRIMARY KEY,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Menu, Search } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from './lib/supabaseClient';
 import LoginView from './components/LoginView';
@@ -11,6 +11,7 @@ import HRPortalView from './components/HRPortalView';
 import ChecklistView from './components/ChecklistView';
 import PatrolView from './components/PatrolView';
 import SocialView from './components/SocialView';
+import CorrespondenciaView from './components/CorrespondenciaView';
 import ConciergeView from './components/ConciergeView';
 import SettingsView from './components/SettingsView';
 import AccessControlView from './components/AccessControlView';
@@ -29,7 +30,7 @@ import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
   DataChangeRequest, VehicleChecklist, Patrol, Post, EntryLog, GuestList,
   Reservation, MaterialRequest, InventoryItem, InventoryMovement, AuditLog,
-  PermissionConfig, LogEntryType
+  PermissionConfig, LogEntryType, Package, Correspondencia
 } from './types';
 
 import {
@@ -37,7 +38,7 @@ import {
   MOCK_PAYSTUBS, MOCK_ANNOUNCEMENTS, MOCK_CHANGE_REQUESTS, MOCK_CHECKLISTS,
   MOCK_PATROLS, MOCK_POSTS, MOCK_ENTRY_LOGS, MOCK_GUEST_LISTS, MOCK_RESERVATIONS,
   MOCK_MATERIAL_REQUESTS, MOCK_INVENTORY_ITEMS, MOCK_INVENTORY_MOVEMENTS,
-  MOCK_AUDIT_LOGS, DEFAULT_PERMISSIONS
+  MOCK_AUDIT_LOGS, MOCK_CORRESPONDENCIAS, DEFAULT_PERMISSIONS
 } from './constants';
 
 const App: React.FC = () => {
@@ -77,10 +78,33 @@ const App: React.FC = () => {
   const [guestLists, setGuestLists] = useState<GuestList[]>(isSupabaseConfigured ? [] : MOCK_GUEST_LISTS);
   const [reservations, setReservations] = useState<Reservation[]>(isSupabaseConfigured ? [] : MOCK_RESERVATIONS);
   const [materialRequests, setMaterialRequests] = useState<MaterialRequest[]>(isSupabaseConfigured ? [] : MOCK_MATERIAL_REQUESTS);
+  const [packages, setPackages] = useState<Package[]>(isSupabaseConfigured ? [] : []);
+  const [correspondencias, setCorrespondencias] = useState<Correspondencia[]>(isSupabaseConfigured ? [] : MOCK_CORRESPONDENCIAS);
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(isSupabaseConfigured ? [] : MOCK_INVENTORY_ITEMS);
   const [inventoryMovements, setInventoryMovements] = useState<InventoryMovement[]>(isSupabaseConfigured ? [] : MOCK_INVENTORY_MOVEMENTS);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(isSupabaseConfigured ? [] : MOCK_AUDIT_LOGS);
   const [permissions, setPermissions] = useState<PermissionConfig>(DEFAULT_PERMISSIONS);
+
+  // --- Social Notifications ---
+  const getLastReadSocialTimestamp = (userId: string): string => {
+    return localStorage.getItem(`lastReadSocial_${userId}`) || new Date(0).toISOString();
+  };
+  const setLastReadSocialTimestamp = (userId: string) => {
+    localStorage.setItem(`lastReadSocial_${userId}`, new Date().toISOString());
+  };
+
+  const socialUnreadCount = useMemo(() => {
+    if (!currentUser?.id) return 0;
+    const lastRead = getLastReadSocialTimestamp(currentUser.id);
+    return posts.filter(p => p.timestamp > lastRead).length;
+  }, [posts, currentUser]);
+
+  const handleNavigate = (view: any) => {
+    if (view === 'social' && currentUser?.id) {
+      setLastReadSocialTimestamp(currentUser.id);
+    }
+    setCurrentView(view);
+  };
 
   // --- Calendar Specific State ---
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -145,7 +169,10 @@ const App: React.FC = () => {
       'minThreshold': 'minthreshold', 'itemId': 'itemid', 'itemName': 'itemname', 'referenceId': 'referenceid',
       'performedBy': 'performedby', 'actorId': 'actorid', 'actorName': 'actorname', 'actorRole': 'actorrole',
       'targetName': 'targetname', 'checkinTime': 'checkintime', 'shiftTimeReference': 'shifttimereference',
-      'relatedClientId': 'relatedclientid', 'relatedSupplierId': 'relatedsupplierid'
+      'relatedClientId': 'relatedclientid', 'relatedSupplierId': 'relatedsupplierid',
+      'senderName': 'sendername', 'senderContact': 'sendercontact', 'recipientUnit': 'recipientunit',
+      'receivedDate': 'receiveddate', 'receivedBy': 'receivedby', 'deliveryNotes': 'deliverynotes',
+      'pickedUpBy': 'pickedupby', 'pickedUpDate': 'pickedupdate', 'pickedUpTime': 'pickeduptime', 'clientId': 'clientid'
     };
 
 
@@ -311,6 +338,24 @@ const App: React.FC = () => {
       } as EntryLog;
     }
 
+    if (table === 'packages') {
+      return {
+        id: d('id'),
+        clientId: d('clientid'),
+        senderName: d('sendername'),
+        senderContact: d('sendercontact'),
+        recipientUnit: d('recipientunit'),
+        description: d('description'),
+        receivedDate: d('receiveddate'),
+        receivedBy: d('receivedby'),
+        deliveryNotes: d('deliverynotes'),
+        status: d('status') || 'Awaiting Pickup',
+        pickedUpBy: d('pickedupby'),
+        pickedUpDate: d('pickedupdate'),
+        pickedUpTime: d('pickeduptime')
+      } as Package;
+    }
+
     return data;
   };
 
@@ -465,6 +510,12 @@ const App: React.FC = () => {
 
            const { data: matData } = await supabase.from('material_requests').select('*');
            if (matData) setMaterialRequests(matData.map(d => unflattenData('material_requests', d)));
+
+           const { data: pkgData } = await supabase.from('packages').select('*');
+           if (pkgData) setPackages(pkgData.map(d => unflattenData('packages', d)));
+
+           const { data: corrData } = await supabase.from('correspondencias').select('*');
+           if (corrData) setCorrespondencias(corrData);
 
           const { data: invData } = await supabase.from('inventory_items').select('*');
           if (invData) setInventoryItems(invData);
@@ -921,8 +972,31 @@ const App: React.FC = () => {
         return <PatrolView patrols={patrols} staff={staff} clients={clients} onAddPatrol={(p) => { setPatrols([p, ...patrols]); saveToSupabase('patrols', p); }} currentUser={currentUser} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'social':
         return <SocialView posts={posts} staff={staff} currentUser={currentUser} clients={clients} onAddPost={(p) => { setPosts([p, ...posts]); saveToSupabase('posts', p); }} onUpdatePost={(p) => { setPosts(posts.map(ex => ex.id === p.id ? p : ex)); saveToSupabase('posts', p); }} onDeletePost={(id) => { setPosts(posts.filter(p => p.id !== id)); if (isSupabaseConfigured) supabase.from('posts').delete().eq('id', id); }} onLikePost={(pid, uid) => { const updated = posts.map(p => p.id === pid ? { ...p, likes: p.likes.includes(uid) ? p.likes.filter(id => id !== uid) : [...p.likes, uid] } : p); setPosts(updated); const p = updated.find(x => x.id === pid); if (p) saveToSupabase('posts', p); }} onCommentPost={(pid, comment) => { const updated = posts.map(p => p.id === pid ? { ...p, comments: [...p.comments, comment] } : p); setPosts(updated); const p = updated.find(x => x.id === pid); if (p) saveToSupabase('posts', p); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+      case 'correspondencia':
+        return <CorrespondenciaView correspondencias={correspondencias} staff={staff} clients={clients} currentUser={currentUser} onAddCorrespondencia={(c) => { setCorrespondencias([c, ...correspondencias]); saveToSupabase('correspondencias', c); }} onUpdateCorrespondencia={(c) => { setCorrespondencias(correspondencias.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('correspondencias', c); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'concierge':
-        return <ConciergeView logs={entryLogs} guestLists={guestLists} reservations={reservations} materialRequests={materialRequests} staff={staff} clients={clients} currentUser={currentUser} onAddLog={(l) => { setEntryLogs([l, ...entryLogs]); saveToSupabase('entry_logs', l); }} onAddGuestList={(l) => { setGuestLists([l, ...guestLists]); saveToSupabase('guest_lists', l); }} onAddReservation={(r) => { setReservations([...reservations, r]); saveToSupabase('reservations', r); }} onAddMaterialRequest={(m) => { setMaterialRequests([...materialRequests, m]); saveToSupabase('material_requests', m); }} onUpdateGuestList={(l) => { setGuestLists(guestLists.map(gl => gl.id === l.id ? l : gl)); saveToSupabase('guest_lists', l); }} onDeleteGuestList={handleDeleteGuestList} onDeleteReservation={(id) => { setReservations(reservations.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('reservations').delete().eq('id', id); }} onDeleteMaterialRequest={(id) => { setMaterialRequests(materialRequests.filter(m => m.id !== id)); if (isSupabaseConfigured) supabase.from('material_requests').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <ConciergeView 
+          logs={entryLogs} 
+          guestLists={guestLists} 
+          reservations={reservations} 
+          materialRequests={materialRequests} 
+          packages={packages}
+          staff={staff} 
+          clients={clients} 
+          currentUser={currentUser} 
+          onAddLog={(l) => { setEntryLogs([l, ...entryLogs]); saveToSupabase('entry_logs', l); }} 
+          onAddGuestList={(l) => { setGuestLists([l, ...guestLists]); saveToSupabase('guest_lists', l); }} 
+          onAddReservation={(r) => { setReservations([...reservations, r]); saveToSupabase('reservations', r); }} 
+          onAddMaterialRequest={(m) => { setMaterialRequests([...materialRequests, m]); saveToSupabase('material_requests', m); }} 
+          onAddPackage={(p) => { setPackages([p, ...packages]); saveToSupabase('packages', p); }}
+          onUpdatePackage={(p) => { setPackages(packages.map(pkg => pkg.id === p.id ? p : pkg)); saveToSupabase('packages', p); }}
+          onUpdateGuestList={(l) => { setGuestLists(guestLists.map(gl => gl.id === l.id ? l : gl)); saveToSupabase('guest_lists', l); }} 
+          onDeleteGuestList={handleDeleteGuestList} 
+          onDeleteReservation={(id) => { setReservations(reservations.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('reservations').delete().eq('id', id); }} 
+          onDeleteMaterialRequest={(id) => { setMaterialRequests(materialRequests.filter(m => m.id !== id)); if (isSupabaseConfigured) supabase.from('material_requests').delete().eq('id', id); }} 
+          onToggleMenu={() => setIsSidebarOpen(true)} 
+          onShowHelp={() => setIsHelpOpen(true)} 
+        />;
       case 'inventory':
         return <InventoryView items={inventoryItems} movements={inventoryMovements} currentUser={currentUser} onAddItem={(i) => { setInventoryItems([...inventoryItems, i]); saveToSupabase('inventory_items', i); }} onStockEntry={(code, qty, ref, staffId) => { const item = inventoryItems.find(i => i.code === code); if (item) { const updatedItem = { ...item, quantity: item.quantity + qty }; setInventoryItems(inventoryItems.map(i => i.id === item.id ? updatedItem : i)); saveToSupabase('inventory_items', updatedItem); const movement: InventoryMovement = { id: `mov-${Date.now()}`, itemId: item.id, itemName: item.name, type: 'IN', quantity: qty, date: new Date().toISOString(), referenceId: ref, performedBy: staffId }; setInventoryMovements([movement, ...inventoryMovements]); saveToSupabase('inventory_movements', movement); } }} onStockAdjustment={(itemId, qty, type, notes, staffId) => { const item = inventoryItems.find(i => i.id === itemId); if (item) { const diff = qty - item.quantity; const updatedItem = { ...item, quantity: qty }; setInventoryItems(inventoryItems.map(i => i.id === item.id ? updatedItem : i)); saveToSupabase('inventory_items', updatedItem); const movement: InventoryMovement = { id: `mov-${Date.now()}`, itemId: item.id, itemName: item.name, type: diff >= 0 ? 'IN' : 'OUT', quantity: diff, date: new Date().toISOString(), notes, performedBy: staffId }; setInventoryMovements([movement, ...inventoryMovements]); saveToSupabase('inventory_movements', movement); } }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'access-control':
@@ -979,13 +1053,14 @@ const App: React.FC = () => {
         <div className="flex h-screen bg-[#F1F5F9] overflow-hidden font-sans text-slate-900">
           <Sidebar
             currentView={currentView as any}
-            onNavigate={setCurrentView}
+            onNavigate={handleNavigate}
             onLogout={handleLogout}
             onOpenHelp={() => setIsHelpOpen(true)}
             currentUser={currentUser}
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
             permissions={permissions}
+            socialUnreadCount={socialUnreadCount}
           />
 
           <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">

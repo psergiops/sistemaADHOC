@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
-  CalendarDays, 
-  Users, 
-  Settings, 
+import {
+  CalendarDays,
+  Users,
+  Settings,
   LogOut,
   Building2,
   Truck,
@@ -18,19 +18,21 @@ import {
   History,
   Download,
   PackageSearch,
-  HelpCircle
+  HelpCircle,
+  Mail
 } from 'lucide-react';
-import { Staff, PermissionConfig, AppModule } from '../types';
+import { Staff, PermissionConfig, AppModule, Post } from '../types';
 
 interface SidebarProps {
-  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory';
+  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory';
   onNavigate: (view: any) => void;
   onLogout: () => void;
-  onOpenHelp: () => void; // New Prop
+  onOpenHelp: () => void;
   currentUser: Staff | any;
-  isOpen: boolean; // Mobile state
-  onClose: () => void; // Close handler
-  permissions?: PermissionConfig; // Optional to not break existing tests if any, but we will pass it
+  isOpen: boolean;
+  onClose: () => void;
+  permissions?: PermissionConfig;
+  socialUnreadCount?: number;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, onOpenHelp, currentUser, isOpen, onClose, permissions }) => {
@@ -167,10 +169,21 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                   label="Social" 
                   active={currentView === 'social'} 
                   onClick={() => handleNavClick('social')}
+                  badge={socialUnreadCount}
                 />
               )}
 
-              {/* 2. Portaria */}
+              {/* 2. Correspondências */}
+              {canAccess('correspondencia') && (
+                <NavItem 
+                  icon={<Mail size={20}/>} 
+                  label="Correspondências" 
+                  active={currentView === 'correspondencia'} 
+                  onClick={() => handleNavClick('correspondencia')}
+                />
+              )}
+
+              {/* 3. Portaria */}
               {canAccess('concierge') && (
                 <NavItem 
                   icon={<KeyRound size={20}/>} 
@@ -348,7 +361,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
   );
 };
 
-const NavItem = ({ icon, label, active = false, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick: () => void }) => (
+const NavItem = ({ icon, label, active = false, onClick, badge }: { icon: React.ReactNode, label: string, active?: boolean, onClick: () => void, badge?: number }) => (
   <button 
     onClick={onClick}
     className={`
@@ -361,6 +374,11 @@ const NavItem = ({ icon, label, active = false, onClick }: { icon: React.ReactNo
       {icon}
     </span>
     {label}
+    {badge !== undefined && badge > 0 && (
+      <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight">
+        {badge > 99 ? '99+' : badge}
+      </span>
+    )}
   </button>
 );
 

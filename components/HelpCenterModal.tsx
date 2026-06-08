@@ -4,7 +4,7 @@ import {
   X, Search, BookOpen, ChevronRight, 
   CalendarDays, Users, Building2, Truck, DollarSign, 
   Megaphone, ClipboardCheck, Route, MessageCircleHeart, 
-  KeyRound, Package, ShieldAlert, History, Settings
+  KeyRound, Package, ShieldAlert, History, Settings, Mail
 } from 'lucide-react';
 
 interface HelpCenterModalProps {
@@ -207,6 +207,22 @@ const TUTORIAL_DATA = [
       {
         title: 'Interação',
         content: 'Os usuários podem curtir e comentar nas postagens.'
+      }
+    ]
+  },
+  {
+    id: 'correspondencia',
+    title: 'Correspondências',
+    icon: Mail,
+    description: 'Gestão de cartas, pacotes e notificações.',
+    steps: [
+      {
+        title: 'Registrar',
+        content: 'Registre cartas, pacotes, documentos ou notificações recebidas. Informe remetente, tipo e destinatário.'
+      },
+      {
+        title: 'Atualizar Status',
+        content: 'Marque como "Entregue" ou "Retirado" conforme a correspondência for sendo entregue aos moradores.'
       }
     ]
   },

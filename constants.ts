@@ -1,5 +1,5 @@
 
-import { Staff, Shift, Client, Transaction, Paystub, Announcement, DataChangeRequest, VehicleChecklist, Patrol, PermissionConfig, Post, EntryLog, GuestList, Reservation, AuditLog, MaterialRequest, InventoryItem, InventoryMovement } from './types';
+import { Staff, Shift, Client, Transaction, Paystub, Announcement, DataChangeRequest, VehicleChecklist, Patrol, PermissionConfig, Post, EntryLog, GuestList, Reservation, AuditLog, MaterialRequest, InventoryItem, InventoryMovement, Correspondencia } from './types';
 import { subDays, format, subHours, addDays } from 'date-fns';
 
 export const MOCK_STAFF: Staff[] = [
@@ -524,6 +524,33 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
   }
 ];
 
+export const MOCK_CORRESPONDENCIAS: Correspondencia[] = [
+  {
+    id: 'corr-1',
+    clientId: 'cli-1',
+    remetente: 'Banco Itaú',
+    destinatario: 'Apto 101 - João',
+    tipo: 'Carta',
+    status: 'Entregue',
+    dataRecebimento: new Date().toISOString(),
+    registradoPor: 'stf-2',
+    observacao: 'Fatura cartão',
+    dataEntrega: new Date().toISOString(),
+    entreguePor: 'stf-2'
+  },
+  {
+    id: 'corr-2',
+    clientId: 'cli-1',
+    remetente: 'Mercado Livre',
+    destinatario: 'Apto 304 - Helena',
+    tipo: 'Pacote',
+    status: 'Recebido',
+    dataRecebimento: new Date().toISOString(),
+    registradoPor: 'stf-2',
+    observacao: 'Aguardando retirada'
+  }
+];
+
 // Initial Permissions Configuration (Updated for Granular View/Edit)
 export const DEFAULT_PERMISSIONS: PermissionConfig = {
   calendar: {
@@ -555,6 +582,10 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     edit: ['Diretoria', 'Supervisor', 'Security']
   },
   social: {
+    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
+    edit: ['Diretoria', 'Supervisor', 'RH', 'Security', 'Portaria']
+  },
+  correspondencia: {
     view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
     edit: ['Diretoria', 'Supervisor', 'RH', 'Security', 'Portaria']
   },
