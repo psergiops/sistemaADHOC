@@ -428,7 +428,7 @@ const App: React.FC = () => {
       if (session?.user) {
         const email = session.user.email;
         if (email) {
-          supabase.from('staff').select('*').eq('email', email).single().then(({ data, error }) => {
+          supabase.from('staff').select('*').ilike('email', email).single().then(({ data }) => {
             if (data) {
               const staffProfile = unflattenData('staff', data);
               setCurrentUser({

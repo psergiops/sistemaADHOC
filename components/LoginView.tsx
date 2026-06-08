@@ -65,11 +65,11 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
       if (authError) throw authError;
 
       if (data.user) {
-        // Find corresponding staff profile by email
+        // Find corresponding staff profile by email (case-insensitive)
         const { data: staffProfile, error: profileError } = await supabase
           .from('staff')
           .select('*')
-          .eq('email', data.user.email)
+          .ilike('email', data.user.email)
           .single();
 
         if (profileError && profileError.code !== 'PGRST116') {
@@ -85,8 +85,7 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
             ...staffProfile 
           }, data);
         } else {
-          console.warn(`Nenhum perfil de Staff encontrado para o e-mail: ${data.user.email}. Verifique se o usuário existe na tabela 'staff'.`);
-          setError('Usuário autenticado, mas nenhum perfil de Staff encontrado para este e-mail. Contate o administrador.');
+          setError('Usuário autenticado, mas nenhum perfil de Staff encontrado para este e-mail.');
           await supabase.auth.signOut();
         }
       }
