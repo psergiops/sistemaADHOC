@@ -65,17 +65,8 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
       if (authError) throw authError;
 
       if (data.user) {
-        // Find corresponding staff profile by email
-        const { data: staffRows, error: profileError } = await supabase
-          .from('staff')
-          .select('*')
-          .eq('email', data.user.email);
-
-        if (profileError) {
-          console.error("Error fetching staff profile:", profileError);
-        }
-
-        const staffProfile = staffRows && staffRows.length > 0 ? staffRows[0] : null;
+        // Find corresponding staff profile by email from already-loaded list
+        const staffProfile = staffList.find(s => s.email?.toLowerCase() === data.user.email?.toLowerCase());
 
         if (staffProfile) {
           onLogin({

@@ -437,14 +437,17 @@ const App: React.FC = () => {
           });
           setIsAuthenticated(true);
         } else if (email) {
-          supabase.from('staff').select('*').eq('email', email).then(({ data }) => {
+          supabase.from('staff').select('*').then(({ data }) => {
             if (data && data.length > 0) {
-              const staffProfile = unflattenData('staff', data[0]);
-              setCurrentUser({
-                ...staffProfile,
-                avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`
-              });
-              setIsAuthenticated(true);
+              const match = data.find((s: any) => s.email?.toLowerCase() === email.toLowerCase());
+              if (match) {
+                const staffProfile = unflattenData('staff', match);
+                setCurrentUser({
+                  ...staffProfile,
+                  avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`
+                });
+                setIsAuthenticated(true);
+              }
             }
           });
         }
