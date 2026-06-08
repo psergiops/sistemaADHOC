@@ -585,10 +585,6 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
     edit: ['Diretoria', 'Supervisor', 'RH', 'Security', 'Portaria']
   },
-  correspondencia: {
-    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
-    edit: ['Diretoria', 'Supervisor', 'RH', 'Security', 'Portaria']
-  },
   concierge: {
     view: ['Diretoria', 'Administração', 'Supervisor', 'Security', 'Portaria'],
     edit: ['Diretoria', 'Portaria']

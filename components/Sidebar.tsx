@@ -18,8 +18,7 @@ import {
   History,
   Download,
   PackageSearch,
-  HelpCircle,
-  Mail
+  HelpCircle
 } from 'lucide-react';
 import { Staff, PermissionConfig, AppModule, Post } from '../types';
 
@@ -173,17 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {/* 2. Correspondências */}
-              {canAccess('correspondencia') && (
-                <NavItem 
-                  icon={<Mail size={20}/>} 
-                  label="Correspondências" 
-                  active={currentView === 'correspondencia'} 
-                  onClick={() => handleNavClick('correspondencia')}
-                />
-              )}
-
-              {/* 3. Portaria */}
+              {/* 2. Portaria */}
               {canAccess('concierge') && (
                 <NavItem 
                   icon={<KeyRound size={20}/>} 

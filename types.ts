@@ -406,7 +406,7 @@ export interface Correspondencia {
 
 // --- Access Control / Permissions Types ---
 
-export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'concierge' | 'settings' | 'audit-log' | 'inventory';
+export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory';
 
 export interface ModulePermissions {
   view: string[];
