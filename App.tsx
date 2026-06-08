@@ -415,7 +415,8 @@ const App: React.FC = () => {
     setCurrentUser(user);
     setIsAuthenticated(true);
     setCurrentView('home'); // ensure redirection to welcome screen
-    setIsChangingPassword(false);;
+    setIsChangingPassword(false);
+  };
 
   const handleLogout = async () => {
     if (isSupabaseConfigured) {
@@ -505,16 +506,23 @@ const App: React.FC = () => {
   };
 
   const handleDeleteStaff = async (id: string) => {
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir este colaborador?");
+    const confirmDelete = window.confirm("Tem certeza que deseja excluir este colaborador e seu login de acesso?");
     if (!confirmDelete) return;
 
+    // Atualiza estado local imediatamente
     setStaff(prev => prev.filter(s => s.id !== id));
 
     if (isSupabaseConfigured) {
-      const { error } = await supabase.from('staff').delete().eq('id', id);
-      if (error) {
-        console.error("Erro ao deletar colaborador do banco:", error.message);
-        alert("Erro ao deletar colaborador do banco: " + error.message);
+      try {
+        // 1. Tenta deletar o usuário do Auth via Edge Function
+        await supabase.functions.invoke('delete-user', { body: { uid: id } });
+        
+        // 2. Deleta o registro do banco
+        const { error } = await supabase.from('staff').delete().eq('id', id);
+        if (error) throw error;
+      } catch (err: any) {
+        console.error("Erro ao processar exclusão do colaborador:", err);
+        alert("Erro ao excluir colaborador: " + err.message);
       }
     }
   };
