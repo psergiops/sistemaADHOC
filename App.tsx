@@ -1006,7 +1006,6 @@ const App: React.FC = () => {
           reservations={reservations} 
           materialRequests={materialRequests} 
           packages={packages}
-          correspondencias={correspondencias}
           staff={staff} 
           clients={clients} 
           currentUser={currentUser} 
@@ -1016,8 +1015,6 @@ const App: React.FC = () => {
           onAddMaterialRequest={(m) => { setMaterialRequests([...materialRequests, m]); saveToSupabase('material_requests', m); }} 
           onAddPackage={(p) => { setPackages([p, ...packages]); saveToSupabase('packages', p); }}
           onUpdatePackage={(p) => { setPackages(packages.map(pkg => pkg.id === p.id ? p : pkg)); saveToSupabase('packages', p); }}
-          onAddCorrespondencia={(c) => { setCorrespondencias([c, ...correspondencias]); saveToSupabase('correspondencias', c); }}
-          onUpdateCorrespondencia={(c) => { setCorrespondencias(correspondencias.map(ex => ex.id === c.id ? c : ex)); saveToSupabase('correspondencias', c); }}
           onUpdateGuestList={(l) => { setGuestLists(guestLists.map(gl => gl.id === l.id ? l : gl)); saveToSupabase('guest_lists', l); }} 
           onDeleteGuestList={handleDeleteGuestList} 
           onDeleteReservation={(id) => { setReservations(reservations.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('reservations').delete().eq('id', id); }} 
