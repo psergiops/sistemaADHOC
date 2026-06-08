@@ -66,14 +66,16 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
 
       if (data.user) {
         // Find corresponding staff profile by email
-        const { data: staffProfile, error: profileError } = await supabase
-          .from('staff')
-          .select('*')
-          .eq('email', data.user.email)
-          .single();
-
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.error("Error fetching staff profile:", profileError);
+        let staffProfile = null;
+        try {
+          const result = await supabase
+            .from('staff')
+            .select('*')
+            .eq('email', data.user.email)
+            .single();
+          staffProfile = result.data;
+        } catch (e) {
+          console.warn("Could not fetch staff profile:", e);
         }
 
         if (staffProfile) {
@@ -86,11 +88,12 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
             avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`,
             ...staffProfile 
           }, data);
-        } else if (data.user.email === 'admin@ad-hoc.com') {
+        } else if (data.user.email === 'admin@ad-hoc.com' || data.user.email === 'teste@adhoc.com') {
           onLogin({
             id: data.user.id,
             name: 'Administrador do Sistema',
             role: 'Diretoria',
+            email: data.user.email,
             avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
           }, data);
         } else {
