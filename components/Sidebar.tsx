@@ -34,7 +34,7 @@ interface SidebarProps {
   socialUnreadCount?: number;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, onOpenHelp, currentUser, isOpen, onClose, permissions }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, onOpenHelp, currentUser, isOpen, onClose, permissions, socialUnreadCount }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
 
