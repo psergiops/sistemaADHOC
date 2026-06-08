@@ -16,13 +16,13 @@ const INITIAL_FORM_STATE: Partial<Staff> = {
   email: '',
   phone: '',
   emergencyPhone: '',
-  role: 'Security',
+  role: 'Segurança',
   sector: '',
   regime: 'CLT',
-  contractType: 'Undetermined',
+  contractType: 'Indeterminado',
   contractEndDate: '',
   admissionDate: '',
-  preferredShifts: ['Day'],
+  preferredShifts: ['Diurno'],
   salary: 0,
   paymentDay: 5,
   takesAdvance: false,
@@ -36,7 +36,7 @@ const INITIAL_FORM_STATE: Partial<Staff> = {
   },
   birthDate: '',
   birthPlace: '',
-  maritalStatus: 'Single',
+  maritalStatus: 'Solteiro(a)',
   race: '',
   weight: 0,
   height: 0,
@@ -455,17 +455,18 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                               value={formData.sector || ''} onChange={e => handleChange('sector', e.target.value)} 
                               placeholder="Ex: Operacional" />
                       </div>
-                      <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-slate-700">Cargo</label>
-                          <select className={inputClassName}
-                          value={formData.role} onChange={e => handleChange('role', e.target.value)}>
-                          <option value="Segurança">Segurança/Vigilante</option>
-                          <option value="Portaria">Porteiro/Controlador</option>
-                          <option value="Supervisor">Supervisor</option>
-                          <option value="RH">Recursos Humanos</option>
-                          <option value="Administração">Administração</option>
-                          </select>
-                      </div>
+                       <div className="space-y-1.5">
+                           <label className="text-sm font-medium text-slate-700">Cargo</label>
+                           <select className={inputClassName}
+                           value={formData.role} onChange={e => handleChange('role', e.target.value)}>
+                           <option value="Segurança">Segurança/Vigilante</option>
+                           <option value="Portaria">Porteiro/Controlador</option>
+                           <option value="Supervisor">Supervisor</option>
+                           <option value="Diretoria">Diretor</option>
+                           <option value="RH">Recursos Humanos</option>
+                           <option value="Administração">Administração</option>
+                           </select>
+                       </div>
                       <div className="space-y-1.5">
                           <label className="text-sm font-medium text-slate-700">Data de Admissão</label>
                           <input required type="date" className={inputClassName}
@@ -490,8 +491,8 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                           </select>
                       </div>
 
-                      {/* Conditional Contract End Date Field */}
-                      {(formData.contractType === 'Determined' || formData.contractType === 'Temporary') && (
+                       {/* Conditional Contract End Date Field */}
+                       {(formData.contractType === 'Determinado' || formData.contractType === 'Temporário') && (
                           <div className="md:col-span-2 bg-orange-50 border border-orange-100 p-3 rounded-lg animate-in fade-in slide-in-from-top-1">
                                <label className="text-sm font-bold text-orange-800 flex items-center gap-2 mb-1">
                                   <Calendar size={14} />
@@ -566,33 +567,33 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                       </div>
                   </div>
 
-                  <div className="md:col-span-2 space-y-1.5 pt-2">
-                      <label className="text-sm font-medium text-slate-700">Turno Preferencial</label>
-                      <div className="flex gap-4 mt-1">
-                      <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={formData.preferredShifts?.includes('Day')} 
-                          onChange={e => {
-                              const newShifts = e.target.checked 
-                              ? [...(formData.preferredShifts || []), 'Day']
-                              : (formData.preferredShifts || []).filter(s => s !== 'Day');
-                              handleChange('preferredShifts', newShifts);
-                          }} 
-                          />
-                          <span className="text-sm">Diurno</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={formData.preferredShifts?.includes('Night')}
-                          onChange={e => {
-                              const newShifts = e.target.checked 
-                              ? [...(formData.preferredShifts || []), 'Night']
-                              : (formData.preferredShifts || []).filter(s => s !== 'Night');
-                              handleChange('preferredShifts', newShifts);
-                          }} 
-                          />
-                          <span className="text-sm">Noturno</span>
-                      </label>
-                      </div>
-                  </div>
+                   <div className="md:col-span-2 space-y-1.5 pt-2">
+                       <label className="text-sm font-medium text-slate-700">Turno Preferencial</label>
+                       <div className="flex gap-4 mt-1">
+                       <label className="flex items-center gap-2">
+                           <input type="checkbox" checked={formData.preferredShifts?.includes('Diurno')} 
+                           onChange={e => {
+                               const newShifts = e.target.checked 
+                               ? [...(formData.preferredShifts || []), 'Diurno']
+                               : (formData.preferredShifts || []).filter(s => s !== 'Diurno');
+                               handleChange('preferredShifts', newShifts);
+                           }} 
+                           />
+                           <span className="text-sm">Diurno</span>
+                       </label>
+                       <label className="flex items-center gap-2">
+                           <input type="checkbox" checked={formData.preferredShifts?.includes('Noturno')}
+                           onChange={e => {
+                               const newShifts = e.target.checked 
+                               ? [...(formData.preferredShifts || []), 'Noturno']
+                               : (formData.preferredShifts || []).filter(s => s !== 'Noturno');
+                               handleChange('preferredShifts', newShifts);
+                           }} 
+                           />
+                           <span className="text-sm">Noturno</span>
+                       </label>
+                       </div>
+                   </div>
               </div>
             )}
           </div>
