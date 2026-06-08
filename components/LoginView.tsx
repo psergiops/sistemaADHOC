@@ -65,6 +65,8 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
       if (authError) throw authError;
 
       if (data.user) {
+        console.log("[LOGIN DEBUG] staffList length:", staffList.length, "email:", data.user.email);
+        console.log("[LOGIN DEBUG] emails no staff:", staffList.map(s => s.email));
         // Find corresponding staff profile by email from already-loaded list
         const staffProfile = staffList.find(s => s.email?.toLowerCase() === data.user.email?.toLowerCase());
 
