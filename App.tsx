@@ -29,7 +29,7 @@ import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
   DataChangeRequest, VehicleChecklist, Patrol, Post, EntryLog, GuestList,
   Reservation, MaterialRequest, InventoryItem, InventoryMovement, AuditLog,
-  PermissionConfig
+  PermissionConfig, LogEntryType
 } from './types';
 
 import {
@@ -263,6 +263,46 @@ const App: React.FC = () => {
       } as GuestList;
     }
 
+    if (table === 'reservations') {
+      return {
+        id: d('id'),
+        clientId: d('clientid'),
+        resourceName: d('resourcename'),
+        date: d('date'),
+        startTime: d('starttime'),
+        endTime: d('endtime'),
+        reservedBy: d('reservedby'),
+        status: d('status') || 'Confirmed'
+      } as Reservation;
+    }
+
+    if (table === 'material_requests') {
+      return {
+        id: d('id'),
+        staffId: d('staffid'),
+        clientId: d('clientid'),
+        date: d('date'),
+        items: Array.isArray(d('items')) ? d('items') : [],
+        status: d('status') || 'Pending',
+        notes: d('notes')
+      } as MaterialRequest;
+    }
+
+    if (table === 'entry_logs') {
+      return {
+        id: d('id'),
+        clientId: d('clientid'),
+        type: d('type') as LogEntryType,
+        name: d('name'),
+        document: d('document'),
+        vehicleModel: d('vehiclemodel'),
+        vehiclePlate: d('vehicleplate'),
+        timestamp: d('timestamp'),
+        registeredBy: d('registeredby'),
+        notes: d('notes')
+      } as EntryLog;
+    }
+
     return data;
   };
 
@@ -407,16 +447,16 @@ const App: React.FC = () => {
           if (postData) setPosts(postData);
 
           const { data: logData } = await supabase.from('entry_logs').select('*');
-          if (logData) setEntryLogs(logData);
+          if (logData) setEntryLogs(logData.map(d => unflattenData('entry_logs', d)));
 
            const { data: guestData } = await supabase.from('guest_lists').select('*');
            if (guestData) setGuestLists(guestData.map(d => unflattenData('guest_lists', d)));
 
-          const { data: resData } = await supabase.from('reservations').select('*');
-          if (resData) setReservations(resData);
+           const { data: resData } = await supabase.from('reservations').select('*');
+           if (resData) setReservations(resData.map(d => unflattenData('reservations', d)));
 
-          const { data: matData } = await supabase.from('material_requests').select('*');
-          if (matData) setMaterialRequests(matData);
+           const { data: matData } = await supabase.from('material_requests').select('*');
+           if (matData) setMaterialRequests(matData.map(d => unflattenData('material_requests', d)));
 
           const { data: invData } = await supabase.from('inventory_items').select('*');
           if (invData) setInventoryItems(invData);

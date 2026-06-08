@@ -67,9 +67,15 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
     );
   }, [logs, selectedClientId, selectedDate]);
 
-  const filteredGuestLists = useMemo(() => guestLists.filter(l => l.clientId === selectedClientId), [guestLists, selectedClientId]);
-  const filteredReservations = useMemo(() => reservations.filter(r => r.clientId === selectedClientId), [reservations, selectedClientId]);
-  const filteredMaterialRequests = useMemo(() => materialRequests.filter(r => r.clientId === selectedClientId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [materialRequests, selectedClientId]);
+   const filteredGuestLists = useMemo(() => guestLists.filter(l => l.clientId === selectedClientId), [guestLists, selectedClientId]);
+   const filteredReservations = useMemo(() => {
+     const today = new Date();
+     today.setHours(0, 0, 0, 0); // Set to start of day
+     return reservations
+       .filter(r => r.clientId === selectedClientId && new Date(r.date) >= today)
+       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+   }, [reservations, selectedClientId]);
+   const filteredMaterialRequests = useMemo(() => materialRequests.filter(r => r.clientId === selectedClientId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [materialRequests, selectedClientId]);
 
   // --- LOGS STATE ---
   const [newLog, setNewLog] = useState<Partial<EntryLog>>({
@@ -219,39 +225,62 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
   const [pendingItems, setPendingItems] = useState<MaterialRequestItem[]>([]);
   const [materialNotes, setMaterialNotes] = useState('');
 
-  const handleAddMaterialItem = () => {
-      if (!newMaterialItem.name) return;
-      setPendingItems([...pendingItems, {
-          id: `mi-${Date.now()}`,
-          itemName: newMaterialItem.name,
-          quantity: newMaterialItem.qty,
-          isDelivered: false
-      }]);
-      setNewMaterialItem({ name: '', qty: 1 });
-  };
+   const handleAddMaterialItem = () => {
+       if (!newMaterialItem.name || newMaterialItem.name.trim() === '') {
+           alert('Por favor, digite o nome do item');
+           return;
+       }
+       if (newMaterialItem.qty <= 0) {
+           alert('A quantidade deve ser maior que 0');
+           return;
+       }
+       setPendingItems([...pendingItems, {
+           id: `mi-${Date.now()}`,
+           itemName: newMaterialItem.name,
+           quantity: newMaterialItem.qty,
+           isDelivered: false
+       }]);
+       setNewMaterialItem({ name: '', qty: 1 });
+   };
 
   const handleRemovePendingItem = (id: string) => {
       setPendingItems(prev => prev.filter(i => i.id !== id));
   };
 
-  const handleSubmitMaterialRequest = () => {
-      if (pendingItems.length === 0 || !selectedClientId) return;
+   const handleSubmitMaterialRequest = () => {
+       if (pendingItems.length === 0) {
+           alert('Adicione pelo menos um item à solicitação');
+           return;
+       }
+       if (!selectedClientId) {
+           alert('Selecione um local/cliente');
+           return;
+       }
+       if (!currentUser?.id) {
+           alert('Erro: Usuário não identificado. Por favor, faça login novamente.');
+           return;
+       }
 
-      const newRequest: MaterialRequest = {
-          id: `mat-${Date.now()}`,
-          staffId: currentUser.id,
-          clientId: selectedClientId,
-          date: format(new Date(), 'yyyy-MM-dd'),
-          items: pendingItems,
-          status: 'Pending',
-          notes: materialNotes
-      };
+       const newRequest: MaterialRequest = {
+           id: `mat-${Date.now()}`,
+           staffId: currentUser.id,
+           clientId: selectedClientId,
+           date: format(new Date(), 'yyyy-MM-dd'),
+           items: pendingItems,
+           status: 'Pending',
+           notes: materialNotes
+       };
 
-      onAddMaterialRequest(newRequest);
-      setPendingItems([]);
-      setMaterialNotes('');
-      alert('Solicitação enviada ao RH/Gestão!');
-  };
+       try {
+           onAddMaterialRequest(newRequest);
+           setPendingItems([]);
+           setMaterialNotes('');
+           alert('✓ Solicitação enviada ao RH/Gestão com sucesso!');
+       } catch (error) {
+           console.error('Erro ao enviar solicitação:', error);
+           alert('Erro ao enviar solicitação. Tente novamente.');
+       }
+   };
 
   return (
     <div className="flex flex-col h-full bg-[#1F1F1F]">
@@ -905,7 +934,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     onClick={handleSubmitMaterialRequest}
                                     disabled={pendingItems.length === 0}
                                     className={`w-full font-bold py-2.5 rounded-lg transition-colors shadow-sm
-                                        ${pendingItems.length === 0 ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-slate-900 text-white hover:bg-slate-800'}
+                                        ${pendingItems.length === 0 ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-blue-600 text-white hover:bg-blue-700'}
                                     `}
                                 >
                                     Enviar Solicitação
