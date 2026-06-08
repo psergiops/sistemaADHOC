@@ -488,6 +488,25 @@ const App: React.FC = () => {
     setCurrentUser(null);
   };
 
+  const handleDeleteGuestList = async (id: string) => {
+    // Remove from local state immediately
+    setGuestLists(guestLists.filter(gl => gl.id !== id));
+    
+    // Delete from Supabase if configured
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('guest_lists').delete().eq('id', id);
+      if (error) {
+        console.error('Erro ao deletar lista de convidados:', error);
+        alert(`Erro ao deletar: ${error.message}`);
+        // Revert the deletion if it fails
+        const deletedList = guestLists.find(gl => gl.id === id);
+        if (deletedList) {
+          setGuestLists([...guestLists, deletedList]);
+        }
+      }
+    }
+  };
+
   // --- Data Handlers (Update Local State & Save DB) ---
 
   const handleAddShift = (newShifts: Shift[]) => {
@@ -807,7 +826,7 @@ const App: React.FC = () => {
       case 'social':
         return <SocialView posts={posts} staff={staff} currentUser={currentUser} clients={clients} onAddPost={(p) => { setPosts([p, ...posts]); saveToSupabase('posts', p); }} onUpdatePost={(p) => { setPosts(posts.map(ex => ex.id === p.id ? p : ex)); saveToSupabase('posts', p); }} onDeletePost={(id) => { setPosts(posts.filter(p => p.id !== id)); if (isSupabaseConfigured) supabase.from('posts').delete().eq('id', id); }} onLikePost={(pid, uid) => { const updated = posts.map(p => p.id === pid ? { ...p, likes: p.likes.includes(uid) ? p.likes.filter(id => id !== uid) : [...p.likes, uid] } : p); setPosts(updated); const p = updated.find(x => x.id === pid); if (p) saveToSupabase('posts', p); }} onCommentPost={(pid, comment) => { const updated = posts.map(p => p.id === pid ? { ...p, comments: [...p.comments, comment] } : p); setPosts(updated); const p = updated.find(x => x.id === pid); if (p) saveToSupabase('posts', p); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'concierge':
-        return <ConciergeView logs={entryLogs} guestLists={guestLists} reservations={reservations} materialRequests={materialRequests} staff={staff} clients={clients} currentUser={currentUser} onAddLog={(l) => { setEntryLogs([l, ...entryLogs]); saveToSupabase('entry_logs', l); }} onAddGuestList={(l) => { setGuestLists([l, ...guestLists]); saveToSupabase('guest_lists', l); }} onAddReservation={(r) => { setReservations([...reservations, r]); saveToSupabase('reservations', r); }} onAddMaterialRequest={(m) => { setMaterialRequests([...materialRequests, m]); saveToSupabase('material_requests', m); }} onUpdateGuestList={(l) => { setGuestLists(guestLists.map(gl => gl.id === l.id ? l : gl)); saveToSupabase('guest_lists', l); }} onDeleteGuestList={(id) => { setGuestLists(guestLists.filter(gl => gl.id !== id)); if (isSupabaseConfigured) supabase.from('guest_lists').delete().eq('id', id); }} onDeleteReservation={(id) => { setReservations(reservations.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('reservations').delete().eq('id', id); }} onDeleteMaterialRequest={(id) => { setMaterialRequests(materialRequests.filter(m => m.id !== id)); if (isSupabaseConfigured) supabase.from('material_requests').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <ConciergeView logs={entryLogs} guestLists={guestLists} reservations={reservations} materialRequests={materialRequests} staff={staff} clients={clients} currentUser={currentUser} onAddLog={(l) => { setEntryLogs([l, ...entryLogs]); saveToSupabase('entry_logs', l); }} onAddGuestList={(l) => { setGuestLists([l, ...guestLists]); saveToSupabase('guest_lists', l); }} onAddReservation={(r) => { setReservations([...reservations, r]); saveToSupabase('reservations', r); }} onAddMaterialRequest={(m) => { setMaterialRequests([...materialRequests, m]); saveToSupabase('material_requests', m); }} onUpdateGuestList={(l) => { setGuestLists(guestLists.map(gl => gl.id === l.id ? l : gl)); saveToSupabase('guest_lists', l); }} onDeleteGuestList={handleDeleteGuestList} onDeleteReservation={(id) => { setReservations(reservations.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('reservations').delete().eq('id', id); }} onDeleteMaterialRequest={(id) => { setMaterialRequests(materialRequests.filter(m => m.id !== id)); if (isSupabaseConfigured) supabase.from('material_requests').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'inventory':
         return <InventoryView items={inventoryItems} movements={inventoryMovements} currentUser={currentUser} onAddItem={(i) => { setInventoryItems([...inventoryItems, i]); saveToSupabase('inventory_items', i); }} onStockEntry={(code, qty, ref, staffId) => { const item = inventoryItems.find(i => i.code === code); if (item) { const updatedItem = { ...item, quantity: item.quantity + qty }; setInventoryItems(inventoryItems.map(i => i.id === item.id ? updatedItem : i)); saveToSupabase('inventory_items', updatedItem); const movement: InventoryMovement = { id: `mov-${Date.now()}`, itemId: item.id, itemName: item.name, type: 'IN', quantity: qty, date: new Date().toISOString(), referenceId: ref, performedBy: staffId }; setInventoryMovements([movement, ...inventoryMovements]); saveToSupabase('inventory_movements', movement); } }} onStockAdjustment={(itemId, qty, type, notes, staffId) => { const item = inventoryItems.find(i => i.id === itemId); if (item) { const diff = qty - item.quantity; const updatedItem = { ...item, quantity: qty }; setInventoryItems(inventoryItems.map(i => i.id === item.id ? updatedItem : i)); saveToSupabase('inventory_items', updatedItem); const movement: InventoryMovement = { id: `mov-${Date.now()}`, itemId: item.id, itemName: item.name, type: diff >= 0 ? 'IN' : 'OUT', quantity: diff, date: new Date().toISOString(), notes, performedBy: staffId }; setInventoryMovements([movement, ...inventoryMovements]); saveToSupabase('inventory_movements', movement); } }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'access-control':
@@ -837,8 +856,8 @@ const App: React.FC = () => {
                 id: `guest-${Date.now()}`,
                 name,
                 document: doc,
-                arrived: true,
-                arrivedAt: new Date().toISOString()
+                arrived: false,
+                arrivedAt: undefined
               };
               
               const updatedList = {
