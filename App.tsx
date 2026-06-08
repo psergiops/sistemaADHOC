@@ -427,7 +427,7 @@ const App: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         const email = session.user.email;
-        if (email === 'admin@ad-hoc.com') {
+        if (email === 'admin@ad-hoc.com' || email === 'teste@adhoc.com') {
           setCurrentUser({
             id: session.user.id,
             name: 'Administrador do Sistema',

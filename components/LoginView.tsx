@@ -66,16 +66,14 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
 
       if (data.user) {
         // Find corresponding staff profile by email
-        let staffProfile = null;
-        try {
-          const result = await supabase
-            .from('staff')
-            .select('*')
-            .eq('email', data.user.email)
-            .single();
-          staffProfile = result.data;
-        } catch (e) {
-          console.warn("Could not fetch staff profile:", e);
+        const { data: staffProfile, error: profileError } = await supabase
+          .from('staff')
+          .select('*')
+          .eq('email', data.user.email)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error("Error fetching staff profile:", profileError);
         }
 
         if (staffProfile) {
