@@ -453,7 +453,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
         <>
             {/* Tabs */}
             <div className="bg-white border-b border-slate-200 px-6">
-                <div className="flex gap-6 overflow-x-auto">
+                <div className="flex gap-4 md:gap-6 flex-wrap">
                     <button 
                         onClick={() => setActiveTab('logs')}
                         className={`py-4 text-sm font-medium border-b-2 flex items-center gap-2 transition-colors ${
