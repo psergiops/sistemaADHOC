@@ -22,6 +22,7 @@ import CreateShiftModal from './components/CreateShiftModal';
 import ShiftCheckinReportModal from './components/ShiftCheckinReportModal';
 import HelpCenterModal from './components/HelpCenterModal';
 import SearchPicker, { PickerItem } from './components/SearchPicker';
+import GuestRegistrationView from './components/GuestRegistrationView';
 import { Building2 } from 'lucide-react';
 
 import {
@@ -49,6 +50,8 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [initialPasswordHint, setInitialPasswordHint] = useState('');
+  const [guestToken, setGuestToken] = useState<string | null>(null);
+  const [guestEventData, setGuestEventData] = useState<any>(null);
 
   // --- App Data State ---
   // If Supabase is configured, we start empty and wait for fetch. If not, we use Mocks.
@@ -264,6 +267,53 @@ const App: React.FC = () => {
     notes: d.notes,
     recurrenceId: d.recurrenceid
   });
+
+  // --- Guest Registration Effect ---
+  useEffect(() => {
+    // Check if there's a guest token in the URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    
+    if (token) {
+      setGuestToken(token);
+      
+      // Find the guest list with this token
+      if (isSupabaseConfigured) {
+        supabase
+          .from('guest_lists')
+          .select('*')
+          .eq('linktoken', token)
+          .single()
+          .then(({ data, error }) => {
+            if (data && !error) {
+              const guestList = unflattenData('guest_lists', data);
+              // Find the client name
+              const client = clients.find(c => c.id === guestList.clientId);
+              setGuestEventData({
+                hostName: guestList.residentName,
+                eventName: guestList.eventName,
+                locationName: client?.name || 'Local do Evento',
+                date: guestList.date,
+                guestListId: guestList.id
+              });
+            }
+          });
+      } else {
+        // Use mock data
+        const guestList = MOCK_GUEST_LISTS.find(gl => gl.linkToken === token);
+        if (guestList) {
+          const client = MOCK_CLIENTS.find(c => c.id === guestList.clientId);
+          setGuestEventData({
+            hostName: guestList.residentName,
+            eventName: guestList.eventName,
+            locationName: client?.name || 'Local do Evento',
+            date: guestList.date,
+            guestListId: guestList.id
+          });
+        }
+      }
+    }
+  }, [clients]);
 
   // --- Auth & Session Effect ---
   useEffect(() => {
@@ -760,49 +810,89 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#F1F5F9] overflow-hidden font-sans text-slate-900">
-      <Sidebar
-        currentView={currentView as any}
-        onNavigate={setCurrentView}
-        onLogout={handleLogout}
-        onOpenHelp={() => setIsHelpOpen(true)}
-        currentUser={currentUser}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        permissions={permissions}
-      />
+    <>
+      {guestToken ? (
+        <GuestRegistrationView 
+          token={guestToken}
+          data={guestEventData}
+          onRegister={async (name: string, doc: string) => {
+            if (!guestEventData?.guestListId) return;
+            
+            // Find the guest list and add the guest
+            const guestList = guestLists.find(gl => gl.id === guestEventData.guestListId);
+            if (guestList) {
+              const newGuest: any = {
+                id: `guest-${Date.now()}`,
+                name,
+                document: doc,
+                arrived: true,
+                arrivedAt: new Date().toISOString()
+              };
+              
+              const updatedList = {
+                ...guestList,
+                guests: [...guestList.guests, newGuest]
+              };
+              
+              setGuestLists(guestLists.map(gl => gl.id === guestEventData.guestListId ? updatedList : gl));
+              if (isSupabaseConfigured) {
+                await supabase.from('guest_lists').update(flattenData('guest_lists', updatedList)).eq('id', guestEventData.guestListId);
+              }
+            }
+          }}
+          onExit={() => {
+            // Clear the token and return to login
+            setGuestToken(null);
+            setGuestEventData(null);
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }}
+        />
+      ) : (
+        <div className="flex h-screen bg-[#F1F5F9] overflow-hidden font-sans text-slate-900">
+          <Sidebar
+            currentView={currentView as any}
+            onNavigate={setCurrentView}
+            onLogout={handleLogout}
+            onOpenHelp={() => setIsHelpOpen(true)}
+            currentUser={currentUser}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            permissions={permissions}
+          />
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {renderContent()}
-      </main>
+          <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+            {renderContent()}
+          </main>
 
-      {/* Global Modals */}
-      <CreateShiftModal
-        isOpen={isShiftModalOpen}
-        onClose={() => setIsShiftModalOpen(false)}
-        onSave={handleAddShift}
-        onDelete={handleDeleteShift}
-        staffList={staff}
-        clientList={clients}
-        initialDate={currentDate}
-        shiftToEdit={editingShift}
-      />
+          {/* Global Modals */}
+          <CreateShiftModal
+            isOpen={isShiftModalOpen}
+            onClose={() => setIsShiftModalOpen(false)}
+            onSave={handleAddShift}
+            onDelete={handleDeleteShift}
+            staffList={staff}
+            clientList={clients}
+            initialDate={currentDate}
+            shiftToEdit={editingShift}
+          />
 
-      <ShiftCheckinReportModal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-        checkins={[]} // Would be populated from DB/State in real scenario
-        shifts={shifts}
-        staff={staff}
-        clients={clients}
-      />
+          <ShiftCheckinReportModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            checkins={[]} // Would be populated from DB/State in real scenario
+            shifts={shifts}
+            staff={staff}
+            clients={clients}
+          />
 
-      <HelpCenterModal
-        isOpen={isHelpOpen}
-        onClose={() => setIsHelpOpen(false)}
-        initialTopicId={currentView}
-      />
-    </div>
+          <HelpCenterModal
+            isOpen={isHelpOpen}
+            onClose={() => setIsHelpOpen(false)}
+            initialTopicId={currentView}
+          />
+        </div>
+      )}
+    </>
   );
 };
 
