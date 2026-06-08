@@ -427,16 +427,8 @@ const App: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         const email = session.user.email;
-        if (email === 'admin@ad-hoc.com' || email === 'teste@adhoc.com') {
-          setCurrentUser({
-            id: session.user.id,
-            name: 'Administrador do Sistema',
-            role: 'Diretoria',
-            avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
-          });
-          setIsAuthenticated(true);
-        } else if (email) {
-          supabase.from('staff').select('*').eq('email', email).single().then(({ data }) => {
+        if (email) {
+          supabase.from('staff').select('*').eq('email', email).single().then(({ data, error }) => {
             if (data) {
               const staffProfile = unflattenData('staff', data);
               setCurrentUser({
@@ -444,6 +436,9 @@ const App: React.FC = () => {
                 avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`
               });
               setIsAuthenticated(true);
+            } else {
+              console.warn(`Sessão restaurada, mas nenhum perfil de Staff encontrado para: ${email}`);
+              supabase.auth.signOut();
             }
           });
         }

@@ -22,7 +22,7 @@ async function runBackfill() {
     console.log("=== INICIANDO CRIAÇÃO DE LOGINS FALTANTES ===");
 
     // 1. Busca todos os funcionários na tabela `staff`
-    const { data: staffList, error: fetchErr } = await supabase.from('staff').select('id, name, email, documents');
+    const { data: staffList, error: fetchErr } = await supabase.from('staff').select('id, name, email, cpf');
 
     if (fetchErr) {
         console.error("❌ Erro ao buscar colaboradores:", fetchErr.message);
@@ -44,7 +44,7 @@ async function runBackfill() {
     // Se o email já existir no Auth, o signUp falha ou retorna o Auth existente (dependendo das configs),
     // mas de qualquer forma ele não quebra o loop.
     for (const member of staffList) {
-        const cpf = member.documents?.cpf;
+        const cpf = member.cpf;
 
         if (!cpf) {
             console.log(`⚠️ Skiping ${member.name} (${member.email}) - Não possui CPF cadastrado.`);

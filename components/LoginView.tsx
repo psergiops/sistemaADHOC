@@ -77,8 +77,6 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
         }
 
         if (staffProfile) {
-          // We'll let App.tsx handle the unflattening via onAuthStateChange, 
-          // but we can also trigger onLogin here as a fallback or immediate UI update
           onLogin({
             id: staffProfile.id,
             name: staffProfile.name,
@@ -86,16 +84,9 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
             avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`,
             ...staffProfile 
           }, data);
-        } else if (data.user.email === 'admin@ad-hoc.com' || data.user.email === 'teste@adhoc.com') {
-          onLogin({
-            id: data.user.id,
-            name: 'Administrador do Sistema',
-            role: 'Diretoria',
-            email: data.user.email,
-            avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
-          }, data);
         } else {
-          setError('Usuário autenticado, mas nenhum perfil de Staff encontrado para este e-mail.');
+          console.warn(`Nenhum perfil de Staff encontrado para o e-mail: ${data.user.email}. Verifique se o usuário existe na tabela 'staff'.`);
+          setError('Usuário autenticado, mas nenhum perfil de Staff encontrado para este e-mail. Contate o administrador.');
           await supabase.auth.signOut();
         }
       }
