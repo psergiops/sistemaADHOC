@@ -462,32 +462,26 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                             </h3>
                             <form onSubmit={handleSaveLog} className="space-y-4">
                                 {/* Form content same as before */}
-                                <div className="space-y-1.5">
+                                    <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Tipo de Registro</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button type="button" 
                                             onClick={() => setNewLog({...newLog, type: 'Visitor'})}
                                             className={`py-2 px-3 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 ${newLog.type === 'Visitor' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-slate-200 text-slate-600'}`}
                                         >
-                                            <User size={16} /> Visita / Serviço
-                                        </button>
-                                        <button type="button" 
-                                            onClick={() => setNewLog({...newLog, type: 'Mail'})}
-                                            className={`py-2 px-3 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 ${newLog.type === 'Mail' ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-white border-slate-200 text-slate-600'}`}
-                                        >
-                                            <Box size={16} /> Correspondência
+                                            <User size={16} /> Visitantes
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">
-                                        {newLog.type === 'Mail' ? 'Destinatário (Morador/Apto)' : 'Nome do Visitante/Prestador'}
+                                        Nome do Visitante/Prestador
                                     </label>
                                     <input 
                                         required type="text" className={darkInputClass}
                                         value={newLog.name} onChange={e => setNewLog({...newLog, name: e.target.value})}
-                                        placeholder={newLog.type === 'Mail' ? 'Ex: Apto 101 - Maria' : 'Ex: José Silva (Técnico)'}
+                                        placeholder="Ex: José Silva (Técnico)"
                                     />
                                 </div>
 
@@ -524,7 +518,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     <textarea 
                                         rows={2} className={darkInputClass}
                                         value={newLog.notes} onChange={e => setNewLog({...newLog, notes: e.target.value})}
-                                        placeholder={newLog.type === 'Mail' ? 'Ex: Pacote Amazon' : 'Ex: Instalação Internet'}
+                                        placeholder="Ex: Instalação Internet"
                                     />
                                 </div>
 
@@ -553,15 +547,15 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                 {filteredLogs.map(log => (
                                     <div key={log.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start gap-4 animate-in fade-in slide-in-from-bottom-2">
                                         <div className={`p-3 rounded-xl flex flex-col items-center justify-center w-16 text-xs font-bold
-                                            ${log.type === 'Mail' ? 'bg-orange-50 text-orange-700' : 'bg-blue-50 text-blue-700'}
+                                            bg-blue-50 text-blue-700
                                         `}>
                                             {format(parseISO(log.timestamp), 'HH:mm')}
-                                            {log.type === 'Mail' ? <Box size={18} className="mt-1"/> : <User size={18} className="mt-1"/>}
+                                            <User size={18} className="mt-1"/>
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex justify-between items-start">
                                                 <h4 className="font-bold text-slate-800">{log.name}</h4>
-                                                <span className="text-[10px] text-slate-400 uppercase tracking-wide font-medium">{log.type === 'Mail' ? 'Correio' : 'Visita'}</span>
+                                                <span className="text-[10px] text-slate-400 uppercase tracking-wide font-medium">Visita</span>
                                             </div>
                                             
                                             {log.type === 'Visitor' && (

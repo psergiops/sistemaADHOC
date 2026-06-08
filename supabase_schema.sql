@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS audit_logs CASCADE;
 DROP TABLE IF EXISTS shift_checkins CASCADE;
 DROP TABLE IF EXISTS inventory_movements CASCADE;
 DROP TABLE IF EXISTS inventory_items CASCADE;
+DROP TABLE IF EXISTS packages CASCADE;
 DROP TABLE IF EXISTS material_requests CASCADE;
 DROP TABLE IF EXISTS reservations CASCADE;
 DROP TABLE IF EXISTS guest_lists CASCADE;
@@ -347,21 +348,23 @@ CREATE TABLE shift_checkins (
 );
 ALTER TABLE shift_checkins DISABLE ROW LEVEL SECURITY;
 
--- Tabela: CORRESPONDENCIAS
-CREATE TABLE correspondencias (
+-- Tabela: PACKAGES
+CREATE TABLE packages (
     id text PRIMARY KEY,
     clientid text NOT NULL,
-    remetente text NOT NULL,
-    destinatario text NOT NULL,
-    tipo text NOT NULL,
-    status text NOT NULL DEFAULT 'Recebido',
-    datarecebimento text,
-    registradopor text,
-    observacao text,
-    dataentrega text,
-    entreguepor text
+    sendername text NOT NULL,
+    sendercontact text,
+    recipientunit text,
+    description text,
+    receiveddate text,
+    receivedby text,
+    deliverynotes text,
+    status text DEFAULT 'Received',
+    pickedupby text,
+    pickedupdate text,
+    pickeduptime text
 );
-ALTER TABLE correspondencias DISABLE ROW LEVEL SECURITY;
+ALTER TABLE packages DISABLE ROW LEVEL SECURITY;
 
 -- Tabela: AUDIT_LOGS
 CREATE TABLE audit_logs (
