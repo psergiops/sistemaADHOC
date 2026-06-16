@@ -388,6 +388,10 @@ export interface ShiftHandover {
   date: string;
   type: 'Inicio' | 'Fim';
   report: string;
+  equipamentos: string;
+  ocorrencias: string;
+  pendencias: string;
+  observacoes: string;
   createdAt: string;
 }
 

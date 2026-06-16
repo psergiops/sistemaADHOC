@@ -174,6 +174,7 @@ const App: React.FC = () => {
       'targetName': 'targetname', 'checkinTime': 'checkintime', 'shiftTimeReference': 'shifttimereference',
       'relatedClientId': 'relatedclientid', 'relatedSupplierId': 'relatedsupplierid',
       'shiftId': 'shiftid', 'createdAt': 'createdat',
+      'equipamentos': 'equipamentos', 'ocorrencias': 'ocorrencias', 'pendencias': 'pendencias', 'observacoes': 'observacoes',
       'senderName': 'sendername', 'senderContact': 'sendercontact', 'recipientUnit': 'recipientunit',
       'receivedDate': 'receiveddate', 'receivedBy': 'receivedby', 'deliveryNotes': 'deliverynotes',
       'pickedUpBy': 'pickedupby', 'pickedUpDate': 'pickedupdate', 'pickedUpTime': 'pickeduptime', 'clientId': 'clientid'

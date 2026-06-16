@@ -382,6 +382,10 @@ CREATE TABLE shift_handovers (
     date text NOT NULL,
     type text NOT NULL,
     report text,
+    equipamentos text,
+    ocorrencias text,
+    pendencias text,
+    observacoes text,
     createdat text
 );
 ALTER TABLE shift_handovers DISABLE ROW LEVEL SECURITY;
