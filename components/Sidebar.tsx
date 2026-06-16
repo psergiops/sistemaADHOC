@@ -202,11 +202,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {/* 5. Equipe */}
+              {/* 5. Funcionários */}
               {canAccess('team') && (
                 <NavItem 
                   icon={<Users size={20}/>} 
-                  label="Equipe" 
+                  label="Funcionários" 
                   active={currentView === 'team'} 
                   onClick={() => handleNavClick('team')}
                 />

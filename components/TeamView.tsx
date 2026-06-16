@@ -195,7 +195,7 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
              <Menu size={24} />
           </button>
           <div>
-            <h2 className="text-xl font-bold text-slate-800">Gestão de Equipe</h2>
+            <h2 className="text-xl font-bold text-slate-800">Gestão de Funcionários</h2>
             <p className="text-sm text-slate-500">Gerencie colaboradores, contratos e documentos</p>
           </div>
         </div>

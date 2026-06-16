@@ -86,7 +86,7 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({ logs, onToggleMenu, onShowH
                 className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-100"
               >
                  <option value="all">Todas Categorias</option>
-                 <option value="Equipe">Equipe</option>
+                 <option value="Equipe">Funcionários</option>
                  <option value="Clientes">Clientes</option>
                  <option value="Fornecedores">Fornecedores</option>
                  <option value="Escala">Escala</option>

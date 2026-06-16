@@ -77,6 +77,7 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
     const newShift: Shift = {
       id: `sh-${Date.now()}`,
       staffId: '',
+      customStaffName: '', // Empty string indicates we have a collaborator slot
       locationId: clientId,
       station: stationName,
       date: dateKey,
@@ -97,9 +98,9 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
         if (foundStaff) {
             updatedShift = { ...updatedShift, staffId: foundStaff.id, customStaffName: undefined };
         } else {
-            // If empty string, clear both
+            // If empty string, keep customStaffName as '' so the input row remains visible
             if (!val.trim()) {
-                updatedShift = { ...updatedShift, staffId: '', customStaffName: undefined };
+                updatedShift = { ...updatedShift, staffId: '', customStaffName: '' };
             } else {
                 // Else treat as custom name
                 updatedShift = { ...updatedShift, staffId: '', customStaffName: val };
@@ -207,17 +208,22 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
                                         type="text" 
                                         className="font-bold text-xs text-slate-500 uppercase tracking-wider bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none transition-colors py-0.5 w-full"
                                         defaultValue={stationName}
+                                        autoFocus={stationsMap.get(stationName)?.some(s => s.id === editingPostoId) || false}
+                                        key={stationName + (stationsMap.get(stationName)?.some(s => s.id === editingPostoId) ? '-editing' : '')}
                                         onBlur={(e) => {
                                            if (e.target.value !== stationName && e.target.value.trim() !== '') {
                                               handleUpdatePostoName(client.id, stationName, e.target.value);
                                            }
+                                           setEditingPostoId(null);
                                         }}
                                       />
                                    </div>
 
                                     {/* Team Members Vertical List */}
                                     <div className="space-y-2">
-                                        {stationsMap.get(stationName)?.map((shift) => {
+                                        {stationsMap.get(stationName)
+                                            ?.filter(shift => shift.staffId || shift.customStaffName !== undefined)
+                                            ?.map((shift) => {
                                             const staffMember = staff.find(s => s.id === shift.staffId || s.name === shift.staffId);
                                             return (
                                                 <div key={shift.id} className="bg-white rounded-lg border border-slate-200 px-3 py-2 group relative hover:border-blue-200 transition-all flex items-center gap-3">

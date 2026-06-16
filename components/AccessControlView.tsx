@@ -19,7 +19,7 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
 
   const modules: { key: AppModule; label: string }[] = [
     { key: 'calendar', label: 'Escala' },
-    { key: 'team', label: 'Equipe' },
+    { key: 'team', label: 'Funcionários' },
     { key: 'clients', label: 'Clientes' },
     { key: 'concierge', label: 'Portaria' },
     { key: 'patrol', label: 'Rondas' },

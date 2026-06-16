@@ -40,7 +40,7 @@ const TUTORIAL_DATA = [
   },
   {
     id: 'team',
-    title: 'Gestão de Equipe',
+    title: 'Gestão de Funcionários',
     icon: Users,
     description: 'Cadastro de colaboradores e controle de documentos.',
     steps: [
