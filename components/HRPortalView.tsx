@@ -102,7 +102,13 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
 
   const DOCUMENT_TYPES = ['Atestado Médico', 'Declaração de Imposto de Renda', 'Declaração', 'Recibo', 'Comprovante', 'Outros'];
 
-  const [newDocument, setNewDocument] = useState<{staffId: string, documentType: string, documentDate: string, notes: string}>({ staffId: '', documentType: 'Atestado Médico', documentDate: '', notes: '' });
+  const [newDocument, setNewDocument] = useState<{staffId: string, documentType: string, documentDate: string, notes: string}>({ staffId: canManage ? '' : (effectiveUser?.id || ''), documentType: 'Atestado Médico', documentDate: '', notes: '' });
+
+  useEffect(() => {
+    if (!canManage && effectiveUser?.id) {
+      setNewDocument(prev => ({ ...prev, staffId: effectiveUser.id }));
+    }
+  }, [canManage, effectiveUser]);
   const [selectedDocFile, setSelectedDocFile] = useState<File | null>(null);
   const docFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -332,7 +338,7 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   
   const pendingRequests = changeRequests.filter(r => r.status === 'Pending');
 
-  const pendingDocuments = documents.filter(d => d.uploadedBy !== effectiveUser.id);
+  const pendingDocuments = effectiveUser ? documents.filter(d => d.uploadedBy !== effectiveUser.id) : [];
 
   // Pending Material Requests for Management
   const pendingMaterials = materialRequests.filter(r => r.status !== 'Completed').sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -846,7 +852,7 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
                             <Download size={20} />
                           </a>
                         )}
-                        {(canManage || doc.staffId === effectiveUser.id) && (
+                        {(canManage || (effectiveUser && doc.staffId === effectiveUser.id)) && (
                           <button
                             onClick={() => onDeleteDocument(doc.id)}
                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
