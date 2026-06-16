@@ -1020,7 +1020,7 @@ const App: React.FC = () => {
           <GuestRegistrationView 
             token={guestToken}
             data={guestEventData}
-          onRegister={async (name: string, doc: string) => {
+          onRegister={async (name: string, doc: string, photo: string) => {
             if (!guestEventData?.guestListId) return;
             
             // Find the guest list and add the guest
@@ -1030,6 +1030,7 @@ const App: React.FC = () => {
                 id: `guest-${Date.now()}`,
                 name,
                 document: doc,
+                photo,
                 arrived: false,
                 arrivedAt: undefined
               };

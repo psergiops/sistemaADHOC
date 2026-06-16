@@ -706,6 +706,11 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                                                 <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${g.arrived ? 'bg-green-500 border-green-500' : 'bg-white border-slate-300'}`}>
                                                                     {g.arrived && <Check size={10} className="text-white" strokeWidth={4} />}
                                                                 </div>
+                                                                {g.photo && (
+                                                                    <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-100">
+                                                                        <img src={g.photo} alt={g.name} className="w-full h-full object-cover" />
+                                                                    </div>
+                                                                )}
                                                                 <div className={`flex flex-col ${g.arrived ? 'opacity-50' : ''}`}>
                                                                     <span className={`font-medium text-slate-700 leading-none ${g.arrived ? 'line-through text-slate-500' : ''}`}>
                                                                         {g.name}

@@ -266,6 +266,7 @@ export interface Guest {
   id: string;
   name: string;
   document: string;
+  photo?: string;
   arrived?: boolean; // New: Check-in status
   arrivedAt?: string; // New: Timestamp
   isExtra?: boolean; // New: Added manually outside original list
