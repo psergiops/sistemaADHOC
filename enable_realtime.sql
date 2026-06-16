@@ -3,7 +3,6 @@
 -- Execute no SQL Editor do Supabase Dashboard
 -- =============================================
 
--- Adiciona todas as tabelas à publicação supabase_realtime
 ALTER PUBLICATION supabase_realtime ADD TABLE 
   staff,
   clients,
@@ -23,12 +22,5 @@ ALTER PUBLICATION supabase_realtime ADD TABLE
   correspondencias,
   inventory_items,
   inventory_movements,
-  audit_logs;
-
--- =============================================
--- Opcional: garantir REPLICA IDENTITY para
--- que UPDATE/DELETE funcionem corretamente
--- =============================================
--- ALTER TABLE staff REPLICA IDENTITY FULL;
--- ALTER TABLE clients REPLICA IDENTITY FULL;
--- (repita para cada tabela se necessário)
+  audit_logs,
+  document_attachments;

@@ -204,7 +204,9 @@ CREATE TABLE document_attachments (
     uploaddate text,
     notes text
 );
-ALTER TABLE document_attachments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE document_attachments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir tudo document_attachments" ON document_attachments
+    FOR ALL USING (true) WITH CHECK (true);
 
 -- Tabela: ANNOUNCEMENTS
 CREATE TABLE announcements (

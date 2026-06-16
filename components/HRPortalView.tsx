@@ -107,6 +107,8 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
 
   const [newDocument, setNewDocument] = useState<{staffId: string, documentType: string, documentDate: string, notes: string}>({ staffId: canManage ? '' : (effectiveUser?.id || ''), documentType: 'Atestado Médico', documentDate: '', notes: '' });
 
+  const [acknowledgedDocIds, setAcknowledgedDocIds] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     if (!canManage && effectiveUser?.id) {
       setNewDocument(prev => ({ ...prev, staffId: effectiveUser.id }));
@@ -342,6 +344,7 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   const pendingRequests = changeRequests.filter(r => r.status === 'Pending');
 
   const pendingDocuments = effectiveUser ? documents.filter(d => d.uploadedBy !== effectiveUser.id) : [];
+  const unacknowledgedDocs = pendingDocuments.filter(d => !acknowledgedDocIds.has(d.id));
 
   // Pending Material Requests for Management
   const pendingMaterials = materialRequests.filter(r => r.status !== 'Completed').sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -494,9 +497,9 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
             <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${activeTab === 'docs' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
                 {myDocuments.length}
             </span>
-            {canManage && pendingDocuments.length > 0 && (
+            {canManage && unacknowledgedDocs.length > 0 && (
               <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-bold">
-                {pendingDocuments.length}
+                {unacknowledgedDocs.length}
               </span>
             )}
           </button>
@@ -794,6 +797,64 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
                 </button>
               </form>
             </div>
+
+            {/* Pending Documents Section (Managers only) */}
+            {canManage && unacknowledgedDocs.length > 0 && (
+              <div className="bg-amber-50 rounded-xl border border-amber-200 shadow-sm p-6">
+                <h3 className="font-bold text-amber-800 flex items-center gap-2 mb-4">
+                  <AlertCircle size={20} />
+                  Documentos Pendentes ({unacknowledgedDocs.length})
+                </h3>
+                <div className="space-y-3">
+                  {unacknowledgedDocs.map(doc => {
+                    const owner = staff.find(s => s.id === doc.staffId);
+                    return (
+                      <div key={doc.id} className="bg-white p-4 rounded-lg border border-amber-100 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+                            <FileText size={20} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-800 truncate">{doc.fileName}</p>
+                            <p className="text-xs text-slate-500">
+                              {doc.documentType} • {doc.documentDate && new Date(doc.documentDate).toLocaleDateString()}
+                            </p>
+                            {owner && (
+                              <p className="text-xs font-medium text-amber-700 mt-0.5 flex items-center gap-1">
+                                <User size={10} />
+                                {owner.name}
+                              </p>
+                            )}
+                            {doc.notes && (
+                              <p className="text-xs text-slate-500 mt-1 italic truncate">{doc.notes}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {doc.url && doc.url !== '#' && (
+                            <a 
+                              href={doc.url} 
+                              download={doc.fileName}
+                              className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" 
+                              title="Baixar"
+                            >
+                              <Download size={20} />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => setAcknowledgedDocIds(prev => new Set(prev).add(doc.id))}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors"
+                          >
+                            <Check size={14} />
+                            Confirmar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Documents List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
