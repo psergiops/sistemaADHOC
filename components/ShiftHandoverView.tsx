@@ -26,6 +26,8 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [handoverType, setHandoverType] = useState<'Inicio' | 'Fim'>('Inicio');
   const [report, setReport] = useState({ equipamentos: '', ocorrencias: '', pendencias: '', observacoes: '' });
+  const [showAdHocForm, setShowAdHocForm] = useState(false);
+  const [adHocDate, setAdHocDate] = useState(today);
   const [viewingHandover, setViewingHandover] = useState<ShiftHandover | null>(null);
   const [historyFilter, setHistoryFilter] = useState<'all' | 'Inicio' | 'Fim'>('all');
   const [historyDate, setHistoryDate] = useState(today);
@@ -61,6 +63,26 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
       createdAt: new Date().toISOString()
     });
     setSelectedShift(null);
+  };
+
+  const submitAdHoc = (e: React.FormEvent) => {
+    e.preventDefault();
+    const fullReport = Object.values(report).filter(v => v.trim()).join('\n---\n');
+    onAddHandover({
+      id: `ho-${Date.now()}`,
+      staffId: currentUser.id,
+      shiftId: 'adhoc',
+      date: adHocDate,
+      type: handoverType,
+      report: fullReport || 'Sem ocorrências',
+      equipamentos: report.equipamentos,
+      ocorrencias: report.ocorrencias,
+      pendencias: report.pendencias,
+      observacoes: report.observacoes,
+      createdAt: new Date().toISOString()
+    });
+    setShowAdHocForm(false);
+    setReport({ equipamentos: '', ocorrencias: '', pendencias: '', observacoes: '' });
   };
 
   const allTodayShifts = shifts.filter(s => s.date === today);
@@ -100,6 +122,10 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
               <div className="text-center py-8 text-slate-400">
                 <Clock size={40} className="mx-auto mb-3 opacity-30" />
                 <p>Nenhum turno agendado para hoje.</p>
+                <button onClick={() => setShowAdHocForm(true)}
+                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                  <FileText size={16} /> Criar Relatório Avulso
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
@@ -146,6 +172,12 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                 ))}
               </div>
             )}
+            <div className="mt-3 text-center">
+              <button onClick={() => setShowAdHocForm(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                <FileText size={16} /> Criar Relatório Avulso
+              </button>
+            </div>
           </div>
 
           {/* Manager View: All reports today */}
@@ -237,6 +269,7 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
               <div className="space-y-3">
                 {filteredHistory.map(h => {
                   const shift = shifts.find(s => s.id === h.shiftId);
+                  const isAdHoc = h.shiftId === 'adhoc';
                   return (
                     <div key={h.id} className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
                       <div className="flex items-center justify-between px-4 py-3 bg-slate-100/50">
@@ -244,9 +277,15 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                           <span className={`text-xs font-bold px-2 py-0.5 rounded ${h.type === 'Inicio' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
                             {h.type === 'Inicio' ? 'INÍCIO' : 'FIM'}
                           </span>
-                          <span className="text-slate-600">{shift?.startTime} - {shift?.endTime}</span>
-                          <span className="text-slate-400">|</span>
-                          <span className="text-slate-500">{shift?.station}</span>
+                          {isAdHoc ? (
+                            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">AVULSO</span>
+                          ) : (
+                            <>
+                              <span className="text-slate-600">{shift?.startTime} - {shift?.endTime}</span>
+                              <span className="text-slate-400">|</span>
+                              <span className="text-slate-500">{shift?.station}</span>
+                            </>
+                          )}
                         </div>
                         <button onClick={() => setViewingHandover(h)}
                           className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800">
@@ -343,6 +382,88 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                   className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm ${handoverType === 'Inicio' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700'}`}>
                   {handoverType === 'Inicio' ? <Play size={16} /> : <Square size={16} />}
                   Salvar Relatório
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Ad-Hoc Form Modal */}
+      {showAdHocForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">Relatório Avulso</h3>
+                  <p className="text-sm text-slate-500">Relatório sem vínculo com turno agendado</p>
+                </div>
+              </div>
+              <button onClick={() => setShowAdHocForm(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={submitAdHoc} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700">Data</label>
+                    <input type="date" className={inputClass} value={adHocDate} onChange={e => setAdHocDate(e.target.value)} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700">Tipo</label>
+                    <select className={inputClass} value={handoverType} onChange={e => setHandoverType(e.target.value as 'Inicio' | 'Fim')}>
+                      <option value="Inicio">Início de Turno</option>
+                      <option value="Fim">Finalização de Turno</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Situação dos Equipamentos / Posto</label>
+                  <textarea className={inputClass} rows={3}
+                    placeholder="Ex: Rádio funcionando, câmeras OK, mesa e cadeira em bom estado..."
+                    value={report.equipamentos} onChange={e => setReport({...report, equipamentos: e.target.value})} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Ocorrências</label>
+                  <textarea className={inputClass} rows={3}
+                    placeholder={handoverType === 'Inicio'
+                      ? 'Ocorrências em andamento...'
+                      : 'Relate as ocorrências do turno...'}
+                    value={report.ocorrencias} onChange={e => setReport({...report, ocorrencias: e.target.value})} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Pendências</label>
+                  <textarea className={inputClass} rows={3}
+                    placeholder={handoverType === 'Inicio'
+                      ? 'Pendências a resolver durante o turno...'
+                      : 'Pendências para o próximo turno...'}
+                    value={report.pendencias} onChange={e => setReport({...report, pendencias: e.target.value})} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Observações Gerais</label>
+                  <textarea className={inputClass} rows={2}
+                    placeholder="Informações adicionais..."
+                    value={report.observacoes} onChange={e => setReport({...report, observacoes: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-slate-100 flex justify-end gap-3 shrink-0">
+                <button type="button" onClick={() => setShowAdHocForm(false)}
+                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">
+                  Cancelar
+                </button>
+                <button type="submit"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm">
+                  <FileText size={16} /> Salvar Relatório
                 </button>
               </div>
             </form>
