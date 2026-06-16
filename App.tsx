@@ -397,6 +397,21 @@ const App: React.FC = () => {
       } as DocumentAttachment;
     }
 
+    if (table === 'residents') {
+      return {
+        id: d('id'),
+        name: d('name'),
+        unit: d('unit'),
+        origin: d('origin'),
+        clientId: d('clientid'),
+        email: d('email'),
+        password: d('password'),
+        phone: d('phone'),
+        isActive: d('isactive') !== false,
+        createdAt: d('createdat')
+      } as Resident;
+    }
+
     return data;
   };
 
@@ -496,12 +511,13 @@ const App: React.FC = () => {
               if (rData && rData.length > 0) {
                 const match = rData.find((r: any) => r.email?.toLowerCase() === email.toLowerCase());
                 if (match) {
+                  const unflat = unflattenData('residents', match);
                   setCurrentUser({
-                    id: match.id,
-                    name: match.name,
+                    id: unflat.id,
+                    name: unflat.name,
                     role: 'Morador',
-                    resident: match,
-                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(match.name)}&background=22C55E&color=fff`
+                    resident: unflat,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(unflat.name)}&background=22C55E&color=fff`
                   });
                   setIsAuthenticated(true);
                 }
@@ -597,7 +613,7 @@ const App: React.FC = () => {
           if (evalData) setEvaluations(evalData);
 
           const { data: residentData } = await supabase.from('residents').select('*');
-          if (residentData) setResidents(residentData);
+          if (residentData) setResidents(residentData.map(d => unflattenData('residents', d)));
 
           console.log("✅ Dados carregados com sucesso!");
         } catch (error: any) {
