@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Resident, Client, Staff } from '../types';
-import { format } from 'date-fns';
 import { Users, Plus, Pencil, Trash2, Menu, HelpCircle, X, Search } from 'lucide-react';
 
 interface ResidentsViewProps {
@@ -47,9 +46,11 @@ const ResidentsView: React.FC<ResidentsViewProps> = ({
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.unit || !form.email) return;
-    const data: Resident = editingResident
-      ? { ...editingResident, ...form }
-      : { id: `res-${Date.now()}`, ...form, isActive: true, createdAt: new Date().toISOString() };
+    const data: Resident = {
+      ...(editingResident ? editingResident : { id: `res-${Date.now()}`, createdAt: new Date().toISOString() }),
+      ...form,
+      isActive: true
+    };
 
     if (editingResident) onUpdateResident(data);
     else onAddResident(data);
@@ -106,7 +107,6 @@ const ResidentsView: React.FC<ResidentsViewProps> = ({
                       <th className="text-left py-2 px-3">Unidade</th>
                       <th className="text-left py-2 px-3">Condomínio</th>
                       <th className="text-left py-2 px-3">Email</th>
-                      <th className="text-center py-2 px-3">Ativo</th>
                       <th className="text-center py-2 px-3"></th>
                     </tr>
                   </thead>
@@ -119,11 +119,6 @@ const ResidentsView: React.FC<ResidentsViewProps> = ({
                           <td className="py-2 px-3 text-slate-600">{r.unit}</td>
                           <td className="py-2 px-3 text-slate-600">{client?.name || r.origin || '-'}</td>
                           <td className="py-2 px-3 text-slate-500">{r.email}</td>
-                          <td className="py-2 px-3 text-center">
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${r.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                              {r.isActive ? 'Sim' : 'Não'}
-                            </span>
-                          </td>
                           <td className="py-2 px-3 text-center">
                             <div className="flex items-center justify-center gap-1">
                               <button onClick={() => openForm(r)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="Editar">
