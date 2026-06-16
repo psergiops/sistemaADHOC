@@ -538,6 +538,44 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // --- Real-time + Polling for Guest Lists ---
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    // Real-time subscription via Supabase Realtime
+    const channel = supabase
+      .channel('guest-lists-realtime')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'guest_lists' },
+        async (payload) => {
+          if (payload.eventType === 'INSERT' && payload.new) {
+            const list = unflattenData('guest_lists', payload.new);
+            setGuestLists(prev => [list, ...prev]);
+          } else if (payload.eventType === 'UPDATE' && payload.new) {
+            const updated = unflattenData('guest_lists', payload.new);
+            setGuestLists(prev => prev.map(gl => gl.id === updated.id ? updated : gl));
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            setGuestLists(prev => prev.filter(gl => gl.id !== (payload.old as any).id));
+          }
+        }
+      )
+      .subscribe();
+
+    // Polling fallback (every 15s) for when Realtime is not enabled
+    const interval = setInterval(async () => {
+      const { data } = await supabase.from('guest_lists').select('*');
+      if (data) {
+        const updated = data.map(d => unflattenData('guest_lists', d));
+        setGuestLists(updated);
+      }
+    }, 15000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
+  }, []);
+
   // --- Handlers for CRUD Operations with Supabase ---
   const saveToSupabase = async (table: string, data: any | any[]) => {
     if (!isSupabaseConfigured) {
