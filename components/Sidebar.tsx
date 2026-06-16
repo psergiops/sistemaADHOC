@@ -24,7 +24,7 @@ import {
 import { Staff, PermissionConfig, AppModule, Post } from '../types';
 
 interface SidebarProps {
-  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory' | 'shift-handover';
+  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations';
   onNavigate: (view: any) => void;
   onLogout: () => void;
   onOpenHelp: () => void;
@@ -33,9 +33,10 @@ interface SidebarProps {
   onClose: () => void;
   permissions?: PermissionConfig;
   socialUnreadCount?: number;
+  evaluationNotifCount?: number;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, onOpenHelp, currentUser, isOpen, onClose, permissions, socialUnreadCount }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, onOpenHelp, currentUser, isOpen, onClose, permissions, socialUnreadCount, evaluationNotifCount }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
 
@@ -176,7 +177,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {/* 2. Portaria */}
+              {/* 2. Avaliação de Desempenho */}
+              {canAccess('evaluations') && (
+                <NavItem 
+                  icon={<ClipboardCheck size={20}/>} 
+                  label="Avaliação" 
+                  active={currentView === 'evaluations'} 
+                  onClick={() => handleNavClick('evaluations')}
+                  badge={evaluationNotifCount}
+                />
+              )}
+
+              {/* 3. Portaria */}
               {canAccess('concierge') && (
                 <NavItem 
                   icon={<KeyRound size={20}/>} 

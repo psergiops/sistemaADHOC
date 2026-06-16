@@ -629,5 +629,9 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     view: ['Diretoria'],
     edit: []
   },
+  evaluations: {
+    view: ['Diretoria', 'Administração', 'Supervisor', 'RH'],
+    edit: ['Diretoria', 'Supervisor', 'RH']
+  },
   socialViewAllStaffIds: []
 };

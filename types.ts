@@ -453,7 +453,31 @@ export interface Correspondencia {
 
 // --- Access Control / Permissions Types ---
 
-export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory' | 'shift-handover';
+export interface PerformanceEvaluation {
+  id: string;
+  staffId: string;
+  evaluatorId: string;
+  date: string;
+  assiduidade: number;
+  qualidadeTrabalho: number;
+  iniciativa: number;
+  trabalhoEquipe: number;
+  disciplina: number;
+  aparencia: number;
+  conhecimento: number;
+  overallScore: number;
+  strengths: string;
+  improvements: string;
+  generalNotes: string;
+  requiresReevaluation: boolean;
+  nextEvaluationDate: string;
+  previousEvaluationId?: string;
+  status: 'pending' | 'completed';
+  sentToRH: boolean;
+  createdAt: string;
+}
+
+export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations';
 
 export interface ModulePermissions {
   view: string[];

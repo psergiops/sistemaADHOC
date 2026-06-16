@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS vehicle_checklists CASCADE;
 DROP TABLE IF EXISTS change_requests CASCADE;
 DROP TABLE IF EXISTS announcements CASCADE;
 DROP TABLE IF EXISTS document_attachments CASCADE;
+DROP TABLE IF EXISTS performance_evaluations CASCADE;
 DROP TABLE IF EXISTS paystubs CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
 DROP TABLE IF EXISTS suppliers CASCADE;
@@ -421,6 +422,32 @@ CREATE TABLE audit_logs (
     details text
 );
 ALTER TABLE audit_logs DISABLE ROW LEVEL SECURITY;
+
+-- Tabela: PERFORMANCE_EVALUATIONS
+CREATE TABLE performance_evaluations (
+    id text PRIMARY KEY,
+    staffid text NOT NULL,
+    evaluatorid text NOT NULL,
+    date text NOT NULL,
+    assiduidade integer DEFAULT 3,
+    qualidadetrabalho integer DEFAULT 3,
+    iniciativa integer DEFAULT 3,
+    trabalhoequipe integer DEFAULT 3,
+    disciplina integer DEFAULT 3,
+    aparencia integer DEFAULT 3,
+    conhecimento integer DEFAULT 3,
+    overallscore real DEFAULT 3,
+    strengths text,
+    improvements text,
+    generalnotes text,
+    requiresreevaluation boolean DEFAULT false,
+    nextevaluationdate text,
+    previousevaluationid text,
+    status text DEFAULT 'completed',
+    senttorh boolean DEFAULT true,
+    createdat text
+);
+ALTER TABLE performance_evaluations DISABLE ROW LEVEL SECURITY;
 
 -- GRANT PERMISSIONS
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;

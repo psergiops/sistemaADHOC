@@ -30,6 +30,7 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
     { key: 'social', label: 'Social' },
     { key: 'financial', label: 'Financeiro' },
     { key: 'portal', label: 'Portal RH' },
+    { key: 'evaluations', label: 'Avaliação de Desempenho' },
     { key: 'settings', label: 'Configurações' },
   ];
 

@@ -22,10 +22,12 @@ import DailyScheduleTable from './components/DailyScheduleTable';
 import CreateShiftModal from './components/CreateShiftModal';
 import ShiftCheckinReportModal from './components/ShiftCheckinReportModal';
 import ShiftHandoverView from './components/ShiftHandoverView';
+import PerformanceEvaluationView from './components/PerformanceEvaluationView';
 import HelpCenterModal from './components/HelpCenterModal';
 import SearchPicker, { PickerItem } from './components/SearchPicker';
 import GuestRegistrationView from './components/GuestRegistrationView';
 import { Building2 } from 'lucide-react';
+import { isPast, parseISO } from 'date-fns';
 
 import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
@@ -86,6 +88,7 @@ const App: React.FC = () => {
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(isSupabaseConfigured ? [] : MOCK_INVENTORY_ITEMS);
   const [inventoryMovements, setInventoryMovements] = useState<InventoryMovement[]>(isSupabaseConfigured ? [] : MOCK_INVENTORY_MOVEMENTS);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(isSupabaseConfigured ? [] : MOCK_AUDIT_LOGS);
+  const [evaluations, setEvaluations] = useState<PerformanceEvaluation[]>([]);
   const [permissions, setPermissions] = useState<PermissionConfig>(DEFAULT_PERMISSIONS);
 
   // --- Social Notifications ---
@@ -101,6 +104,18 @@ const App: React.FC = () => {
     const lastRead = getLastReadSocialTimestamp(currentUser.id);
     return posts.filter(p => p.timestamp > lastRead).length;
   }, [posts, currentUser]);
+
+  const evaluationNotifCount = useMemo(() => {
+    const isRH = currentUser?.role === 'RH' || currentUser?.role === 'Diretoria' || currentUser?.id === 'admin-master';
+    if (!isRH) return 0;
+    return evaluations.filter(e =>
+      e.requiresReevaluation &&
+      e.nextEvaluationDate &&
+      isPast(parseISO(e.nextEvaluationDate)) &&
+      e.status === 'completed' &&
+      !evaluations.some(ev => ev.previousEvaluationId === e.id && ev.status === 'completed')
+    ).length;
+  }, [evaluations, currentUser]);
 
   const handleNavigate = (view: any) => {
     if (view === 'social' && currentUser?.id) {
@@ -177,7 +192,10 @@ const App: React.FC = () => {
       'equipamentos': 'equipamentos', 'ocorrencias': 'ocorrencias', 'pendencias': 'pendencias', 'observacoes': 'observacoes',
       'senderName': 'sendername', 'senderContact': 'sendercontact', 'recipientUnit': 'recipientunit',
       'receivedDate': 'receiveddate', 'receivedBy': 'receivedby', 'deliveryNotes': 'deliverynotes',
-      'pickedUpBy': 'pickedupby', 'pickedUpDate': 'pickedupdate', 'pickedUpTime': 'pickeduptime', 'clientId': 'clientid'
+      'pickedUpBy': 'pickedupby', 'pickedUpDate': 'pickedupdate', 'pickedUpTime': 'pickeduptime', 'clientId': 'clientid',
+      'overallScore': 'overallscore', 'requiresReevaluation': 'requiresreevaluation',
+      'nextEvaluationDate': 'nextevaluationdate', 'previousEvaluationId': 'previousevaluationid',
+      'sentToRH': 'senttorh', 'evaluatorId': 'evaluatorid'
     };
 
 
@@ -539,6 +557,9 @@ const App: React.FC = () => {
 
           const { data: handoverData } = await supabase.from('shift_handovers').select('*');
           if (handoverData) setHandovers(handoverData);
+
+          const { data: evalData } = await supabase.from('performance_evaluations').select('*');
+          if (evalData) setEvaluations(evalData);
 
           console.log("✅ Dados carregados com sucesso!");
         } catch (error: any) {
@@ -1058,6 +1079,8 @@ const App: React.FC = () => {
         return <AuditLogView logs={auditLogs} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'shift-handover':
         return <ShiftHandoverView shifts={shifts} handovers={handovers} currentUser={currentUser} staff={staff} clients={clients} onAddHandover={(h) => { setHandovers([...handovers, h]); saveToSupabase('shift_handovers', h); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+      case 'evaluations':
+        return <PerformanceEvaluationView evaluations={evaluations} staff={staff} currentUser={currentUser} onAddEvaluation={(e) => { setEvaluations([...evaluations, e]); saveToSupabase('performance_evaluations', e); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'settings':
         return <SettingsView currentTheme={currentTheme} onThemeChange={handleThemeChange} currentFontSize={currentFontSize} onFontSizeChange={handleFontSizeChange} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       default:
@@ -1117,6 +1140,7 @@ const App: React.FC = () => {
             onClose={() => setIsSidebarOpen(false)}
             permissions={permissions}
             socialUnreadCount={socialUnreadCount}
+            evaluationNotifCount={evaluationNotifCount}
           />
 
           <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
