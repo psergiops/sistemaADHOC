@@ -676,7 +676,7 @@ const App: React.FC = () => {
   // --- Auth Handlers ---
   const handleLogin = (user: any, authData?: any) => {
     // Se o usuário logou via Supabase Auth real, verificamos se ele deve trocar a senha
-    if (authData?.user?.user_metadata?.must_change_password) {
+    if (authData?.user?.user_metadata?.must_change_password && user?.role !== 'Morador') {
       setInitialPasswordHint(authData.user.user_metadata.initial_password || '');
       setCurrentUser(user);
       setIsChangingPassword(true);
