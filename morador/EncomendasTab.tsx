@@ -19,16 +19,28 @@ const statusColor: Record<string, string> = {
   'Retirado': 'bg-slate-100 text-slate-600',
 };
 
+const normalizeUnit = (u: string) => u.replace(/\D/g, '');
+
 const EncomendasTab: React.FC<EncomendasTabProps> = ({ packages, correspondencias, clientId, unit }) => {
   const myPackages = useMemo(() => {
+    const unitNumbers = normalizeUnit(unit);
     return packages
-      .filter(p => p.clientId === clientId && p.recipientUnit?.toLowerCase() === unit.toLowerCase())
+      .filter(p => {
+        if (p.clientId !== clientId || !p.recipientUnit) return false;
+        const pkgUnitNumbers = normalizeUnit(p.recipientUnit);
+        return pkgUnitNumbers === unitNumbers || p.recipientUnit.toLowerCase().includes(unit.toLowerCase()) || unit.toLowerCase().includes(p.recipientUnit.toLowerCase());
+      })
       .sort((a, b) => new Date(b.receivedDate).getTime() - new Date(a.receivedDate).getTime());
   }, [packages, clientId, unit]);
 
   const myCorrespondencias = useMemo(() => {
+    const unitNumbers = normalizeUnit(unit);
     return correspondencias
-      .filter(c => c.clientId === clientId && c.destinatario.toLowerCase().includes(unit.toLowerCase()))
+      .filter(c => {
+        if (c.clientId !== clientId) return false;
+        const destNumbers = normalizeUnit(c.destinatario);
+        return destNumbers === unitNumbers || c.destinatario.toLowerCase().includes(unit.toLowerCase()) || unit.toLowerCase().includes(c.destinatario.toLowerCase());
+      })
       .sort((a, b) => new Date(b.dataRecebimento).getTime() - new Date(a.dataRecebimento).getTime());
   }, [correspondencias, clientId, unit]);
 

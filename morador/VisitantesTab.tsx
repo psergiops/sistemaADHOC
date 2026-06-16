@@ -9,10 +9,18 @@ interface VisitantesTabProps {
   unit: string;
 }
 
+const normalizeUnit = (u: string) => u.replace(/\D/g, '');
+
 const VisitantesTab: React.FC<VisitantesTabProps> = ({ entryLogs, clientId, unit }) => {
   const myVisitors = useMemo(() => {
+    const unitNumbers = normalizeUnit(unit);
     return entryLogs
-      .filter(l => l.clientId === clientId && l.type === 'Visitor' && l.unit?.toLowerCase() === unit.toLowerCase())
+      .filter(l => {
+        if (l.clientId !== clientId || l.type !== 'Visitor') return false;
+        if (!l.unit) return false;
+        const logUnitNumbers = normalizeUnit(l.unit);
+        return logUnitNumbers === unitNumbers || l.unit.toLowerCase().includes(unit.toLowerCase()) || unit.toLowerCase().includes(l.unit.toLowerCase());
+      })
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }, [entryLogs, clientId, unit]);
 
