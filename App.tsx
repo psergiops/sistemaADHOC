@@ -121,6 +121,13 @@ const App: React.FC = () => {
     ).length;
   }, [evaluations, currentUser]);
 
+  // Redirect Morador users to their module on auth restore
+  useEffect(() => {
+    if (currentUser?.role === 'Morador' && currentView === 'home') {
+      setCurrentView('morador');
+    }
+  }, [currentUser]);
+
   const handleNavigate = (view: any) => {
     if (view === 'social' && currentUser?.id) {
       setLastReadSocialTimestamp(currentUser.id);

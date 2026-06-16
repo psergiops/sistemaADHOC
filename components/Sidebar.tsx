@@ -99,6 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
     const allowedRoles = permissions[module]?.view || [];
     const roleKey = currentUser?.role === 'Ronda' ? 'Security' : 
                     currentUser?.role === 'Controlador de Acesso' ? 'Portaria' : 
+                    currentUser?.role === 'Morador' ? 'Morador' : 
                     currentUser?.role;
     return allowedRoles.includes(roleKey);
   };
