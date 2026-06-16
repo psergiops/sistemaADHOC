@@ -416,7 +416,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                             activeTab === 'logs' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'
                         }`}
                     >
-                        <ClipboardList size={18} /> Diário de Bordo
+                        <ClipboardList size={18} /> Visitantes
                     </button>
                     <button 
                         onClick={() => setActiveTab('guests')}
@@ -497,7 +497,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     >
                                       <option value="">-- Selecione --</option>
                                       {residents.filter(r => r.isActive).map(r => (
-                                        <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - ${r.name}</option>
+                                        <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
                                       ))}
                                     </select>
                                 </div>
