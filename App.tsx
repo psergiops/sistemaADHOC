@@ -1057,7 +1057,7 @@ const App: React.FC = () => {
       case 'audit-log':
         return <AuditLogView logs={auditLogs} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'shift-handover':
-        return <ShiftHandoverView shifts={shifts} handovers={handovers} currentUser={currentUser} staff={staff} onAddHandover={(h) => { setHandovers([...handovers, h]); saveToSupabase('shift_handovers', h); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <ShiftHandoverView shifts={shifts} handovers={handovers} currentUser={currentUser} staff={staff} clients={clients} onAddHandover={(h) => { setHandovers([...handovers, h]); saveToSupabase('shift_handovers', h); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'settings':
         return <SettingsView currentTheme={currentTheme} onThemeChange={handleThemeChange} currentFontSize={currentFontSize} onFontSizeChange={handleFontSizeChange} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       default:

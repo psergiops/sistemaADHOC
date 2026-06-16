@@ -385,6 +385,7 @@ export interface ShiftHandover {
   id: string;
   staffId: string;
   shiftId: string;
+  clientId?: string;
   date: string;
   type: 'Inicio' | 'Fim';
   report: string;

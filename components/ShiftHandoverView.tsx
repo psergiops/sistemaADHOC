@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ShiftHandover, Shift, Staff } from '../types';
+import { ShiftHandover, Shift, Staff, Client } from '../types';
 import { format, parseISO } from 'date-fns';
 import { 
   Clock, Play, Square, FileText, User, MapPin, 
@@ -12,6 +12,7 @@ interface ShiftHandoverViewProps {
   handovers: ShiftHandover[];
   currentUser: Staff | any;
   staff: Staff[];
+  clients: Client[];
   onAddHandover: (handover: ShiftHandover) => void;
   onToggleMenu: () => void;
   onShowHelp: () => void;
@@ -20,7 +21,7 @@ interface ShiftHandoverViewProps {
 const inputClass = "w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white text-slate-900 text-sm";
 
 const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
-  shifts, handovers, currentUser, staff, onAddHandover, onToggleMenu, onShowHelp
+  shifts, handovers, currentUser, staff, clients, onAddHandover, onToggleMenu, onShowHelp
 }) => {
   const today = format(new Date(), 'yyyy-MM-dd');
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
@@ -28,11 +29,14 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
   const [report, setReport] = useState({ equipamentos: '', ocorrencias: '', pendencias: '', observacoes: '' });
   const [showAdHocForm, setShowAdHocForm] = useState(false);
   const [adHocDate, setAdHocDate] = useState(today);
+  const [adHocClientId, setAdHocClientId] = useState('');
   const [viewingHandover, setViewingHandover] = useState<ShiftHandover | null>(null);
   const [historyFilter, setHistoryFilter] = useState<'all' | 'Inicio' | 'Fim'>('all');
   const [historyDate, setHistoryDate] = useState(today);
 
   const isManager = currentUser?.role === 'Diretoria' || currentUser?.role === 'Supervisor' || currentUser?.id === 'admin-master';
+
+  const userClients = clients.filter(c => c.assignedStaffIds?.includes(currentUser?.id));
 
   const myShifts = shifts.filter(s => s.date === today && s.staffId === currentUser?.id);
 
@@ -53,6 +57,7 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
       id: `ho-${Date.now()}`,
       staffId: currentUser.id,
       shiftId: selectedShift.id,
+      clientId: selectedShift.locationId,
       date: today,
       type: handoverType,
       report: fullReport || 'Sem ocorrências',
@@ -72,6 +77,7 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
       id: `ho-${Date.now()}`,
       staffId: currentUser.id,
       shiftId: 'adhoc',
+      clientId: adHocClientId || undefined,
       date: adHocDate,
       type: handoverType,
       report: fullReport || 'Sem ocorrências',
@@ -122,10 +128,6 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
               <div className="text-center py-8 text-slate-400">
                 <Clock size={40} className="mx-auto mb-3 opacity-30" />
                 <p>Nenhum turno agendado para hoje.</p>
-                <button onClick={() => setShowAdHocForm(true)}
-                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                  <FileText size={16} /> Criar Relatório Avulso
-                </button>
               </div>
             ) : (
               <div className="space-y-3">
@@ -197,6 +199,7 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                         <th className="text-left py-2 px-3">Colaborador</th>
                         <th className="text-left py-2 px-3">Horário</th>
                         <th className="text-left py-2 px-3">Posto</th>
+                        <th className="text-left py-2 px-3">Cliente</th>
                         <th className="text-center py-2 px-3">Início</th>
                         <th className="text-center py-2 px-3">Fim</th>
                       </tr>
@@ -211,6 +214,7 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                             <td className="py-2 px-3 font-medium text-slate-700">{staffMember?.name || 'Desconhecido'}</td>
                             <td className="py-2 px-3 text-slate-600">{shift.startTime} - {shift.endTime}</td>
                             <td className="py-2 px-3 text-slate-600">{shift.station || '-'}</td>
+                            <td className="py-2 px-3 text-slate-600">{clients.find(c => c.id === shift.locationId)?.name || '-'}</td>
                             <td className="py-2 px-3 text-center">
                               {inicio ? (
                                 <button onClick={() => setViewingHandover(inicio)}
@@ -270,6 +274,7 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                 {filteredHistory.map(h => {
                   const shift = shifts.find(s => s.id === h.shiftId);
                   const isAdHoc = h.shiftId === 'adhoc';
+                  const client = clients.find(c => c.id === (h.clientId || shift?.locationId));
                   return (
                     <div key={h.id} className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
                       <div className="flex items-center justify-between px-4 py-3 bg-slate-100/50">
@@ -284,6 +289,12 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                               <span className="text-slate-600">{shift?.startTime} - {shift?.endTime}</span>
                               <span className="text-slate-400">|</span>
                               <span className="text-slate-500">{shift?.station}</span>
+                            </>
+                          )}
+                          {client && (
+                            <>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-slate-500">{client.name}</span>
                             </>
                           )}
                         </div>
@@ -409,7 +420,7 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
             </div>
             <form onSubmit={submitAdHoc} className="flex flex-col flex-1 min-h-0">
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-slate-700">Data</label>
                     <input type="date" className={inputClass} value={adHocDate} onChange={e => setAdHocDate(e.target.value)} />
@@ -419,6 +430,15 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                     <select className={inputClass} value={handoverType} onChange={e => setHandoverType(e.target.value as 'Inicio' | 'Fim')}>
                       <option value="Inicio">Início de Turno</option>
                       <option value="Fim">Finalização de Turno</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700">Cliente</label>
+                    <select className={inputClass} value={adHocClientId} onChange={e => setAdHocClientId(e.target.value)}>
+                      <option value="">Selecione...</option>
+                      {(userClients.length > 0 ? userClients : clients).map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -485,8 +505,14 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                     Relatório de {viewingHandover.type === 'Inicio' ? 'Início' : 'Finalização'}
                   </h3>
                   <p className="text-sm text-slate-500">
-                    {shifts.find(s => s.id === viewingHandover.shiftId)?.startTime} - {shifts.find(s => s.id === viewingHandover.shiftId)?.endTime}
-                    {' | '}{shifts.find(s => s.id === viewingHandover.shiftId)?.station}
+                    {(() => {
+                      const s = shifts.find(s => s.id === viewingHandover.shiftId);
+                      const c = clients.find(c => c.id === (viewingHandover.clientId || s?.locationId));
+                      if (viewingHandover.shiftId === 'adhoc') {
+                        return c ? c.name : 'Relatório Avulso';
+                      }
+                      return `${s?.startTime} - ${s?.endTime} | ${s?.station}${c ? ' | ' + c.name : ''}`;
+                    })()}
                   </p>
                 </div>
               </div>
