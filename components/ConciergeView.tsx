@@ -491,14 +491,15 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
 
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Unidade / Morador</label>
-                                    <input type="text" list="log-resident-list" className={darkInputClass}
-                                        placeholder="Digite ou selecione a unidade"
-                                        value={newLog.unit || ''} onChange={e => setNewLog({...newLog, unit: e.target.value})} />
-                                    <datalist id="log-resident-list">
+                                    <select className={darkInputClass}
+                                      value={newLog.unit || ''}
+                                      onChange={e => setNewLog({...newLog, unit: e.target.value})}
+                                    >
+                                      <option value="">-- Selecione --</option>
                                       {residents.filter(r => r.isActive).map(r => (
-                                        <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                        <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - ${r.name}</option>
                                       ))}
-                                    </datalist>
+                                    </select>
                                 </div>
 
                                 {newLog.type === 'Visitor' && (
@@ -651,17 +652,15 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     <form onSubmit={handleCreateGuestList} className="flex flex-col md:flex-row gap-4 items-end">
                                         <div className="flex-1 w-full space-y-1.5">
                                             <label className="text-sm font-medium text-slate-700">Unidade / Morador</label>
-                                            <input 
-                                                required type="text" list="guest-resident-list"
-                                                placeholder="Digite o nº da casa ou nome do morador"
-                                                className={darkInputClass}
-                                                value={newGuestList.residentName} onChange={e => setNewGuestList({...newGuestList, residentName: e.target.value})}
-                                            />
-                                            <datalist id="guest-resident-list">
+                                            <select required className={darkInputClass}
+                                              value={newGuestList.residentName}
+                                              onChange={e => setNewGuestList({...newGuestList, residentName: e.target.value})}
+                                            >
+                                              <option value="">-- Selecione --</option>
                                               {residents.filter(r => r.isActive).map(r => (
-                                                <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                                <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
                                               ))}
-                                            </datalist>
+                                            </select>
                                         </div>
                                         <div className="flex-1 w-full space-y-1.5">
                                             <label className="text-sm font-medium text-slate-700">Nome do Evento</label>
@@ -861,17 +860,15 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-medium text-slate-700">Morador / Unidade</label>
-                                        <input 
-                                            required type="text" list="reservation-resident-list"
-                                            placeholder="Digite o nº da casa ou nome do morador"
-                                            className={darkInputClass}
-                                            value={newRes.reservedBy} onChange={e => setNewRes({...newRes, reservedBy: e.target.value})}
-                                        />
-                                        <datalist id="reservation-resident-list">
+                                        <select required className={darkInputClass}
+                                          value={newRes.reservedBy}
+                                          onChange={e => setNewRes({...newRes, reservedBy: e.target.value})}
+                                        >
+                                          <option value="">-- Selecione --</option>
                                           {residents.filter(r => r.isActive).map(r => (
-                                            <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                            <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
                                           ))}
-                                        </datalist>
+                                        </select>
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-medium text-slate-700">Data</label>
@@ -1121,13 +1118,15 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Unidade/Morador</label>
-                                    <input type="text" list="package-resident-list" placeholder="Digite o nº da casa ou nome do morador" className={darkInputClass}
-                                        value={newPackage.recipientUnit} onChange={e => setNewPackage({...newPackage, recipientUnit: e.target.value})} />
-                                    <datalist id="package-resident-list">
+                                    <select className={darkInputClass}
+                                      value={newPackage.recipientUnit}
+                                      onChange={e => setNewPackage({...newPackage, recipientUnit: e.target.value})}
+                                    >
+                                      <option value="">-- Selecione --</option>
                                       {residents.filter(r => r.isActive).map(r => (
-                                        <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                        <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
                                       ))}
-                                    </datalist>
+                                    </select>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Descrição</label>
