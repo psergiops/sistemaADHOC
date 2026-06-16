@@ -641,5 +641,9 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     view: ['Morador'],
     edit: []
   },
+  morador: {
+    view: ['Morador'],
+    edit: []
+  },
   socialViewAllStaffIds: []
 };

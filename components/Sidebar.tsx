@@ -24,7 +24,7 @@ import {
 import { Staff, PermissionConfig, AppModule, Post } from '../types';
 
 interface SidebarProps {
-  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations' | 'residents' | 'resident-portal';
+  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations' | 'residents' | 'resident-portal' | 'morador';
   onNavigate: (view: any) => void;
   onLogout: () => void;
   onOpenHelp: () => void;
@@ -297,12 +297,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {canAccess('resident-portal') && currentUser?.role === 'Morador' && (
+              {canAccess('morador') && currentUser?.role === 'Morador' && (
                 <NavItem 
                   icon={<Building2 size={20}/>} 
-                  label="Meu Acesso" 
-                  active={currentView === 'resident-portal'} 
-                  onClick={() => handleNavClick('resident-portal')}
+                  label="Módulo do Morador" 
+                  active={currentView === 'morador'} 
+                  onClick={() => handleNavClick('morador')}
                 />
               )}
 

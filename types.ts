@@ -492,7 +492,7 @@ export interface Resident {
   createdAt: string;
 }
 
-export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations' | 'residents' | 'resident-portal';
+export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations' | 'residents' | 'resident-portal' | 'morador';
 
 export interface ModulePermissions {
   view: string[];

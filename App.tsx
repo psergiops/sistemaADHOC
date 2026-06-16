@@ -25,6 +25,7 @@ import ShiftHandoverView from './components/ShiftHandoverView';
 import PerformanceEvaluationView from './components/PerformanceEvaluationView';
 import ResidentsView from './components/ResidentsView';
 import ResidentPortalView from './components/ResidentPortalView';
+import MoradorView from './morador/MoradorView';
 import HelpCenterModal from './components/HelpCenterModal';
 import SearchPicker, { PickerItem } from './components/SearchPicker';
 import GuestRegistrationView from './components/GuestRegistrationView';
@@ -33,7 +34,7 @@ import { isPast, parseISO } from 'date-fns';
 
 import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
-  DataChangeRequest, VehicleChecklist, Patrol, Post, EntryLog, GuestList,
+  DataChangeRequest, VehicleChecklist, Patrol, Post,   EntryLog, GuestList,
   Reservation, MaterialRequest, InventoryItem, InventoryMovement, AuditLog,
   PermissionConfig, LogEntryType, Package, Correspondencia, DocumentAttachment, ShiftHandover, Resident
 } from './types';
@@ -702,7 +703,7 @@ const App: React.FC = () => {
 
     setCurrentUser(user);
     setIsAuthenticated(true);
-    setCurrentView(user?.role === 'Morador' ? 'resident-portal' : 'home');
+    setCurrentView(user?.role === 'Morador' ? 'morador' : 'home');
     setIsChangingPassword(false);
   };
 
@@ -1179,6 +1180,10 @@ const App: React.FC = () => {
       case 'resident-portal': {
         const residentData = currentUser?.resident || residents.find(r => r.id === currentUser?.id);
         return residentData ? <ResidentPortalView resident={residentData} reservations={reservations} packages={packages} guestLists={guestLists} clients={clients} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} /> : <div>Morador não encontrado</div>;
+      }
+      case 'morador': {
+        const residentData = currentUser?.resident || residents.find(r => r.id === currentUser?.id);
+        return residentData ? <MoradorView resident={residentData} reservations={reservations} packages={packages} guestLists={guestLists} entryLogs={entryLogs} correspondencias={correspondencias} clients={clients} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} /> : <div>Morador não encontrado</div>;
       }
       case 'settings':
         return <SettingsView currentTheme={currentTheme} onThemeChange={handleThemeChange} currentFontSize={currentFontSize} onFontSizeChange={handleFontSizeChange} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
