@@ -35,7 +35,7 @@ import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
   DataChangeRequest, VehicleChecklist, Patrol, Post, EntryLog, GuestList,
   Reservation, MaterialRequest, InventoryItem, InventoryMovement, AuditLog,
-  PermissionConfig, LogEntryType, Package, Correspondencia, DocumentAttachment, ShiftHandover
+  PermissionConfig, LogEntryType, Package, Correspondencia, DocumentAttachment, ShiftHandover, Resident
 } from './types';
 
 import {
@@ -795,6 +795,44 @@ const App: React.FC = () => {
     saveToSupabase('staff', staffData);
   };
 
+  const handleAddResident = async (residentData: Resident) => {
+    if (isSupabaseConfigured) {
+      try {
+        const password = residentData.password || '1234';
+
+        const { data, error: funcError } = await supabase.functions.invoke('bulk-create-users', {
+          body: {
+            users: [{
+              email: residentData.email,
+              password: password,
+              name: residentData.name,
+              role: 'Morador'
+            }]
+          }
+        });
+
+        if (funcError) {
+          console.error("Erro ao criar login (Auth) do morador:", funcError.message);
+          alert("O perfil do morador será criado, mas houve um erro ao criar a credencial de login dele no banco: " + funcError.message);
+        } else if (data?.results?.[0]) {
+          const result = data.results[0];
+          if (result.status === 'success') {
+            residentData.id = result.id;
+          } else {
+            console.error("Erro no retorno da Edge Function ao criar login:", result.message);
+            alert("O perfil do morador será criado, mas houve um erro ao criar a credencial de login dele: " + result.message);
+          }
+        }
+      } catch (err: any) {
+        console.error("Falha ao criar login via Edge Function:", err);
+        alert("Falha ao conectar com o servidor para criar o login: " + err.message);
+      }
+    }
+
+    setResidents(prev => [...prev, residentData]);
+    saveToSupabase('residents', residentData);
+  };
+
   const handleDeleteStaff = async (id: string) => {
     const confirmDelete = window.confirm("Tem certeza que deseja excluir este colaborador e seu login de acesso?");
     if (!confirmDelete) return;
@@ -1119,7 +1157,7 @@ const App: React.FC = () => {
       case 'evaluations':
         return <PerformanceEvaluationView evaluations={evaluations} staff={staff} currentUser={currentUser} onAddEvaluation={(e) => { setEvaluations([...evaluations, e]); saveToSupabase('performance_evaluations', e); }} onUpdateEvaluation={(e) => { setEvaluations(evaluations.map(ev => ev.id === e.id ? e : ev)); saveToSupabase('performance_evaluations', e); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'residents':
-        return <ResidentsView residents={residents} clients={clients} currentUser={currentUser} onAddResident={(r) => { setResidents([...residents, r]); saveToSupabase('residents', r); }} onUpdateResident={(r) => { setResidents(residents.map(rs => rs.id === r.id ? r : rs)); saveToSupabase('residents', r); }} onDeleteResident={(id) => { setResidents(residents.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('residents').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <ResidentsView residents={residents} clients={clients} currentUser={currentUser} onAddResident={handleAddResident} onUpdateResident={(r) => { setResidents(residents.map(rs => rs.id === r.id ? r : rs)); saveToSupabase('residents', r); }} onDeleteResident={(id) => { setResidents(residents.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('residents').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'resident-portal': {
         const residentData = currentUser?.resident || residents.find(r => r.id === currentUser?.id);
         return residentData ? <ResidentPortalView resident={residentData} reservations={reservations} packages={packages} guestLists={guestLists} clients={clients} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} /> : <div>Morador não encontrado</div>;
