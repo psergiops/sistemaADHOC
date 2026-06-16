@@ -4,6 +4,7 @@
 
 -- 1. LIMPEZA TOTAL
 DROP TABLE IF EXISTS audit_logs CASCADE;
+DROP TABLE IF EXISTS shift_handovers CASCADE;
 DROP TABLE IF EXISTS shift_checkins CASCADE;
 DROP TABLE IF EXISTS inventory_movements CASCADE;
 DROP TABLE IF EXISTS inventory_items CASCADE;
@@ -372,6 +373,18 @@ CREATE TABLE shift_checkins (
     status text
 );
 ALTER TABLE shift_checkins DISABLE ROW LEVEL SECURITY;
+
+-- Tabela: SHIFT_HANDOVERS
+CREATE TABLE shift_handovers (
+    id text PRIMARY KEY,
+    staffid text NOT NULL,
+    shiftid text NOT NULL,
+    date text NOT NULL,
+    type text NOT NULL,
+    report text,
+    createdat text
+);
+ALTER TABLE shift_handovers DISABLE ROW LEVEL SECURITY;
 
 -- Tabela: PACKAGES
 CREATE TABLE packages (

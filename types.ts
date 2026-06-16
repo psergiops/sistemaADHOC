@@ -379,6 +379,18 @@ export interface ShiftCheckin {
   status: 'Ok' | 'Late';
 }
 
+// --- Shift Handover Types ---
+
+export interface ShiftHandover {
+  id: string;
+  staffId: string;
+  shiftId: string;
+  date: string;
+  type: 'Inicio' | 'Fim';
+  report: string;
+  createdAt: string;
+}
+
 // --- Package / Delivery Types ---
 
 export type PackageStatus = 'Received' | 'Awaiting Pickup' | 'Picked Up';
@@ -436,7 +448,7 @@ export interface Correspondencia {
 
 // --- Access Control / Permissions Types ---
 
-export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory';
+export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory' | 'shift-handover';
 
 export interface ModulePermissions {
   view: string[];

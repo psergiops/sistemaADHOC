@@ -601,6 +601,10 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     view: ['Diretoria', 'Administração', 'Supervisor', 'Security', 'Portaria'],
     edit: ['Diretoria', 'Supervisor', 'Security', 'Portaria']
   },
+  'shift-handover': {
+    view: ['Diretoria', 'Administração', 'Supervisor', 'RH', 'Security', 'Portaria'],
+    edit: ['Diretoria', 'Supervisor', 'RH', 'Security', 'Portaria']
+  },
   patrol: {
     view: ['Diretoria', 'Administração', 'Supervisor', 'Security'],
     edit: ['Diretoria', 'Supervisor', 'Security']

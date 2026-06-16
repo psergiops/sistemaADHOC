@@ -23,4 +23,5 @@ ALTER PUBLICATION supabase_realtime ADD TABLE
   inventory_items,
   inventory_movements,
   audit_logs,
-  document_attachments;
+  document_attachments,
+  shift_handovers;

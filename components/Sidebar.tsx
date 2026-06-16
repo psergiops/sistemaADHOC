@@ -18,12 +18,13 @@ import {
   History,
   Download,
   PackageSearch,
-  HelpCircle
+  HelpCircle,
+  Clock
 } from 'lucide-react';
 import { Staff, PermissionConfig, AppModule, Post } from '../types';
 
 interface SidebarProps {
-  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory';
+  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory' | 'shift-handover';
   onNavigate: (view: any) => void;
   onLogout: () => void;
   onOpenHelp: () => void;
@@ -225,7 +226,17 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {/* 7. Vistoria */}
+              {/* 7. Troca de Turno */}
+              {canAccess('shift-handover') && (
+                <NavItem 
+                  icon={<Clock size={20}/>} 
+                  label="Troca de Turno" 
+                  active={currentView === 'shift-handover'} 
+                  onClick={() => handleNavClick('shift-handover')}
+                />
+              )}
+
+              {/* 8. Vistoria */}
               {canAccess('checklist') && (
                 <NavItem 
                   icon={<ClipboardCheck size={20}/>} 

@@ -21,6 +21,7 @@ import CalendarGrid from './components/CalendarGrid';
 import DailyScheduleTable from './components/DailyScheduleTable';
 import CreateShiftModal from './components/CreateShiftModal';
 import ShiftCheckinReportModal from './components/ShiftCheckinReportModal';
+import ShiftHandoverView from './components/ShiftHandoverView';
 import HelpCenterModal from './components/HelpCenterModal';
 import SearchPicker, { PickerItem } from './components/SearchPicker';
 import GuestRegistrationView from './components/GuestRegistrationView';
@@ -30,7 +31,7 @@ import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
   DataChangeRequest, VehicleChecklist, Patrol, Post, EntryLog, GuestList,
   Reservation, MaterialRequest, InventoryItem, InventoryMovement, AuditLog,
-  PermissionConfig, LogEntryType, Package, Correspondencia, DocumentAttachment
+  PermissionConfig, LogEntryType, Package, Correspondencia, DocumentAttachment, ShiftHandover
 } from './types';
 
 import {
@@ -70,6 +71,7 @@ const App: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>(isSupabaseConfigured ? [] : MOCK_TRANSACTIONS);
   const [paystubs, setPaystubs] = useState<Paystub[]>(isSupabaseConfigured ? [] : MOCK_PAYSTUBS);
   const [documents, setDocuments] = useState<DocumentAttachment[]>(isSupabaseConfigured ? [] : MOCK_DOCUMENTS);
+  const [handovers, setHandovers] = useState<ShiftHandover[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>(isSupabaseConfigured ? [] : MOCK_ANNOUNCEMENTS);
   const [changeRequests, setChangeRequests] = useState<DataChangeRequest[]>(isSupabaseConfigured ? [] : MOCK_CHANGE_REQUESTS);
   const [checklists, setChecklists] = useState<VehicleChecklist[]>(isSupabaseConfigured ? [] : MOCK_CHECKLISTS);
@@ -171,6 +173,7 @@ const App: React.FC = () => {
       'performedBy': 'performedby', 'actorId': 'actorid', 'actorName': 'actorname', 'actorRole': 'actorrole',
       'targetName': 'targetname', 'checkinTime': 'checkintime', 'shiftTimeReference': 'shifttimereference',
       'relatedClientId': 'relatedclientid', 'relatedSupplierId': 'relatedsupplierid',
+      'shiftId': 'shiftid', 'createdAt': 'createdat',
       'senderName': 'sendername', 'senderContact': 'sendercontact', 'recipientUnit': 'recipientunit',
       'receivedDate': 'receiveddate', 'receivedBy': 'receivedby', 'deliveryNotes': 'deliverynotes',
       'pickedUpBy': 'pickedupby', 'pickedUpDate': 'pickedupdate', 'pickedUpTime': 'pickeduptime', 'clientId': 'clientid'
@@ -532,6 +535,9 @@ const App: React.FC = () => {
 
           const { data: auditData } = await supabase.from('audit_logs').select('*');
           if (auditData) setAuditLogs(auditData);
+
+          const { data: handoverData } = await supabase.from('shift_handovers').select('*');
+          if (handoverData) setHandovers(handoverData);
 
           console.log("✅ Dados carregados com sucesso!");
         } catch (error: any) {
@@ -1049,6 +1055,8 @@ const App: React.FC = () => {
         return <AccessControlView permissions={permissions} onUpdatePermissions={(p) => { setPermissions(p); /* Save to settings/config table if needed */ }} staff={staff} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'audit-log':
         return <AuditLogView logs={auditLogs} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+      case 'shift-handover':
+        return <ShiftHandoverView shifts={shifts} handovers={handovers} currentUser={currentUser} staff={staff} onAddHandover={(h) => { setHandovers([...handovers, h]); saveToSupabase('shift_handovers', h); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'settings':
         return <SettingsView currentTheme={currentTheme} onThemeChange={handleThemeChange} currentFontSize={currentFontSize} onFontSizeChange={handleFontSizeChange} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       default:
