@@ -90,16 +90,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
 
   // Helper to check access
   const canAccess = (module: AppModule): boolean => {
+    // Safety: Morador can ONLY access morador and resident-portal modules
+    if (currentUser?.resident || currentUser?.role === 'Morador') {
+      return module === 'morador' || module === 'resident-portal';
+    }
+    
     // Admin Master and Diretoria always have access
     if (currentUser?.id === 'admin-master' || currentUser?.role === 'Diretoria') return true;
     
     // Check permissions config
     if (!permissions) return true; // Default to true if no permissions passed (safety)
-    
-    // Safety: Morador role can ONLY access morador and resident-portal modules
-    if (currentUser?.role === 'Morador') {
-      return module === 'morador' || module === 'resident-portal';
-    }
     
     const allowedRoles = permissions[module]?.view || [];
     const roleKey = currentUser?.role === 'Ronda' ? 'Security' : 
@@ -302,7 +302,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {canAccess('morador') && currentUser?.role === 'Morador' && (
+              {(currentUser?.resident || currentUser?.role === 'Morador') && (
                 <NavItem 
                   icon={<Building2 size={20}/>} 
                   label="Módulo do Morador" 
