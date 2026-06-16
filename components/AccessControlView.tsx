@@ -42,6 +42,7 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
     { key: 'RH', label: 'RH' },
     { key: 'Security', label: 'Ronda' },
     { key: 'Portaria', label: 'Controlador de Acesso' },
+    { key: 'Morador', label: 'Morador' },
   ];
 
   const toggleViewPermission = (moduleKey: AppModule, roleKey: string) => {
