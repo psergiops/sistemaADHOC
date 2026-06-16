@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Staff } from '../types';
+import { Staff, RehireRecord } from '../types';
 import StaffFormModal from './StaffFormModal';
 import ImportModal from './ImportModal';
 import SearchPicker from './SearchPicker';
@@ -66,6 +66,29 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
   const handleEditClick = (member: Staff) => {
     setEditingStaff(member);
     setIsModalOpen(true);
+  };
+
+  const handleRehire = (member: Staff) => {
+    if (!member.rehireDate) {
+      alert("Defina a Data de Início do Novo Ciclo na aba 'Recontratação' do cadastro.");
+      return;
+    }
+    const newRecord: RehireRecord = {
+      id: `rehire-${Date.now()}`,
+      rehireDate: member.rehireDate,
+      contractEndDate: member.rehireContractEnd || undefined,
+      observations: member.rehireObservations || undefined
+    };
+    onUpdateStaff({
+      ...member,
+      status: 'Ativo',
+      terminationDate: undefined,
+      terminationReason: undefined,
+      rehireDate: '',
+      rehireContractEnd: '',
+      rehireObservations: '',
+      rehireHistory: [...(member.rehireHistory || []), newRecord]
+    });
   };
 
   const handleSaveStaff = (staffData: Staff) => {
@@ -398,13 +421,23 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
                       >
                          <MoreHorizontal size={20} />
                       </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleTerminate(member); }}
-                        className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
-                        title="Desligar Colaborador"
-                      >
-                         <LogOut size={18} />
-                      </button>
+                      {member.status === 'Desligado' ? (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleRehire(member); }}
+                          className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all"
+                          title="Recontratar"
+                        >
+                           <RotateCcw size={18} />
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleTerminate(member); }}
+                          className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                          title="Desligar Colaborador"
+                        >
+                           <LogOut size={18} />
+                        </button>
+                      )}
                       <button 
                         onClick={(e) => { e.stopPropagation(); onDeleteStaff(member.id); }}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"

@@ -97,7 +97,11 @@ CREATE TABLE staff (
     status text DEFAULT 'Ativo',
     terminationdate text,
     terminationreason text,
-    rehireobservations text
+    rehireobservations text,
+    rehiredate text,
+    rehirecontractend text,
+    rehiregeneralnotes text,
+    rehirehistory jsonb DEFAULT '[]'::jsonb
 );
 ALTER TABLE staff DISABLE ROW LEVEL SECURITY;
 

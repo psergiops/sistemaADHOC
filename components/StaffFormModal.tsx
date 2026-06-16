@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, User, Briefcase, MapPin, FileText, Save, DollarSign, Calendar, Users, Plus, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
-import { Staff, Dependent } from '../types';
+import { Staff, Dependent, RehireRecord } from '../types';
 
 interface StaffFormModalProps {
   isOpen: boolean;
@@ -48,7 +48,11 @@ const INITIAL_FORM_STATE: Partial<Staff> = {
   status: 'Ativo',
   terminationDate: '',
   terminationReason: '',
-  rehireObservations: ''
+  rehireObservations: '',
+  rehireDate: '',
+  rehireContractEnd: '',
+  rehireGeneralNotes: '',
+  rehireHistory: []
 };
 
 const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave, staffToEdit, onDelete }) => {
@@ -462,8 +466,8 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                       </h4>
                       <p className="text-sm mt-1">
                         {formData.status === 'Desligado' 
-                          ? 'Registre observações para uma futura recontratação.'
-                          : 'Este colaborador está ativo. Caso necessário, utilize o botão "Desligar" na tela de equipe.'}
+                          ? 'Registre abaixo as informações para uma nova recontratação.'
+                          : 'Este colaborador está ativo.'}
                       </p>
                     </div>
                   </div>
@@ -486,20 +490,80 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                   </div>
                 )}
 
-                {/* Rehire Observations */}
+                {/* Novo Ciclo de Contratação */}
                 <div className="border-t border-slate-100 pt-4">
                   <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <RotateCcw size={16} className="text-blue-600" />
-                    Observações para Recontratação
+                    {formData.status === 'Desligado' ? 'Recontratar Colaborador' : 'Próxima Recontação'}
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Data de Início do Novo Ciclo</label>
+                      <input type="date" className={inputClassName}
+                        value={formData.rehireDate || ''} onChange={e => handleChange('rehireDate', e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Data de Término do Contrato</label>
+                      <input type="date" className={inputClassName}
+                        value={formData.rehireContractEnd || ''} onChange={e => handleChange('rehireContractEnd', e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2 space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Observações deste Ciclo</label>
+                      <textarea className={inputClassName} rows={2}
+                        placeholder="Ex: Retornou após rescisão, novo contrato determinado de 6 meses..."
+                        value={formData.rehireObservations || ''} onChange={e => handleChange('rehireObservations', e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Histórico de Recontratações */}
+                <div className="border-t border-slate-100 pt-4">
+                  <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <RotateCcw size={16} className="text-slate-400" />
+                    Histórico de Recontratações
+                  </h4>
+                  {(!formData.rehireHistory || formData.rehireHistory.length === 0) ? (
+                    <p className="text-sm text-slate-400 text-center py-4">
+                      Nenhuma recontratação registrada anteriormente.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {[...(formData.rehireHistory || [])].reverse().map((rec, idx) => (
+                        <div key={rec.id} className="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
+                              {formData.rehireHistory!.length - idx}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-800">
+                                {new Date(rec.rehireDate).toLocaleDateString()}
+                              </p>
+                              {rec.contractEndDate && (
+                                <p className="text-xs text-slate-500">
+                                  Término: {new Date(rec.contractEndDate).toLocaleDateString()}
+                                </p>
+                              )}
+                              {rec.observations && (
+                                <p className="text-xs text-slate-400 mt-0.5">{rec.observations}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Observações Gerais */}
+                <div className="border-t border-slate-100 pt-4">
+                  <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <AlertTriangle size={16} className="text-slate-400" />
+                    Observações Gerais para Recontratação
                   </h4>
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700">Informações Relevantes</label>
-                    <textarea className={inputClassName} rows={4}
-                      placeholder="Ex: Motivo do desligamento foi resolvido, bom histórico, recomendado por supervisor, etc."
-                      value={formData.rehireObservations || ''} onChange={e => handleChange('rehireObservations', e.target.value)} />
-                    <p className="text-xs text-slate-400 mt-1">
-                      Estas informações serão exibidas na tela de equipe para auxiliar na decisão de recontratação.
-                    </p>
+                    <textarea className={inputClassName} rows={3}
+                      placeholder="Ex: Motivo do desligamento foi resolvido, bom histórico, recomendado por supervisor..."
+                      value={formData.rehireGeneralNotes || ''} onChange={e => handleChange('rehireGeneralNotes', e.target.value)} />
                   </div>
                 </div>
               </div>

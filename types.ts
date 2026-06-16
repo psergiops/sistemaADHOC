@@ -84,6 +84,10 @@ export interface Staff {
   terminationDate?: string;
   terminationReason?: string;
   rehireObservations?: string;
+  rehireHistory?: RehireRecord[];
+  rehireDate?: string;
+  rehireContractEnd?: string;
+  rehireGeneralNotes?: string;
 }
 
 export type ServiceType = 'Portaria 24h' | 'Vigilância' | 'Ronda Motorizada' | 'Monitoramento' | 'Limpeza e Conservação';
@@ -125,6 +129,13 @@ export interface Transaction {
   status: 'paid' | 'pending';
   relatedClientId?: string; // Se for pagamento de cliente
   relatedSupplierId?: string; // Se for pagamento a fornecedor
+}
+
+export interface RehireRecord {
+  id: string;
+  rehireDate: string;
+  contractEndDate?: string;
+  observations?: string;
 }
 
 export interface Paystub {
