@@ -7,7 +7,7 @@ import SearchPicker from './SearchPicker';
 import { 
   Shield, Users, UserCog, Briefcase, Search, Plus, 
   Menu, HelpCircle, Download, Upload, User, 
-  Mail, Phone, MoreHorizontal, Trash2
+  Mail, Phone, MoreHorizontal, Trash2, LogOut, AlertTriangle, RotateCcw, X
 } from 'lucide-react';
 
 interface TeamViewProps {
@@ -26,6 +26,26 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [selectedRole, setSelectedRole] = useState<string>('all');
+  const [terminatingStaff, setTerminatingStaff] = useState<Staff | null>(null);
+  const [terminationReason, setTerminationReason] = useState('');
+
+  const handleTerminate = (member: Staff) => {
+    setTerminatingStaff(member);
+    setTerminationReason('');
+  };
+
+  const confirmTerminate = () => {
+    if (!terminatingStaff) return;
+    const reason = terminationReason.trim() || 'Não informado';
+    onUpdateStaff({
+      ...terminatingStaff,
+      status: 'Desligado',
+      terminationDate: new Date().toISOString().split('T')[0],
+      terminationReason: reason
+    });
+    setTerminatingStaff(null);
+    setTerminationReason('');
+  };
 
   const filteredStaff = staff.filter(s => {
     const matchesSearch = 
@@ -52,7 +72,7 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
     if (editingStaff) {
       onUpdateStaff(staffData);
     } else {
-      onAddStaff(staffData);
+      onAddStaff({ ...staffData, status: 'Ativo' });
     }
   };
 
@@ -275,8 +295,9 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
             <div className="col-span-3">Nome</div>
             <div className="col-span-2 text-center">Cargo</div>
             <div className="col-span-1 text-center">Regime</div>
-            <div className="col-span-3">Contato</div>
+            <div className="col-span-2">Contato</div>
             <div className="col-span-1 text-center">Admissão</div>
+            <div className="col-span-1 text-center">Status</div>
             <div className="col-span-1 text-right">Ações</div>
           </div>
 
@@ -293,7 +314,7 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
                 {filteredStaff.map((member, idx) => (
                   <div 
                     key={member.id} 
-                    className={`grid grid-cols-12 gap-4 px-6 py-3 items-center hover:bg-blue-50/40 transition-colors group cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`}
+                    className={`grid grid-cols-12 gap-4 px-6 py-3 items-center hover:bg-blue-50/40 transition-colors group cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'} ${member.status === 'Desligado' ? 'opacity-60' : ''}`}
                     onClick={() => handleEditClick(member)}
                   >
                     {/* Code & Avatar */}
@@ -338,7 +359,7 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
                     </div>
 
                     {/* Contact Info */}
-                    <div className="hidden md:flex md:col-span-3 flex-col gap-0.5 min-w-0">
+                    <div className="hidden md:flex md:col-span-2 flex-col gap-0.5 min-w-0">
                       <div className="flex items-center gap-2 text-xs text-slate-600 truncate">
                         <Mail size={12} className="text-slate-300" />
                         <span className="truncate">{member.email}</span>
@@ -354,6 +375,20 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
                       {new Date(member.admissionDate).toLocaleDateString()}
                     </div>
 
+                    {/* Status */}
+                    <div className="hidden md:flex md:col-span-1 justify-center">
+                      {member.status === 'Desligado' ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-100 flex items-center gap-1">
+                          <LogOut size={10} />
+                          Desligado
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-100 flex items-center gap-1">
+                          Ativo
+                        </span>
+                      )}
+                    </div>
+
                     {/* Actions */}
                     <div className="col-span-12 md:col-span-1 flex justify-end gap-1">
                       <button 
@@ -364,9 +399,16 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
                          <MoreHorizontal size={20} />
                       </button>
                       <button 
+                        onClick={(e) => { e.stopPropagation(); handleTerminate(member); }}
+                        className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                        title="Desligar Colaborador"
+                      >
+                         <LogOut size={18} />
+                      </button>
+                      <button 
                         onClick={(e) => { e.stopPropagation(); onDeleteStaff(member.id); }}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                        title="Excluir Colaborador"
+                        title="Excluir Cadastro"
                       >
                          <Trash2 size={18} />
                       </button>
@@ -386,6 +428,63 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
           </div>
         )}
       </div>
+
+      {/* Termination Modal */}
+      {terminatingStaff && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600">
+                  <LogOut size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">Desligar Colaborador</h3>
+                  <p className="text-sm text-slate-500">{terminatingStaff.name}</p>
+                </div>
+              </div>
+              <button onClick={() => setTerminatingStaff(null)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 flex items-start gap-3">
+                <AlertTriangle size={18} className="text-amber-600 mt-0.5" />
+                <p className="text-sm text-amber-800">
+                  O colaborador será marcado como <strong>Desligado</strong> e poderá ser recontratado futuramente.
+                  Informe o motivo do desligamento.
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Motivo do Desligamento</label>
+                <textarea 
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none bg-white text-slate-900" 
+                  rows={3}
+                  placeholder="Ex: Pediu demissão, Demitido por justa causa, Término de contrato, Aposentadoria..."
+                  value={terminationReason}
+                  onChange={e => setTerminationReason(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="p-6 border-t border-slate-100 flex justify-end gap-3">
+              <button
+                onClick={() => setTerminatingStaff(null)}
+                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmTerminate}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 shadow-sm"
+              >
+                <LogOut size={16} />
+                Confirmar Desligamento
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <StaffFormModal 
         isOpen={isModalOpen}

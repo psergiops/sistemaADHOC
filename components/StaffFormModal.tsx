@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, User, Briefcase, MapPin, FileText, Save, DollarSign, Calendar, Users, Plus, Trash2 } from 'lucide-react';
+import { X, User, Briefcase, MapPin, FileText, Save, DollarSign, Calendar, Users, Plus, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Staff, Dependent } from '../types';
 
 interface StaffFormModalProps {
@@ -44,11 +44,15 @@ const INITIAL_FORM_STATE: Partial<Staff> = {
   educationLevel: '',
   fatherName: '',
   motherName: '',
-  dependents: []
+  dependents: [],
+  status: 'Ativo',
+  terminationDate: '',
+  terminationReason: '',
+  rehireObservations: ''
 };
 
 const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave, staffToEdit, onDelete }) => {
-  const [activeTab, setActiveTab] = useState<'personal' | 'docs' | 'family' | 'address' | 'contract'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'docs' | 'family' | 'address' | 'contract' | 'rehire'>('personal');
   const [formData, setFormData] = useState<Partial<Staff>>(INITIAL_FORM_STATE);
   
   // State for new dependent inputs
@@ -174,6 +178,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
           <TabButton id="family" label="Parentesco" icon={Users} />
           <TabButton id="address" label="Endereço" icon={MapPin} />
           <TabButton id="contract" label="Contrato & Cargo" icon={Briefcase} />
+          <TabButton id="rehire" label="Recontratação" icon={RotateCcw} />
         </div>
 
         {/* Form Body */}
@@ -444,7 +449,63 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
               </div>
             )}
 
-            {/* TAB 5: CONTRACT (EXISTING JOB TAB) */}
+            {/* TAB 5: REHIRE */}
+            {activeTab === 'rehire' && (
+              <div className="space-y-6">
+                {/* Status Info */}
+                <div className={`p-4 rounded-lg border ${formData.status === 'Desligado' ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle size={24} className={formData.status === 'Desligado' ? 'text-red-500' : 'text-green-500'} />
+                    <div>
+                      <h4 className={`font-bold ${formData.status === 'Desligado' ? 'text-red-800' : 'text-green-800'}`}>
+                        {formData.status === 'Desligado' ? 'Colaborador Desligado' : 'Colaborador Ativo'}
+                      </h4>
+                      <p className="text-sm mt-1">
+                        {formData.status === 'Desligado' 
+                          ? 'Registre observações para uma futura recontratação.'
+                          : 'Este colaborador está ativo. Caso necessário, utilize o botão "Desligar" na tela de equipe.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Termination Info */}
+                {formData.status === 'Desligado' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Data do Desligamento</label>
+                      <input type="date" className={inputClassName}
+                        value={formData.terminationDate || ''} onChange={e => handleChange('terminationDate', e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2 space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Motivo do Desligamento</label>
+                      <textarea className={inputClassName} rows={3}
+                        placeholder="Ex: Pediu demissão, Demitido por justa causa, Término de contrato, etc."
+                        value={formData.terminationReason || ''} onChange={e => handleChange('terminationReason', e.target.value)} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Rehire Observations */}
+                <div className="border-t border-slate-100 pt-4">
+                  <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <RotateCcw size={16} className="text-blue-600" />
+                    Observações para Recontratação
+                  </h4>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700">Informações Relevantes</label>
+                    <textarea className={inputClassName} rows={4}
+                      placeholder="Ex: Motivo do desligamento foi resolvido, bom histórico, recomendado por supervisor, etc."
+                      value={formData.rehireObservations || ''} onChange={e => handleChange('rehireObservations', e.target.value)} />
+                    <p className="text-xs text-slate-400 mt-1">
+                      Estas informações serão exibidas na tela de equipe para auxiliar na decisão de recontratação.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: CONTRACT (EXISTING JOB TAB) */}
             {activeTab === 'contract' && (
               <div className="space-y-6">
                   {/* Contract Basics */}

@@ -78,6 +78,12 @@ export interface Staff {
   fatherName?: string;
   motherName?: string;
   dependents: Dependent[];
+
+  // Status & Termination
+  status?: 'Ativo' | 'Desligado';
+  terminationDate?: string;
+  terminationReason?: string;
+  rehireObservations?: string;
 }
 
 export type ServiceType = 'Portaria 24h' | 'Vigilância' | 'Ronda Motorizada' | 'Monitoramento' | 'Limpeza e Conservação';

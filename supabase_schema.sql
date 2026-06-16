@@ -93,7 +93,11 @@ CREATE TABLE staff (
     fathername text,
     mothername text,
     dependents jsonb DEFAULT '[]'::jsonb,
-    isactive boolean DEFAULT true
+    isactive boolean DEFAULT true,
+    status text DEFAULT 'Ativo',
+    terminationdate text,
+    terminationreason text,
+    rehireobservations text
 );
 ALTER TABLE staff DISABLE ROW LEVEL SECURITY;
 

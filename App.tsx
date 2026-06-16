@@ -754,9 +754,10 @@ const App: React.FC = () => {
 
   const handleBulkAddStaff = async (list: Staff[]) => {
     try {
-      const createLogins = confirm(`Deseja criar automaticamente os logins de acesso para estes ${list.length} colaboradores?\n\nA senha inicial será os 4 primeiros dígitos do CPF.`);
+      const listWithStatus = list.map(s => ({ ...s, status: s.status || 'Ativo' }));
+      const createLogins = confirm(`Deseja criar automaticamente os logins de acesso para estes ${listWithStatus.length} colaboradores?\n\nA senha inicial será os 4 primeiros dígitos do CPF.`);
       
-      let finalStaffList = [...list];
+      let finalStaffList = [...listWithStatus];
 
       if (createLogins && isSupabaseConfigured) {
         // Prepara os dados para a função de servidor
