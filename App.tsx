@@ -1132,6 +1132,7 @@ const App: React.FC = () => {
           packages={packages}
           staff={staff} 
           clients={clients} 
+          residents={residents} 
           currentUser={currentUser} 
           onAddLog={(l) => { setEntryLogs([l, ...entryLogs]); saveToSupabase('entry_logs', l); }} 
           onAddGuestList={(l) => { setGuestLists([l, ...guestLists]); saveToSupabase('guest_lists', l); }} 

@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Staff, EntryLog, GuestList, Reservation, LogEntryType, Client, Guest, MaterialRequest, MaterialRequestItem, Package as PackageDelivery } from '../types';
+import { Staff, EntryLog, GuestList, Reservation, LogEntryType, Client, Guest, MaterialRequest, MaterialRequestItem, Package as PackageDelivery, Resident } from '../types';
 import { 
   Menu, ClipboardList, Users, Calendar, Plus, Search, 
   Car, User, Box, Clock, Link, Check, ExternalLink, Trash2, MapPin, Building2,
@@ -17,6 +17,7 @@ interface ConciergeViewProps {
   packages: PackageDelivery[];
   staff: Staff[];
   clients: Client[];
+  residents?: Resident[];
   currentUser: Staff;
   onAddLog: (log: EntryLog) => void;
   onAddGuestList: (list: GuestList) => void;
@@ -33,7 +34,7 @@ interface ConciergeViewProps {
 }
 
 const ConciergeView: React.FC<ConciergeViewProps> = ({ 
-  logs, guestLists, reservations, materialRequests = [], packages = [], staff, clients = [], currentUser, 
+  logs, guestLists, reservations, materialRequests = [], packages = [], staff, clients = [], residents = [], currentUser, 
   onAddLog, onAddGuestList, onAddReservation, onAddMaterialRequest, onAddPackage, onUpdatePackage, onUpdateGuestList, onDeleteGuestList, onDeleteReservation, onDeleteMaterialRequest, onToggleMenu, onShowHelp
 }) => {
   const [activeTab, setActiveTab] = useState<'logs' | 'guests' | 'reservations' | 'materials' | 'packages'>('logs');
@@ -634,6 +635,17 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     <form onSubmit={handleCreateGuestList} className="flex flex-col md:flex-row gap-4 items-end">
                                         <div className="flex-1 w-full space-y-1.5">
                                             <label className="text-sm font-medium text-slate-700">Unidade / Morador</label>
+                                            {residents.length > 0 && (
+                                              <select className="w-full px-3 py-1.5 mb-1.5 border border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-slate-700 text-white text-xs"
+                                                onChange={e => { if (e.target.value) setNewGuestList({...newGuestList, residentName: e.target.value}) }}
+                                                value=""
+                                              >
+                                                <option value="">-- Selecionar morador cadastrado --</option>
+                                                {residents.filter(r => r.isActive).map(r => (
+                                                  <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
+                                                ))}
+                                              </select>
+                                            )}
                                             <input 
                                                 required type="text" 
                                                 placeholder="Ex: Apto 304 - Sra. Helena"
@@ -839,6 +851,17 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-medium text-slate-700">Morador / Unidade</label>
+                                        {residents.length > 0 && (
+                                          <select className="w-full px-3 py-1.5 mb-1.5 border border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-slate-700 text-white text-xs"
+                                            onChange={e => { if (e.target.value) setNewRes({...newRes, reservedBy: e.target.value}) }}
+                                            value=""
+                                          >
+                                            <option value="">-- Selecionar morador cadastrado --</option>
+                                            {residents.filter(r => r.isActive).map(r => (
+                                              <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
+                                            ))}
+                                          </select>
+                                        )}
                                         <input 
                                             required type="text" 
                                             placeholder="Ex: Apto 101 - Sr. João"
@@ -1094,6 +1117,17 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Unidade/Morador</label>
+                                    {residents.length > 0 && (
+                                      <select className="w-full px-3 py-1.5 mb-1.5 border border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-slate-700 text-white text-xs"
+                                        onChange={e => { if (e.target.value) setNewPackage({...newPackage, recipientUnit: e.target.value}) }}
+                                        value=""
+                                      >
+                                        <option value="">-- Selecionar morador cadastrado --</option>
+                                        {residents.filter(r => r.isActive).map(r => (
+                                          <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
+                                        ))}
+                                      </select>
+                                    )}
                                     <input type="text" placeholder="Ex: Bloco A, Apt 101" className={darkInputClass}
                                         value={newPackage.recipientUnit} onChange={e => setNewPackage({...newPackage, recipientUnit: e.target.value})} />
                                 </div>

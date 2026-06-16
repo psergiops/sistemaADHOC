@@ -291,9 +291,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
               {canAccess('residents') && (
                 <NavItem 
                   icon={<Users size={20}/>} 
-                  label="Moradores" 
+                  label="Cadastro Moradores" 
                   active={currentView === 'residents'} 
                   onClick={() => handleNavClick('residents')}
+                />
+              )}
+
+              {canAccess('resident-portal') && currentUser?.role === 'Morador' && (
+                <NavItem 
+                  icon={<Building2 size={20}/>} 
+                  label="Meu Acesso" 
+                  active={currentView === 'resident-portal'} 
+                  onClick={() => handleNavClick('resident-portal')}
                 />
               )}
 
