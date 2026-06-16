@@ -25,4 +25,5 @@ ALTER PUBLICATION supabase_realtime ADD TABLE
   audit_logs,
   document_attachments,
   shift_handovers,
-  performance_evaluations;
+  performance_evaluations,
+  residents;

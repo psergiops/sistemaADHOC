@@ -24,7 +24,7 @@ import {
 import { Staff, PermissionConfig, AppModule, Post } from '../types';
 
 interface SidebarProps {
-  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations';
+  currentView: 'home' | 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'correspondencia' | 'settings' | 'access-control' | 'concierge' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations' | 'residents' | 'resident-portal';
   onNavigate: (view: any) => void;
   onLogout: () => void;
   onOpenHelp: () => void;
@@ -288,7 +288,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-               
+              {canAccess('residents') && (
+                <NavItem 
+                  icon={<Users size={20}/>} 
+                  label="Moradores" 
+                  active={currentView === 'residents'} 
+                  onClick={() => handleNavClick('residents')}
+                />
+              )}
+
+              
               <div className="pt-6 pb-2">
                 <p className="px-4 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Sistema</p>
               </div>

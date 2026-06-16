@@ -633,5 +633,13 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
     view: ['Diretoria', 'Administração', 'Supervisor', 'RH'],
     edit: ['Diretoria', 'Supervisor', 'RH']
   },
+  residents: {
+    view: ['Diretoria', 'Administração', 'Supervisor'],
+    edit: ['Diretoria', 'Administração']
+  },
+  'resident-portal': {
+    view: ['Morador'],
+    edit: []
+  },
   socialViewAllStaffIds: []
 };

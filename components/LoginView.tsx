@@ -1,16 +1,17 @@
 
 import React, { useState } from 'react';
 import { Lock, Mail, ArrowRight, Loader2, ShieldCheck, Clock } from 'lucide-react';
-import { Staff } from '../types';
+import { Staff, Resident } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
 interface LoginViewProps {
   staffList: Staff[];
+  residents?: Resident[];
   onLogin: (user: Staff | { name: string; role: string; avatar?: string; id: string }) => void;
   logoutMessage?: string | null;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage }) => {
+const LoginView: React.FC<LoginViewProps> = ({ staffList, residents = [], onLogin, logoutMessage }) => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -47,9 +48,29 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
           } else {
             setError('Senha incorreta.');
           }
-        } else {
-          setError('E-mail não encontrado no sistema.');
+          setIsLoading(false);
+          return;
         }
+
+        // Check resident login
+        const foundResident = residents.find(r => r.email.toLowerCase() === cleanIdentifier);
+        if (foundResident) {
+          if (password === foundResident.password) {
+            onLogin({
+              id: foundResident.id,
+              name: foundResident.name,
+              role: 'Morador',
+              resident: foundResident,
+              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(foundResident.name)}&background=22C55E&color=fff`
+            });
+          } else {
+            setError('Senha incorreta.');
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        setError('E-mail não encontrado no sistema.');
         setIsLoading(false);
       }, 800);
       return;
@@ -84,8 +105,20 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, onLogin, logoutMessage
             avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
           }, data);
         } else {
-          setError('Usuário autenticado, mas nenhum perfil de Staff encontrado para este e-mail.');
-          await supabase.auth.signOut();
+          // Check resident login
+          const foundResident = residents.find(r => r.email.toLowerCase() === data.user.email?.toLowerCase());
+          if (foundResident) {
+            onLogin({
+              id: foundResident.id,
+              name: foundResident.name,
+              role: 'Morador',
+              resident: foundResident,
+              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(foundResident.name)}&background=22C55E&color=fff`
+            }, data);
+          } else {
+            setError('Usuário autenticado, mas nenhum perfil encontrado para este e-mail.');
+            await supabase.auth.signOut();
+          }
         }
       }
     } catch (err: any) {

@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS paystubs CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
 DROP TABLE IF EXISTS suppliers CASCADE;
 DROP TABLE IF EXISTS shifts CASCADE;
+DROP TABLE IF EXISTS residents CASCADE;
 DROP TABLE IF EXISTS clients CASCADE;
 DROP TABLE IF EXISTS staff CASCADE;
 
@@ -106,6 +107,21 @@ CREATE TABLE staff (
     rehirehistory jsonb DEFAULT '[]'::jsonb
 );
 ALTER TABLE staff DISABLE ROW LEVEL SECURITY;
+
+-- Tabela: RESIDENTS
+CREATE TABLE residents (
+    id text PRIMARY KEY,
+    name text NOT NULL,
+    unit text NOT NULL,
+    origin text,
+    clientid text,
+    email text NOT NULL,
+    password text,
+    phone text,
+    isactive boolean DEFAULT true,
+    createdat text
+);
+ALTER TABLE residents DISABLE ROW LEVEL SECURITY;
 
 -- Tabela: CLIENTS
 CREATE TABLE clients (

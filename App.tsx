@@ -23,6 +23,8 @@ import CreateShiftModal from './components/CreateShiftModal';
 import ShiftCheckinReportModal from './components/ShiftCheckinReportModal';
 import ShiftHandoverView from './components/ShiftHandoverView';
 import PerformanceEvaluationView from './components/PerformanceEvaluationView';
+import ResidentsView from './components/ResidentsView';
+import ResidentPortalView from './components/ResidentPortalView';
 import HelpCenterModal from './components/HelpCenterModal';
 import SearchPicker, { PickerItem } from './components/SearchPicker';
 import GuestRegistrationView from './components/GuestRegistrationView';
@@ -89,6 +91,7 @@ const App: React.FC = () => {
   const [inventoryMovements, setInventoryMovements] = useState<InventoryMovement[]>(isSupabaseConfigured ? [] : MOCK_INVENTORY_MOVEMENTS);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(isSupabaseConfigured ? [] : MOCK_AUDIT_LOGS);
   const [evaluations, setEvaluations] = useState<PerformanceEvaluation[]>([]);
+  const [residents, setResidents] = useState<Resident[]>([]);
   const [permissions, setPermissions] = useState<PermissionConfig>(DEFAULT_PERMISSIONS);
 
   // --- Social Notifications ---
@@ -484,8 +487,25 @@ const App: React.FC = () => {
                   avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`
                 });
                 setIsAuthenticated(true);
+                return;
               }
             }
+            // Check residents
+            supabase.from('residents').select('*').then(({ data: rData }) => {
+              if (rData && rData.length > 0) {
+                const match = rData.find((r: any) => r.email?.toLowerCase() === email.toLowerCase());
+                if (match) {
+                  setCurrentUser({
+                    id: match.id,
+                    name: match.name,
+                    role: 'Morador',
+                    resident: match,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(match.name)}&background=22C55E&color=fff`
+                  });
+                  setIsAuthenticated(true);
+                }
+              }
+            });
           });
         }
       }
@@ -575,6 +595,9 @@ const App: React.FC = () => {
           const { data: evalData } = await supabase.from('performance_evaluations').select('*');
           if (evalData) setEvaluations(evalData);
 
+          const { data: residentData } = await supabase.from('residents').select('*');
+          if (residentData) setResidents(residentData);
+
           console.log("✅ Dados carregados com sucesso!");
         } catch (error: any) {
           console.error("Erro geral no carregamento:", error);
@@ -662,7 +685,7 @@ const App: React.FC = () => {
 
     setCurrentUser(user);
     setIsAuthenticated(true);
-    setCurrentView('home'); // ensure redirection to welcome screen
+    setCurrentView(user?.role === 'Morador' ? 'resident-portal' : 'home');
     setIsChangingPassword(false);
   };
 
@@ -900,7 +923,7 @@ const App: React.FC = () => {
   // --- Render ---
 
   if (!isAuthenticated && !isChangingPassword) {
-    return <LoginView staffList={staff} onLogin={handleLogin} />;
+    return <LoginView staffList={staff} residents={residents} onLogin={handleLogin} />;
   }
 
   if (isChangingPassword) {
@@ -1095,6 +1118,12 @@ const App: React.FC = () => {
         return <ShiftHandoverView shifts={shifts} handovers={handovers} currentUser={currentUser} staff={staff} clients={clients} onAddHandover={(h) => { setHandovers([...handovers, h]); saveToSupabase('shift_handovers', h); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'evaluations':
         return <PerformanceEvaluationView evaluations={evaluations} staff={staff} currentUser={currentUser} onAddEvaluation={(e) => { setEvaluations([...evaluations, e]); saveToSupabase('performance_evaluations', e); }} onUpdateEvaluation={(e) => { setEvaluations(evaluations.map(ev => ev.id === e.id ? e : ev)); saveToSupabase('performance_evaluations', e); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+      case 'residents':
+        return <ResidentsView residents={residents} clients={clients} currentUser={currentUser} onAddResident={(r) => { setResidents([...residents, r]); saveToSupabase('residents', r); }} onUpdateResident={(r) => { setResidents(residents.map(rs => rs.id === r.id ? r : rs)); saveToSupabase('residents', r); }} onDeleteResident={(id) => { setResidents(residents.filter(r => r.id !== id)); if (isSupabaseConfigured) supabase.from('residents').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+      case 'resident-portal': {
+        const residentData = currentUser?.resident || residents.find(r => r.id === currentUser?.id);
+        return residentData ? <ResidentPortalView resident={residentData} reservations={reservations} packages={packages} guestLists={guestLists} clients={clients} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} /> : <div>Morador não encontrado</div>;
+      }
       case 'settings':
         return <SettingsView currentTheme={currentTheme} onThemeChange={handleThemeChange} currentFontSize={currentFontSize} onFontSizeChange={handleFontSizeChange} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       default:

@@ -478,7 +478,20 @@ export interface PerformanceEvaluation {
   createdAt: string;
 }
 
-export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations';
+export interface Resident {
+  id: string;
+  name: string;
+  unit: string;
+  origin: string;
+  clientId: string;
+  email: string;
+  password: string;
+  phone: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export type AppModule = 'calendar' | 'team' | 'clients' | 'financial' | 'portal' | 'checklist' | 'patrol' | 'social' | 'concierge' | 'settings' | 'audit-log' | 'inventory' | 'shift-handover' | 'evaluations' | 'residents' | 'resident-portal';
 
 export interface ModulePermissions {
   view: string[];
