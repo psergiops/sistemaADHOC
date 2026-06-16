@@ -30,12 +30,12 @@ import {
   Staff, Client, Shift, Transaction, Paystub, Announcement,
   DataChangeRequest, VehicleChecklist, Patrol, Post, EntryLog, GuestList,
   Reservation, MaterialRequest, InventoryItem, InventoryMovement, AuditLog,
-  PermissionConfig, LogEntryType, Package, Correspondencia
+  PermissionConfig, LogEntryType, Package, Correspondencia, DocumentAttachment
 } from './types';
 
 import {
   MOCK_STAFF, MOCK_CLIENTS, INITIAL_SHIFTS, MOCK_TRANSACTIONS,
-  MOCK_PAYSTUBS, MOCK_ANNOUNCEMENTS, MOCK_CHANGE_REQUESTS, MOCK_CHECKLISTS,
+  MOCK_PAYSTUBS, MOCK_DOCUMENTS, MOCK_ANNOUNCEMENTS, MOCK_CHANGE_REQUESTS, MOCK_CHECKLISTS,
   MOCK_PATROLS, MOCK_POSTS, MOCK_ENTRY_LOGS, MOCK_GUEST_LISTS, MOCK_RESERVATIONS,
   MOCK_MATERIAL_REQUESTS, MOCK_INVENTORY_ITEMS, MOCK_INVENTORY_MOVEMENTS,
   MOCK_AUDIT_LOGS, MOCK_CORRESPONDENCIAS, DEFAULT_PERMISSIONS
@@ -69,6 +69,7 @@ const App: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>(isSupabaseConfigured ? [] : INITIAL_SHIFTS);
   const [transactions, setTransactions] = useState<Transaction[]>(isSupabaseConfigured ? [] : MOCK_TRANSACTIONS);
   const [paystubs, setPaystubs] = useState<Paystub[]>(isSupabaseConfigured ? [] : MOCK_PAYSTUBS);
+  const [documents, setDocuments] = useState<DocumentAttachment[]>(isSupabaseConfigured ? [] : MOCK_DOCUMENTS);
   const [announcements, setAnnouncements] = useState<Announcement[]>(isSupabaseConfigured ? [] : MOCK_ANNOUNCEMENTS);
   const [changeRequests, setChangeRequests] = useState<DataChangeRequest[]>(isSupabaseConfigured ? [] : MOCK_CHANGE_REQUESTS);
   const [checklists, setChecklists] = useState<VehicleChecklist[]>(isSupabaseConfigured ? [] : MOCK_CHECKLISTS);
@@ -486,6 +487,9 @@ const App: React.FC = () => {
 
           const { data: payData } = await supabase.from('paystubs').select('*');
           if (payData) setPaystubs(payData);
+
+          const { data: docData } = await supabase.from('document_attachments').select('*');
+          if (docData) setDocuments(docData);
 
           const { data: annData } = await supabase.from('announcements').select('*').order('date', { ascending: false });
           if (annData) setAnnouncements(annData);
@@ -1006,7 +1010,7 @@ const App: React.FC = () => {
       case 'financial':
         return <FinancialView transactions={transactions} clients={clients} staff={staff} onAddTransaction={(t) => { setTransactions([...transactions, t]); saveToSupabase('transactions', t); }} onUpdateTransaction={(t) => { setTransactions(transactions.map(ex => ex.id === t.id ? t : ex)); saveToSupabase('transactions', t); }} onDeleteTransaction={(id) => { setTransactions(transactions.filter(t => t.id !== id)); if (isSupabaseConfigured) supabase.from('transactions').delete().eq('id', id); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'portal':
-        return <HRPortalView staff={staff} shifts={shifts} clients={clients} paystubs={paystubs} changeRequests={changeRequests} materialRequests={materialRequests} onAddPaystub={(p) => { setPaystubs([...paystubs, p]); saveToSupabase('paystubs', p); }} onRequestChange={(req) => { setChangeRequests([...changeRequests, req]); saveToSupabase('change_requests', req); }} onManageRequest={(id, status, just) => { const updated = changeRequests.map(r => r.id === id ? { ...r, status, hrJustification: just, resolvedAt: new Date().toISOString() } : r); setChangeRequests(updated); const req = updated.find(r => r.id === id); if (req) saveToSupabase('change_requests', req); }} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onUpdateMaterialRequest={(req) => { setMaterialRequests(materialRequests.map(m => m.id === req.id ? req : m)); saveToSupabase('material_requests', req); }} currentUser={currentUser} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <HRPortalView staff={staff} shifts={shifts} clients={clients} paystubs={paystubs} documents={documents} changeRequests={changeRequests} materialRequests={materialRequests} onAddPaystub={(p) => { setPaystubs([...paystubs, p]); saveToSupabase('paystubs', p); }} onAddDocument={(d) => { setDocuments([...documents, d]); saveToSupabase('document_attachments', d); }} onDeleteDocument={(id) => { setDocuments(documents.filter(d => d.id !== id)); if (isSupabaseConfigured) supabase.from('document_attachments').delete().eq('id', id); }} onRequestChange={(req) => { setChangeRequests([...changeRequests, req]); saveToSupabase('change_requests', req); }} onManageRequest={(id, status, just) => { const updated = changeRequests.map(r => r.id === id ? { ...r, status, hrJustification: just, resolvedAt: new Date().toISOString() } : r); setChangeRequests(updated); const req = updated.find(r => r.id === id); if (req) saveToSupabase('change_requests', req); }} onUpdateStaff={(s) => { setStaff(staff.map(ex => ex.id === s.id ? s : ex)); saveToSupabase('staff', s); }} onUpdateMaterialRequest={(req) => { setMaterialRequests(materialRequests.map(m => m.id === req.id ? req : m)); saveToSupabase('material_requests', req); }} currentUser={currentUser} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'checklist':
         return <ChecklistView checklists={checklists} staff={staff} clients={clients} onAddChecklist={(c) => { setChecklists([c, ...checklists]); saveToSupabase('vehicle_checklists', c); }} currentUser={currentUser} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'patrol':

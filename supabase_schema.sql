@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS patrols CASCADE;
 DROP TABLE IF EXISTS vehicle_checklists CASCADE;
 DROP TABLE IF EXISTS change_requests CASCADE;
 DROP TABLE IF EXISTS announcements CASCADE;
+DROP TABLE IF EXISTS document_attachments CASCADE;
 DROP TABLE IF EXISTS paystubs CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
 DROP TABLE IF EXISTS suppliers CASCADE;
@@ -190,6 +191,20 @@ CREATE TABLE paystubs (
     filename text
 );
 ALTER TABLE paystubs DISABLE ROW LEVEL SECURITY;
+
+-- Tabela: DOCUMENTS ATTACHMENTS
+CREATE TABLE document_attachments (
+    id text PRIMARY KEY,
+    staffid text NOT NULL,
+    uploadedby text NOT NULL,
+    documenttype text NOT NULL,
+    documentdate text,
+    filename text NOT NULL,
+    url text,
+    uploaddate text,
+    notes text
+);
+ALTER TABLE document_attachments DISABLE ROW LEVEL SECURITY;
 
 -- Tabela: ANNOUNCEMENTS
 CREATE TABLE announcements (

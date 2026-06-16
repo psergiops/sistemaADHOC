@@ -259,6 +259,30 @@ export const MOCK_PAYSTUBS: Paystub[] = [
   }
 ];
 
+export const MOCK_DOCUMENTS: DocumentAttachment[] = [
+  {
+    id: 'doc-1',
+    staffId: 'stf-1',
+    uploadedBy: 'stf-1',
+    documentType: 'Atestado Médico',
+    documentDate: '2025-02-10',
+    fileName: 'atestado_fevereiro.pdf',
+    url: '#',
+    uploadDate: '2025-02-10',
+    notes: 'Atestado de 3 dias - CID J00'
+  },
+  {
+    id: 'doc-2',
+    staffId: 'stf-2',
+    uploadedBy: 'admin-master',
+    documentType: 'Declaração de Imposto de Renda',
+    documentDate: '2025-03-15',
+    fileName: 'declaracao_ir_2024.pdf',
+    url: '#',
+    uploadDate: '2025-03-15'
+  }
+];
+
 export const MOCK_ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'ann-1',

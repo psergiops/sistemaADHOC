@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Staff, Paystub, DataChangeRequest, Shift, Client, MaterialRequest } from '../types';
+import { Staff, Paystub, DocumentAttachment, DataChangeRequest, Shift, Client, MaterialRequest } from '../types';
 import { 
-  FileText, Upload, Download, User, 
+  FileText, Upload, Download, User, FileSpreadsheet,
   CheckCircle2, AlertCircle, FilePlus, Lock, Shield,
   FileSignature, Bus, Plus, Trash2, CalendarClock, MapPin, Clock, Eye, XCircle, Check, Menu, Package, CheckSquare, Square, HelpCircle
 } from 'lucide-react';
@@ -14,9 +14,12 @@ interface HRPortalViewProps {
   shifts: Shift[];
   clients: Client[];
   paystubs: Paystub[];
+  documents: DocumentAttachment[];
   changeRequests: DataChangeRequest[];
   materialRequests?: MaterialRequest[]; // Optional prop for backward compatibility if needed, but App.tsx passes it
   onAddPaystub: (paystub: Paystub) => void;
+  onAddDocument: (doc: DocumentAttachment) => void;
+  onDeleteDocument: (id: string) => void;
   onRequestChange: (req: DataChangeRequest) => void;
   onManageRequest: (reqId: string, status: 'Approved' | 'Rejected', justification: string) => void;
   onUpdateStaff: (updatedStaff: Staff) => void;
@@ -67,7 +70,7 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   const canManage = effectiveUser?.role === 'Diretoria' || effectiveUser?.role === 'Supervisor' || effectiveUser?.id === 'admin-master';
   
   // Default tab based on role
-  const [activeTab, setActiveTab] = useState<'documents' | 'requests' | 'management' | 'schedule'>('schedule');
+  const [activeTab, setActiveTab] = useState<'documents' | 'docs' | 'requests' | 'management' | 'schedule'>('schedule');
 
   const roleTranslations: Record<string, string> = {
     'Security': 'Ronda',
@@ -96,6 +99,12 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   const [newPaystub, setNewPaystub] = useState<{staffId: string, month: string}>({ staffId: '', month: '' });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const DOCUMENT_TYPES = ['Atestado Médico', 'Declaração de Imposto de Renda', 'Declaração', 'Recibo', 'Comprovante', 'Outros'];
+
+  const [newDocument, setNewDocument] = useState<{staffId: string, documentType: string, documentDate: string, notes: string}>({ staffId: '', documentType: 'Atestado Médico', documentDate: '', notes: '' });
+  const [selectedDocFile, setSelectedDocFile] = useState<File | null>(null);
+  const docFileInputRef = useRef<HTMLInputElement>(null);
 
   
   // --- Employee Change Request Form State ---
@@ -160,6 +169,40 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
 
     } else if (!selectedFile) {
       alert("Por favor, selecione um arquivo PDF.");
+    }
+  };
+
+  const handleDocFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedDocFile(e.target.files[0]);
+    }
+  };
+
+  const handleUploadDocument = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newDocument.staffId && newDocument.documentType && selectedDocFile) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const fileUrl = event.target?.result as string;
+        onAddDocument({
+          id: `doc-${Date.now()}`,
+          staffId: newDocument.staffId,
+          uploadedBy: effectiveUser.id,
+          documentType: newDocument.documentType,
+          documentDate: newDocument.documentDate || format(new Date(), 'yyyy-MM-dd'),
+          fileName: selectedDocFile.name,
+          url: fileUrl,
+          uploadDate: format(new Date(), 'yyyy-MM-dd'),
+          notes: newDocument.notes || undefined
+        });
+        alert('Documento anexado com sucesso!');
+        setNewDocument({ staffId: '', documentType: 'Atestado Médico', documentDate: '', notes: '' });
+        setSelectedDocFile(null);
+        if (docFileInputRef.current) docFileInputRef.current.value = '';
+      };
+      reader.readAsDataURL(selectedDocFile);
+    } else if (!selectedDocFile) {
+      alert("Por favor, selecione um arquivo.");
     }
   };
 
@@ -279,11 +322,17 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
     ? paystubs 
     : paystubs.filter(p => p.staffId === effectiveUser.id);
 
+  const myDocuments = canManage && !simulatedUserId
+    ? documents
+    : documents.filter(d => d.staffId === effectiveUser.id);
+
   const myRequests = canManage && !simulatedUserId
     ? [] 
     : changeRequests.filter(r => r.staffId === effectiveUser.id);
   
   const pendingRequests = changeRequests.filter(r => r.status === 'Pending');
+
+  const pendingDocuments = documents.filter(d => d.uploadedBy !== effectiveUser.id);
 
   // Pending Material Requests for Management
   const pendingMaterials = materialRequests.filter(r => r.status !== 'Completed').sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -421,6 +470,26 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
             <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${activeTab === 'documents' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
                 {myPaystubs.length}
             </span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('docs')}
+            className={`py-4 text-sm font-medium border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap ${
+              activeTab === 'docs' 
+                ? 'border-blue-600 text-blue-600' 
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <FileSpreadsheet size={18} />
+            {canManage ? 'Todos os Documentos' : 'Meus Documentos'}
+            <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${activeTab === 'docs' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                {myDocuments.length}
+            </span>
+            {canManage && pendingDocuments.length > 0 && (
+              <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-bold">
+                {pendingDocuments.length}
+              </span>
+            )}
           </button>
           
           <button 
@@ -606,6 +675,187 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
                       >
                         <Download size={20} />
                       </a>
+                    </div>
+                   );
+                 })
+               )}
+            </div>
+          </div>
+        )}
+
+        {/* DOCUMENTS VIEW */}
+        {activeTab === 'docs' && (
+          <div className="space-y-6">
+            {!canManage && (
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-start gap-3">
+                 <div className="bg-blue-100 p-2 rounded-full text-blue-600 mt-1">
+                   <User size={16} />
+                 </div>
+                 <div>
+                   <h3 className="text-sm font-bold text-blue-900">Olá, {effectiveUser.name}</h3>
+                   <p className="text-sm text-blue-700 mt-1">
+                     Aqui você pode enviar atestados, declarações e outros documentos para o RH, e visualizar documentos disponibilizados pelo RH.
+                   </p>
+                 </div>
+              </div>
+            )}
+
+            {/* Upload Section - visible to everyone */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
+                <Upload size={20} className="text-blue-600" />
+                {canManage ? 'Anexar Documento para Colaborador' : 'Enviar Documento'}
+              </h3>
+              <form onSubmit={handleUploadDocument} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {canManage && (
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Colaborador</label>
+                      <div className="relative">
+                        <select 
+                          required
+                          className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          value={newDocument.staffId}
+                          onChange={e => setNewDocument({...newDocument, staffId: e.target.value})}
+                        >
+                          <option value="">Selecione...</option>
+                          {staff.map(s => (
+                            <option key={s.id} value={s.id}>{s.name} ({roleTranslations[s.role] || s.role})</option>
+                          ))}
+                        </select>
+                        <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700">Tipo de Documento</label>
+                    <select 
+                      required
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+                      value={newDocument.documentType}
+                      onChange={e => setNewDocument({...newDocument, documentType: e.target.value})}
+                    >
+                      {DOCUMENT_TYPES.map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700">Data do Documento</label>
+                    <input 
+                      type="date" 
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+                      value={newDocument.documentDate}
+                      onChange={e => setNewDocument({...newDocument, documentDate: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-700">Observação</label>
+                    <input 
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+                      placeholder="Ex: Atestado de 3 dias, CID J00..."
+                      value={newDocument.notes}
+                      onChange={e => setNewDocument({...newDocument, notes: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Arquivo</label>
+                  <div 
+                    className="border-2 border-dashed border-slate-200 rounded-lg p-6 flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => docFileInputRef.current?.click()}
+                  >
+                    <Upload size={24} className="mb-2" />
+                    <span className="text-xs">{selectedDocFile ? selectedDocFile.name : 'Clique para selecionar o arquivo'}</span>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      ref={docFileInputRef}
+                      onChange={handleDocFileChange}
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors shadow-sm">
+                  Anexar Documento
+                </button>
+              </form>
+            </div>
+
+            {/* Documents List */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               {myDocuments.length === 0 ? (
+                 <div className="col-span-full text-center py-10 text-slate-400">
+                    <FileText size={48} className="mx-auto mb-3 opacity-20" />
+                    <p>Nenhum documento encontrado.</p>
+                 </div>
+               ) : (
+                 myDocuments.map(doc => {
+                   const owner = staff.find(s => s.id === doc.staffId);
+                   const uploader = staff.find(s => s.id === doc.uploadedBy);
+                   return (
+                    <div key={doc.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex items-start justify-between group">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          doc.documentType === 'Atestado Médico' ? 'bg-red-50 text-red-500' :
+                          doc.documentType === 'Declaração de Imposto de Renda' ? 'bg-green-50 text-green-500' :
+                          'bg-blue-50 text-blue-500'
+                        }`}>
+                          <FileText size={20} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-800 truncate">{doc.fileName}</p>
+                          <p className="text-xs font-medium text-slate-500 mt-0.5">
+                            {doc.documentType}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {doc.documentDate && new Date(doc.documentDate).toLocaleDateString()}
+                          </p>
+                          {doc.notes && (
+                            <p className="text-xs text-slate-500 mt-1 italic truncate">{doc.notes}</p>
+                          )}
+                          {owner && (canManage || simulatedUserId) && (
+                            <p className="text-xs font-bold text-blue-600 mt-1 flex items-center gap-1">
+                                <User size={10} />
+                                {owner.name}
+                                {uploader && uploader.id !== owner.id && (
+                                  <span className="text-slate-400 font-normal">(por {uploader.name})</span>
+                                )}
+                            </p>
+                          )}
+                          {!canManage && (
+                            <div className="flex items-center gap-1 mt-1 text-[10px] text-green-700 font-medium bg-green-50 w-fit px-1.5 py-0.5 rounded border border-green-100">
+                               <Lock size={10} />
+                               <span>Privado</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        {doc.url && doc.url !== '#' && (
+                          <a 
+                            href={doc.url} 
+                            download={doc.fileName}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" 
+                            title="Baixar"
+                          >
+                            <Download size={20} />
+                          </a>
+                        )}
+                        {(canManage || doc.staffId === effectiveUser.id) && (
+                          <button
+                            onClick={() => onDeleteDocument(doc.id)}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                            title="Excluir"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                    );
                  })

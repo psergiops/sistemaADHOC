@@ -130,6 +130,18 @@ export interface Paystub {
   fileName: string;
 }
 
+export interface DocumentAttachment {
+  id: string;
+  staffId: string;
+  uploadedBy: string;
+  documentType: string;
+  documentDate: string;
+  fileName: string;
+  url: string;
+  uploadDate: string;
+  notes?: string;
+}
+
 export interface Announcement {
   id: string;
   title: string;
