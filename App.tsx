@@ -195,7 +195,7 @@ const App: React.FC = () => {
       'pickedUpBy': 'pickedupby', 'pickedUpDate': 'pickedupdate', 'pickedUpTime': 'pickeduptime', 'clientId': 'clientid',
       'overallScore': 'overallscore', 'requiresReevaluation': 'requiresreevaluation',
       'nextEvaluationDate': 'nextevaluationdate', 'previousEvaluationId': 'previousevaluationid',
-      'sentToRH': 'senttorh', 'evaluatorId': 'evaluatorid'
+      'sentToRH': 'senttorh', 'evaluatorId': 'evaluatorid', 'rhTratativa': 'rhtratativa'
     };
 
 
@@ -1080,7 +1080,7 @@ const App: React.FC = () => {
       case 'shift-handover':
         return <ShiftHandoverView shifts={shifts} handovers={handovers} currentUser={currentUser} staff={staff} clients={clients} onAddHandover={(h) => { setHandovers([...handovers, h]); saveToSupabase('shift_handovers', h); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'evaluations':
-        return <PerformanceEvaluationView evaluations={evaluations} staff={staff} currentUser={currentUser} onAddEvaluation={(e) => { setEvaluations([...evaluations, e]); saveToSupabase('performance_evaluations', e); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
+        return <PerformanceEvaluationView evaluations={evaluations} staff={staff} currentUser={currentUser} onAddEvaluation={(e) => { setEvaluations([...evaluations, e]); saveToSupabase('performance_evaluations', e); }} onUpdateEvaluation={(e) => { setEvaluations(evaluations.map(ev => ev.id === e.id ? e : ev)); saveToSupabase('performance_evaluations', e); }} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       case 'settings':
         return <SettingsView currentTheme={currentTheme} onThemeChange={handleThemeChange} currentFontSize={currentFontSize} onFontSizeChange={handleFontSizeChange} onToggleMenu={() => setIsSidebarOpen(true)} onShowHelp={() => setIsHelpOpen(true)} />;
       default:

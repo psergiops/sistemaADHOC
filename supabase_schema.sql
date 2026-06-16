@@ -445,6 +445,7 @@ CREATE TABLE performance_evaluations (
     previousevaluationid text,
     status text DEFAULT 'completed',
     senttorh boolean DEFAULT true,
+    rhtratativa text,
     createdat text
 );
 ALTER TABLE performance_evaluations DISABLE ROW LEVEL SECURITY;

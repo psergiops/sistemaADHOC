@@ -474,6 +474,7 @@ export interface PerformanceEvaluation {
   previousEvaluationId?: string;
   status: 'pending' | 'completed';
   sentToRH: boolean;
+  rhTratativa: string;
   createdAt: string;
 }
 

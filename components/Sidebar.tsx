@@ -177,17 +177,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {/* 2. Avaliação de Desempenho */}
-              {canAccess('evaluations') && (
-                <NavItem 
-                  icon={<ClipboardCheck size={20}/>} 
-                  label="Avaliação" 
-                  active={currentView === 'evaluations'} 
-                  onClick={() => handleNavClick('evaluations')}
-                  badge={evaluationNotifCount}
-                />
-              )}
-
               {/* 3. Portaria */}
               {canAccess('concierge') && (
                 <NavItem 
@@ -218,7 +207,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                 />
               )}
 
-              {/* 5. Funcionários */}
+              {/* 5. Avaliação de Desempenho */}
+              {canAccess('evaluations') && (
+                <NavItem 
+                  icon={<ClipboardCheck size={20}/>} 
+                  label="Avaliação" 
+                  active={currentView === 'evaluations'} 
+                  onClick={() => handleNavClick('evaluations')}
+                  badge={evaluationNotifCount}
+                />
+              )}
+
+              {/* 6. Funcionários */}
               {canAccess('team') && (
                 <NavItem 
                   icon={<Users size={20}/>} 

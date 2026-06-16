@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { PerformanceEvaluation, Staff } from '../types';
 import { format, addDays, isPast, parseISO } from 'date-fns';
 import {
@@ -12,6 +12,7 @@ interface PerformanceEvaluationViewProps {
   staff: Staff[];
   currentUser: Staff | any;
   onAddEvaluation: (evaluation: PerformanceEvaluation) => void;
+  onUpdateEvaluation: (evaluation: PerformanceEvaluation) => void;
   onToggleMenu: () => void;
   onShowHelp: () => void;
 }
@@ -30,13 +31,20 @@ const criteriaLabels: { key: keyof Pick<PerformanceEvaluation, 'assiduidade' | '
 ];
 
 const PerformanceEvaluationView: React.FC<PerformanceEvaluationViewProps> = ({
-  evaluations, staff, currentUser, onAddEvaluation, onToggleMenu, onShowHelp
+  evaluations, staff, currentUser, onAddEvaluation, onUpdateEvaluation, onToggleMenu, onShowHelp
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [viewingEval, setViewingEval] = useState<PerformanceEvaluation | null>(null);
+  const [editTratativa, setEditTratativa] = useState('');
   const [staffFilter, setStaffFilter] = useState('');
 
   const isRH = currentUser?.role === 'RH' || currentUser?.role === 'Diretoria' || currentUser?.id === 'admin-master';
+
+  useEffect(() => {
+    if (viewingEval) {
+      setEditTratativa(viewingEval.rhTratativa || '');
+    }
+  }, [viewingEval]);
 
   const pendingReevaluations = useMemo(() => {
     return evaluations.filter(e =>
@@ -115,6 +123,7 @@ const PerformanceEvaluationView: React.FC<PerformanceEvaluationViewProps> = ({
       previousEvaluationId: form.previousEvaluationId || undefined,
       status: 'completed',
       sentToRH: true,
+      rhTratativa: '',
       createdAt: new Date().toISOString()
     });
     setShowForm(false);
@@ -472,6 +481,30 @@ const PerformanceEvaluationView: React.FC<PerformanceEvaluationViewProps> = ({
                   Reavaliação solicitada para {format(parseISO(viewingEval.nextEvaluationDate), 'dd/MM/yyyy')}
                 </div>
               )}
+
+              <div>
+                <h4 className="text-sm font-bold text-slate-700 mb-1">Tratativa do RH</h4>
+                {isRH ? (
+                  <>
+                    <textarea className={inputClass} rows={3}
+                      placeholder="Registre aqui as ações do RH em relação a esta avaliação..."
+                      value={editTratativa} onChange={e => setEditTratativa(e.target.value)} />
+                    <div className="mt-2 flex justify-end">
+                      <button onClick={() => {
+                        onUpdateEvaluation({ ...viewingEval, rhTratativa: editTratativa });
+                        setViewingEval({ ...viewingEval, rhTratativa: editTratativa });
+                      }}
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
+                        Salvar Tratativa
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className={`text-sm bg-slate-50 p-3 rounded-lg border border-slate-200 whitespace-pre-wrap ${!viewingEval.rhTratativa ? 'text-slate-400 italic' : 'text-slate-600'}`}>
+                    {viewingEval.rhTratativa || 'Nenhuma tratativa registrada pelo RH.'}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="p-6 border-t border-slate-100 flex justify-end shrink-0">
               <button onClick={() => setViewingEval(null)}
