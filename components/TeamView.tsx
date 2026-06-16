@@ -102,8 +102,8 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
     ];
 
     const roleMapReverse: Record<string, string> = {
-        'Security': 'Segurança',
-        'Concierge': 'Porteiro',
+        'Security': 'Ronda',
+        'Concierge': 'Controlador de Acesso',
         'Supervisor': 'Supervisor',
         'RH': 'RH',
         'Diretoria': 'Diretoria',
@@ -177,8 +177,8 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
   };
 
   const roleTranslations: Record<string, string> = {
-    'Security': 'Segurança',
-    'Concierge': 'Porteiro',
+    'Security': 'Ronda',
+    'Concierge': 'Controlador de Acesso',
     'Supervisor': 'Supervisor',
     'RH': 'Recursos Humanos',
     'Diretoria': 'Diretoria',
@@ -228,8 +228,8 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
               title="Filtrar por Cargo"
               allLabel="Todos os Cargos"
               items={[
-                { id: 'Segurança', label: 'Segurança', icon: Shield },
-                { id: 'Portaria', label: 'Portaria', icon: Users },
+                { id: 'Ronda', label: 'Ronda', icon: Shield },
+                { id: 'Controlador de Acesso', label: 'Controlador de Acesso', icon: Users },
                 { id: 'Supervisor', label: 'Supervisor', icon: UserCog },
                 { id: 'RH', label: 'Recursos Humanos', icon: Briefcase },
                 { id: 'Diretoria', label: 'Diretoria', icon: Shield },
@@ -322,8 +322,8 @@ const TeamView: React.FC<TeamViewProps> = ({ staff, onAddStaff, onBulkAddStaff, 
                       <span className={`text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-tight
                         ${member.role === 'Supervisor' ? 'bg-purple-50 text-purple-700 border border-purple-100' :
                           member.role === 'RH' ? 'bg-pink-50 text-pink-700 border border-pink-100' : 
-                          member.role === 'Segurança' ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' :
-                          member.role === 'Portaria' ? 'bg-teal-50 text-teal-700 border border-teal-100' :
+                          member.role === 'Ronda' ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' :
+                          member.role === 'Controlador de Acesso' ? 'bg-teal-50 text-teal-700 border border-teal-100' :
                           'bg-slate-50 text-slate-600 border border-slate-200'
                         }`}>
                         {roleTranslations[member.role] || member.role}

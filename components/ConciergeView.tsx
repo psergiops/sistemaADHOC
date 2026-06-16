@@ -348,7 +348,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                 <Menu size={24} />
             </button>
             <div>
-                <h2 className="text-xl font-bold text-slate-800">Portal do Porteiro</h2>
+                <h2 className="text-xl font-bold text-slate-800">Portal do Controlador de Acesso</h2>
                 <p className="text-sm text-slate-500">Gestão de acesso e rotinas da portaria</p>
             </div>
         </div>

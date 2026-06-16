@@ -244,8 +244,8 @@ const DailyScheduleTable: React.FC<DailyScheduleTableProps> = ({
                                                           onBlur={(e) => handleUpdateShiftStaff(shift.id, e.target.value)}
                                                        />
                                                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0 
-                                                          ${staffMember?.role === 'Segurança' ? 'bg-indigo-100 text-indigo-700 font-bold' : 
-                                                            staffMember?.role === 'Portaria' ? 'bg-teal-100 text-teal-700 font-bold' : 
+                                                          ${staffMember?.role === 'Ronda' ? 'bg-indigo-100 text-indigo-700 font-bold' : 
+                                                            staffMember?.role === 'Controlador de Acesso' ? 'bg-teal-100 text-teal-700 font-bold' : 
                                                             'bg-slate-100 text-slate-600'}`}>
                                                           {staffMember?.role || 'POSTO'}
                                                        </span>

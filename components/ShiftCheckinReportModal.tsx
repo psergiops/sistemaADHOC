@@ -34,8 +34,8 @@ const ShiftCheckinReportModal: React.FC<ShiftCheckinReportModalProps> = ({
   }).sort((a,b) => a.startTime.localeCompare(b.startTime));
 
   const roleTranslations: Record<string, string> = {
-    'Security': 'Segurança',
-    'Concierge': 'Porteiro',
+    'Security': 'Ronda',
+    'Concierge': 'Controlador de Acesso',
     'Supervisor': 'Supervisor',
     'RH': 'RH',
     'Diretoria': 'Diretoria',

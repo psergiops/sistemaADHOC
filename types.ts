@@ -55,7 +55,7 @@ export interface Staff {
   educationLevel?: string; // Escolaridade
 
   // Job Details
-  role: 'Segurança' | 'Portaria' | 'Supervisor' | 'Diretoria' | 'RH' | 'Administração';
+  role: 'Ronda' | 'Controlador de Acesso' | 'Supervisor' | 'Diretoria' | 'RH' | 'Administração';
   sector?: string; // Setor/Departamento
   regime: 'CLT' | 'PJ' | 'Freelancer';
   contractType: 'Determinado' | 'Indeterminado' | 'Temporário';
@@ -414,5 +414,6 @@ export interface ModulePermissions {
 }
 
 export interface PermissionConfig {
-  [key: string]: ModulePermissions; 
+  [key: string]: ModulePermissions | string[] | undefined;
+  socialViewAllStaffIds?: string[];
 }

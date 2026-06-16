@@ -168,8 +168,8 @@ const CreateShiftModal: React.FC<CreateShiftModalProps> = ({
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   const roleTranslations: Record<string, string> = {
-    'Security': 'Segurança',
-    'Concierge': 'Porteiro',
+    'Security': 'Ronda',
+    'Concierge': 'Controlador de Acesso',
     'Supervisor': 'Supervisor',
     'RH': 'RH',
     'Diretoria': 'Diretoria',

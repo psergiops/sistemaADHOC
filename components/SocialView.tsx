@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { Post, Staff, Comment, Client } from '../types';
+import { Post, Staff, Comment, Client, PermissionConfig } from '../types';
 import { 
   Menu, Search, Image as ImageIcon, Send, ThumbsUp, MessageCircle, MoreHorizontal, Trash2, X, MapPin, Pencil, Check, HelpCircle, AtSign, Filter
 } from 'lucide-react';
@@ -12,6 +12,7 @@ interface SocialViewProps {
   staff: Staff[];
   currentUser: Staff;
   clients: Client[];
+  permissions?: PermissionConfig;
   onAddPost: (post: Post) => void;
   onUpdatePost: (post: Post) => void;
   onDeletePost: (id: string) => void;
@@ -22,7 +23,7 @@ interface SocialViewProps {
 }
 
 const SocialView: React.FC<SocialViewProps> = ({ 
-  posts, staff, currentUser, clients, onAddPost, onUpdatePost, onDeletePost, onLikePost, onCommentPost, onToggleMenu, onShowHelp 
+  posts, staff, currentUser, clients, permissions, onAddPost, onUpdatePost, onDeletePost, onLikePost, onCommentPost, onToggleMenu, onShowHelp 
 }) => {
   // Post Creation State
   const [newPostContent, setNewPostContent] = useState('');
@@ -57,6 +58,9 @@ const SocialView: React.FC<SocialViewProps> = ({
       }
   }, [availableLocations, postLocationId]);
 
+  // Check if current user can see all social posts
+  const canViewAllPosts = permissions?.socialViewAllStaffIds?.includes(currentUser.id) ?? false;
+
   // Filter and Sort Posts
   const filteredPosts = useMemo(() => {
       return posts
@@ -75,8 +79,17 @@ const SocialView: React.FC<SocialViewProps> = ({
             }
             return true;
         })
+        .filter(post => {
+            // Social View Permission Filter
+            if (canViewAllPosts) return true;
+            // Restricted: can only see own posts + RH/Diretoria
+            if (post.authorId === currentUser.id) return true;
+            const author = staff.find(s => s.id === post.authorId);
+            if (author && (author.role === 'RH' || author.role === 'Diretoria')) return true;
+            return false;
+        })
         .sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [posts, filterLocationId, searchTerm, staff]);
+  }, [posts, filterLocationId, searchTerm, staff, canViewAllPosts, currentUser.id]);
 
   const getStaff = (id: string) => staff.find(s => s.id === id) || { name: 'Usuário', avatar: null, role: '' };
   const getClientName = (id?: string) => clients.find(c => c.id === id)?.name;
@@ -173,8 +186,8 @@ const SocialView: React.FC<SocialViewProps> = ({
   };
 
   const roleTranslations: Record<string, string> = {
-    'Security': 'Segurança',
-    'Concierge': 'Porteiro',
+    'Security': 'Ronda',
+    'Concierge': 'Controlador de Acesso',
     'Supervisor': 'Supervisor',
     'RH': 'RH',
     'Diretoria': 'Diretoria',

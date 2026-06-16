@@ -16,7 +16,7 @@ const INITIAL_FORM_STATE: Partial<Staff> = {
   email: '',
   phone: '',
   emergencyPhone: '',
-  role: 'Segurança',
+   role: 'Ronda',
   sector: '',
   regime: 'CLT',
   contractType: 'Indeterminado',
@@ -459,8 +459,8 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({ isOpen, onClose, onSave
                            <label className="text-sm font-medium text-slate-700">Cargo</label>
                            <select className={inputClassName}
                            value={formData.role} onChange={e => handleChange('role', e.target.value)}>
-                           <option value="Segurança">Segurança/Vigilante</option>
-                           <option value="Portaria">Porteiro/Controlador</option>
+                            <option value="Ronda">Ronda</option>
+                            <option value="Controlador de Acesso">Controlador de Acesso</option>
                            <option value="Supervisor">Supervisor</option>
                            <option value="Diretoria">Diretor</option>
                            <option value="RH">Recursos Humanos</option>

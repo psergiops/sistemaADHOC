@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Staff, Paystub, Announcement, DataChangeRequest, Shift, Client, MaterialRequest } from '../types';
+import { Staff, Paystub, DataChangeRequest, Shift, Client, MaterialRequest } from '../types';
 import { 
-  FileText, Megaphone, Upload, Download, User, 
-  Bell, CheckCircle2, AlertCircle, FilePlus, Lock, Shield,
+  FileText, Upload, Download, User, 
+  CheckCircle2, AlertCircle, FilePlus, Lock, Shield,
   FileSignature, Bus, Plus, Trash2, CalendarClock, MapPin, Clock, Eye, XCircle, Check, Menu, Package, CheckSquare, Square, HelpCircle
 } from 'lucide-react';
 import { format, parseISO, isBefore, startOfToday, isToday, differenceInDays } from 'date-fns';
@@ -14,11 +14,9 @@ interface HRPortalViewProps {
   shifts: Shift[];
   clients: Client[];
   paystubs: Paystub[];
-  announcements: Announcement[];
   changeRequests: DataChangeRequest[];
   materialRequests?: MaterialRequest[]; // Optional prop for backward compatibility if needed, but App.tsx passes it
   onAddPaystub: (paystub: Paystub) => void;
-  onAddAnnouncement: (announcement: Announcement) => void;
   onRequestChange: (req: DataChangeRequest) => void;
   onManageRequest: (reqId: string, status: 'Approved' | 'Rejected', justification: string) => void;
   onUpdateStaff: (updatedStaff: Staff) => void;
@@ -39,11 +37,9 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   shifts,
   clients,
   paystubs, 
-  announcements,
   changeRequests,
   materialRequests = [],
   onAddPaystub, 
-  onAddAnnouncement,
   onRequestChange,
   onManageRequest,
   onUpdateStaff,
@@ -71,11 +67,11 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   const canManage = effectiveUser?.role === 'Diretoria' || effectiveUser?.role === 'Supervisor' || effectiveUser?.id === 'admin-master';
   
   // Default tab based on role
-  const [activeTab, setActiveTab] = useState<'documents' | 'announcements' | 'requests' | 'management' | 'schedule'>('announcements');
+  const [activeTab, setActiveTab] = useState<'documents' | 'requests' | 'management' | 'schedule'>('schedule');
 
   const roleTranslations: Record<string, string> = {
-    'Security': 'Segurança',
-    'Concierge': 'Porteiro',
+    'Security': 'Ronda',
+    'Concierge': 'Controlador de Acesso',
     'Supervisor': 'Supervisor',
     'RH': 'RH',
     'Diretoria': 'Diretoria',
@@ -101,9 +97,6 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [newAnnouncement, setNewAnnouncement] = useState<{title: string, content: string, priority: 'Normal' | 'High'}>({ 
-    title: '', content: '', priority: 'Normal' 
-  });
   
   // --- Employee Change Request Form State ---
   const [reqType, setReqType] = useState<'Personal' | 'Address' | 'TransportVoucher'>('Personal');
@@ -167,22 +160,6 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
 
     } else if (!selectedFile) {
       alert("Por favor, selecione um arquivo PDF.");
-    }
-  };
-
-  const handlePostAnnouncement = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newAnnouncement.title && newAnnouncement.content) {
-      onAddAnnouncement({
-        id: `ann-${Date.now()}`,
-        title: newAnnouncement.title,
-        content: newAnnouncement.content,
-        priority: newAnnouncement.priority,
-        date: format(new Date(), 'yyyy-MM-dd'),
-        authorName: 'RH Diretoria'
-      });
-      alert('Comunicado publicado com sucesso!');
-      setNewAnnouncement({ title: '', content: '', priority: 'Normal' });
     }
   };
 
@@ -447,21 +424,6 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
           </button>
           
           <button 
-            onClick={() => setActiveTab('announcements')}
-            className={`py-4 text-sm font-medium border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap ${
-              activeTab === 'announcements' 
-                ? 'border-blue-600 text-blue-600' 
-                : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <Megaphone size={18} />
-            Comunicados
-             <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${activeTab === 'announcements' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
-                {announcements.length}
-            </span>
-          </button>
-            
-          <button 
              onClick={() => setActiveTab('requests')}
              className={`py-4 text-sm font-medium border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap ${
                activeTab === 'requests' 
@@ -649,44 +611,6 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
                  })
                )}
             </div>
-          </div>
-        )}
-
-        {/* ANNOUNCEMENTS VIEW */}
-        {activeTab === 'announcements' && (
-          // ... (Announcements content same as before)
-          <div className="max-w-4xl mx-auto space-y-6">
-            {announcements.map(ann => (
-              <div key={ann.id} className={`bg-white rounded-xl border shadow-sm overflow-hidden ${ann.priority === 'High' ? 'border-orange-200' : 'border-slate-200'}`}>
-                {ann.priority === 'High' && (
-                   <div className="bg-orange-50 px-4 py-1.5 border-b border-orange-100 flex items-center gap-2 text-xs font-bold text-orange-700 uppercase tracking-wide">
-                      <AlertCircle size={14} /> Importante
-                   </div>
-                )}
-                <div className="p-6">
-                   <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-bold text-slate-800">{ann.title}</h3>
-                        <p className="text-xs text-slate-500 mt-1">
-                          Publicado em {new Date(ann.date).toLocaleDateString()} por <span className="font-medium text-slate-700">{ann.authorName}</span>
-                        </p>
-                      </div>
-                      <div className="bg-slate-100 p-2 rounded-full text-slate-500">
-                        <Megaphone size={20} />
-                      </div>
-                   </div>
-                   <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-                     {ann.content}
-                   </p>
-                </div>
-              </div>
-            ))}
-            {announcements.length === 0 && (
-               <div className="text-center py-10 text-slate-400">
-                  <Bell size={48} className="mx-auto mb-3 opacity-20" />
-                  <p>Nenhum comunicado recente.</p>
-               </div>
-            )}
           </div>
         )}
 
@@ -1162,66 +1086,6 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
                 </form>
               </div>
 
-              {/* Announcement Form (Existing) */}
-              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-fit">
-                <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-6">
-                  <Megaphone size={20} className="text-orange-600" />
-                  Novo Comunicado
-                </h3>
-                <form onSubmit={handlePostAnnouncement} className="space-y-4">
-                  <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-slate-700">Título</label>
-                      <input 
-                        required
-                        type="text" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
-                        placeholder="Ex: Novo Benefício..."
-                        value={newAnnouncement.title}
-                        onChange={e => setNewAnnouncement({...newAnnouncement, title: e.target.value})}
-                      />
-                  </div>
-                  
-                  <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-slate-700">Prioridade</label>
-                      <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input 
-                            type="radio" 
-                            name="priority" 
-                            checked={newAnnouncement.priority === 'Normal'}
-                            onChange={() => setNewAnnouncement({...newAnnouncement, priority: 'Normal'})}
-                          />
-                          <span className="text-sm">Normal</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input 
-                            type="radio" 
-                            name="priority"
-                            checked={newAnnouncement.priority === 'High'}
-                            onChange={() => setNewAnnouncement({...newAnnouncement, priority: 'High'})}
-                          />
-                          <span className="text-sm font-medium text-orange-600">Alta Importância</span>
-                        </label>
-                      </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-slate-700">Conteúdo</label>
-                      <textarea 
-                        required
-                        rows={5}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white text-slate-700"
-                        placeholder="Digite a mensagem para todos os colaboradores..."
-                        value={newAnnouncement.content}
-                        onChange={e => setNewAnnouncement({...newAnnouncement, content: e.target.value})}
-                      />
-                  </div>
-
-                  <button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-lg transition-colors shadow-sm">
-                    Publicar Comunicado
-                  </button>
-                </form>
-              </div>
             </div>
           </div>
         )}

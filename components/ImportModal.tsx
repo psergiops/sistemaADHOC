@@ -114,14 +114,14 @@ const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, onImport, ty
              
              // 13-19: Cargo & Contrato
              const rawRole = values[13]?.trim().toLowerCase();
-             const roleMap: Record<string, string> = {
-                'segurança': 'Security', 'vigilante': 'Security',
-                'porteiro': 'Concierge', 'controlador': 'Concierge',
-                'supervisor': 'Supervisor',
-                'rh': 'RH', 'recursos humanos': 'RH',
-                'diretoria': 'Diretoria',
-                'administração': 'Administração'
-             };
+              const roleMap: Record<string, string> = {
+                 'segurança': 'Security', 'vigilante': 'Security', 'ronda': 'Security',
+                 'porteiro': 'Concierge', 'controlador': 'Concierge', 'controlador de acesso': 'Concierge',
+                 'supervisor': 'Supervisor',
+                 'rh': 'RH', 'recursos humanos': 'RH',
+                 'diretoria': 'Diretoria',
+                 'administração': 'Administração'
+              };
              obj.role = roleMap[rawRole] || 'Security';
              obj.sector = values[14] || '';
              obj.regime = values[15] || 'CLT';

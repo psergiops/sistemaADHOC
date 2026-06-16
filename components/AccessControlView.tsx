@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { PermissionConfig, AppModule } from '../types';
-import { Lock, Shield, Menu, HelpCircle, Eye, Pencil } from 'lucide-react';
+import { PermissionConfig, AppModule, Staff } from '../types';
+import { Lock, Shield, Menu, HelpCircle, Eye, Pencil, EyeOff } from 'lucide-react';
 
 interface AccessControlViewProps {
   permissions: PermissionConfig;
   onUpdatePermissions: (newPermissions: PermissionConfig) => void;
+  staff: Staff[];
   onToggleMenu: () => void;
   onShowHelp: () => void;
 }
@@ -13,6 +14,7 @@ interface AccessControlViewProps {
 const AccessControlView: React.FC<AccessControlViewProps> = ({ 
   permissions, 
   onUpdatePermissions,
+  staff,
   onToggleMenu,
   onShowHelp
 }) => {
@@ -35,8 +37,8 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
     { key: 'Administração', label: 'Administração' },
     { key: 'Supervisor', label: 'Supervisor' },
     { key: 'RH', label: 'RH' },
-    { key: 'Security', label: 'Segurança' },
-    { key: 'Portaria', label: 'Porteiro' },
+    { key: 'Security', label: 'Ronda' },
+    { key: 'Portaria', label: 'Controlador de Acesso' },
   ];
 
   const toggleViewPermission = (moduleKey: AppModule, roleKey: string) => {
@@ -154,35 +156,42 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
 
                                     return (
                                         <td key={role.key} className="px-6 py-4">
-                                            <div className="flex items-center justify-center gap-2">
-                                                
-                                                {/* View Toggle */}
-                                                <button
-                                                    onClick={() => toggleViewPermission(mod.key, role.key)}
-                                                    className={`p-2 rounded-lg transition-all border ${
-                                                        canView 
-                                                            ? 'bg-blue-50 text-blue-600 border-blue-200' 
-                                                            : 'bg-slate-50 text-slate-300 border-slate-200 hover:bg-slate-100'
-                                                    }`}
-                                                    title={canView ? "Acesso Permitido" : "Sem Acesso"}
-                                                >
-                                                    <Eye size={16} />
-                                                </button>
+                                            <div className="flex flex-col items-center gap-2">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    
+                                                    {/* View Toggle */}
+                                                    <button
+                                                        onClick={() => toggleViewPermission(mod.key, role.key)}
+                                                        className={`p-2 rounded-lg transition-all border ${
+                                                            canView 
+                                                                ? 'bg-blue-50 text-blue-600 border-blue-200' 
+                                                                : 'bg-slate-50 text-slate-300 border-slate-200 hover:bg-slate-100'
+                                                        }`}
+                                                        title={canView ? "Acesso Permitido" : "Sem Acesso"}
+                                                    >
+                                                        <Eye size={16} />
+                                                    </button>
 
-                                                {/* Edit Toggle */}
-                                                <button
-                                                    onClick={() => toggleEditPermission(mod.key, role.key)}
-                                                    disabled={!canView && false} // Logic handled inside function, visually distinct
-                                                    className={`p-2 rounded-lg transition-all border ${
-                                                        canEdit 
-                                                            ? 'bg-orange-50 text-orange-600 border-orange-200' 
-                                                            : 'bg-slate-50 text-slate-300 border-slate-200 hover:bg-slate-100'
-                                                    }`}
-                                                    title={canEdit ? "Edição Permitida" : "Apenas Leitura"}
-                                                >
-                                                    <Pencil size={16} />
-                                                </button>
+                                                    {/* Edit Toggle */}
+                                                    <button
+                                                        onClick={() => toggleEditPermission(mod.key, role.key)}
+                                                        disabled={!canView && false} // Logic handled inside function, visually distinct
+                                                        className={`p-2 rounded-lg transition-all border ${
+                                                            canEdit 
+                                                                ? 'bg-orange-50 text-orange-600 border-orange-200' 
+                                                                : 'bg-slate-50 text-slate-300 border-slate-200 hover:bg-slate-100'
+                                                        }`}
+                                                        title={canEdit ? "Edição Permitida" : "Apenas Leitura"}
+                                                    >
+                                                        <Pencil size={16} />
+                                                    </button>
+                                                </div>
 
+                                                {mod.key === 'social' && canView && (
+                                                    <span className="text-[10px] text-slate-400 font-medium text-center px-1">
+                                                        Por pessoa
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
                                     );
@@ -191,6 +200,65 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
                         ))}
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        {/* Social - Configuração Individual */}
+        <div className="max-w-6xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 bg-slate-50">
+               <div className="flex items-start gap-3">
+                  <Eye size={20} className="text-green-600 mt-1" />
+                  <div>
+                      <h3 className="font-bold text-slate-800">Rede Social - Permissão Individual</h3>
+                      <p className="text-sm text-slate-500">
+                          Defina <b>por pessoa</b> quem pode ver <b>TODOS os posts</b> da rede social.
+                          <br/><span className="text-xs text-blue-600 font-medium">Desmarcado = a pessoa vê apenas o próprio post e posts do RH/Diretoria.</span>
+                      </p>
+                  </div>
+               </div>
+            </div>
+            <div className="p-4 max-h-80 overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {staff.map(member => {
+                        const canViewAll = permissions.socialViewAllStaffIds?.includes(member.id);
+                        return (
+                            <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-sm font-bold text-slate-600 shrink-0">
+                                        {member.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-slate-800 truncate">{member.name}</p>
+                                        <p className="text-[10px] text-slate-500">{member.role}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        const currentList = permissions.socialViewAllStaffIds || [];
+                                        let newList: string[];
+                                        if (canViewAll) {
+                                            newList = currentList.filter(id => id !== member.id);
+                                        } else {
+                                            newList = [...currentList, member.id];
+                                        }
+                                        onUpdatePermissions({
+                                            ...permissions,
+                                            socialViewAllStaffIds: newList
+                                        });
+                                    }}
+                                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                                        canViewAll
+                                            ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                                            : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    {canViewAll ? <Eye size={14} /> : <EyeOff size={14} />}
+                                    {canViewAll ? 'Ver Tudo' : 'Restrito'}
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
       </div>

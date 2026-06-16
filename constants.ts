@@ -37,7 +37,7 @@ export const MOCK_STAFF: Staff[] = [
     name: 'Ana Oliveira', 
     email: 'ana.oliveira@guardplan.com',
     phone: '(11) 99999-2222',
-    role: 'Portaria', 
+    role: 'Controlador de Acesso', 
     regime: 'CLT',
     contractType: 'Indeterminado',
     admissionDate: '2023-01-10',
@@ -58,7 +58,7 @@ export const MOCK_STAFF: Staff[] = [
     name: 'Roberto Santos', 
     email: 'roberto.santos@guardplan.com',
     phone: '(11) 99999-3333',
-    role: 'Segurança', 
+    role: 'Ronda', 
     regime: 'PJ',
     contractType: 'Determinado',
     admissionDate: '2023-06-01',
@@ -78,7 +78,7 @@ export const MOCK_STAFF: Staff[] = [
     name: 'Fernanda Lima', 
     email: 'fernanda.lima@guardplan.com',
     phone: '(11) 99999-4444',
-    role: 'Segurança', 
+    role: 'Ronda', 
     regime: 'Freelance',
     contractType: 'Temporário',
     admissionDate: '2024-01-15',
@@ -98,7 +98,7 @@ export const MOCK_STAFF: Staff[] = [
     name: 'Marcos Souza', 
     email: 'marcos.souza@guardplan.com',
     phone: '(11) 99999-5555',
-    role: 'Concierge', 
+    role: 'Controlador de Acesso', 
     regime: 'CLT',
     contractType: 'Undetermined',
     admissionDate: '2022-11-20',
@@ -600,5 +600,6 @@ export const DEFAULT_PERMISSIONS: PermissionConfig = {
   'audit-log': {
     view: ['Diretoria'],
     edit: []
-  }
+  },
+  socialViewAllStaffIds: []
 };

@@ -117,8 +117,8 @@ const TUTORIAL_DATA = [
         content: 'Administradores podem fazer upload de PDFs de holerites. Cada funcionário vê apenas o seu próprio documento.'
       },
       {
-        title: 'Comunicados',
-        content: 'Publique avisos gerais ou de alta prioridade. Todos os usuários verão na aba de Comunicados.'
+        title: 'Comunicados (Rede Social)',
+        content: 'Publique avisos gerais ou de alta prioridade na Rede Social. Todos os usuários verão no feed Social.'
       },
       {
         title: 'Solicitações de Funcionários',
@@ -234,7 +234,7 @@ const TUTORIAL_DATA = [
     steps: [
       {
         title: 'Matriz de Permissões',
-        content: 'Apenas a Diretoria/Admin pode acessar. Marque ou desmarque as caixas para definir qual cargo (Porteiro, Vigilante, RH) pode ver qual módulo no menu.'
+        content: 'Apenas a Diretoria/Admin pode acessar. Marque ou desmarque as caixas para definir qual cargo (Controlador de Acesso, Ronda, RH) pode ver qual módulo no menu.'
       }
     ]
   },

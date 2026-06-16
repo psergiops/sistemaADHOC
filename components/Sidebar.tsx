@@ -95,14 +95,17 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
     if (!permissions) return true; // Default to true if no permissions passed (safety)
     
     const allowedRoles = permissions[module]?.view || [];
-    return allowedRoles.includes(currentUser?.role);
+    const roleKey = currentUser?.role === 'Ronda' ? 'Security' : 
+                    currentUser?.role === 'Controlador de Acesso' ? 'Portaria' : 
+                    currentUser?.role;
+    return allowedRoles.includes(roleKey);
   };
 
   const isAdmin = currentUser?.id === 'admin-master' || currentUser?.role === 'Diretoria';
 
   const roleTranslations: Record<string, string> = {
-    'Security': 'Segurança',
-    'Concierge': 'Porteiro',
+    'Security': 'Ronda',
+    'Concierge': 'Controlador de Acesso',
     'Supervisor': 'Supervisor',
     'RH': 'RH',
     'Diretoria': 'Diretoria',
