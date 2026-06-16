@@ -379,6 +379,20 @@ const App: React.FC = () => {
       } as Package;
     }
 
+    if (table === 'document_attachments') {
+      return {
+        id: d('id'),
+        staffId: d('staffid'),
+        uploadedBy: d('uploadedby'),
+        documentType: d('documenttype'),
+        documentDate: d('documentdate'),
+        fileName: d('filename'),
+        url: d('url'),
+        uploadDate: d('uploaddate'),
+        notes: d('notes')
+      } as DocumentAttachment;
+    }
+
     return data;
   };
 
@@ -511,7 +525,7 @@ const App: React.FC = () => {
           if (payData) setPaystubs(payData);
 
           const { data: docData } = await supabase.from('document_attachments').select('*');
-          if (docData) setDocuments(docData);
+          if (docData) setDocuments(docData.map(d => unflattenData('document_attachments', d)));
 
           const { data: annData } = await supabase.from('announcements').select('*').order('date', { ascending: false });
           if (annData) setAnnouncements(annData);
