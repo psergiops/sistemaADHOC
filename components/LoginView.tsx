@@ -86,18 +86,19 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, residents = [], onLogi
       if (authError) throw authError;
 
       if (data.user) {
-        // Find corresponding staff profile by email from already-loaded list
-        const staffProfile = staffList.find(s => s.email?.toLowerCase() === data.user.email?.toLowerCase());
-
-        if (staffProfile) {
+        const email = data.user.email?.toLowerCase();
+        
+        // Check resident FIRST (morador login takes priority over staff)
+        const foundResident = residents.find(r => r.email.toLowerCase() === email);
+        if (foundResident) {
           onLogin({
-            id: staffProfile.id,
-            name: staffProfile.name,
-            role: staffProfile.role,
-            avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`,
-            ...staffProfile 
+            id: foundResident.id,
+            name: foundResident.name,
+            role: 'Morador',
+            resident: foundResident,
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(foundResident.name)}&background=22C55E&color=fff`
           }, data);
-        } else if (data.user.email === 'admin@ad-hoc.com') {
+        } else if (email === 'admin@ad-hoc.com') {
           onLogin({
             id: data.user.id,
             name: 'Administrador do Sistema',
@@ -105,15 +106,15 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, residents = [], onLogi
             avatar: 'https://ui-avatars.com/api/?name=Admin+System&background=0D8ABC&color=fff'
           }, data);
         } else {
-          // Check resident login
-          const foundResident = residents.find(r => r.email.toLowerCase() === data.user.email?.toLowerCase());
-          if (foundResident) {
+          // Check staff login
+          const staffProfile = staffList.find(s => s.email?.toLowerCase() === email);
+          if (staffProfile) {
             onLogin({
-              id: foundResident.id,
-              name: foundResident.name,
-              role: 'Morador',
-              resident: foundResident,
-              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(foundResident.name)}&background=22C55E&color=fff`
+              id: staffProfile.id,
+              name: staffProfile.name,
+              role: staffProfile.role,
+              avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`,
+              ...staffProfile 
             }, data);
           } else {
             setError('Usuário autenticado, mas nenhum perfil encontrado para este e-mail.');

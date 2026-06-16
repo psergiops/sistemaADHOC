@@ -501,31 +501,32 @@ const App: React.FC = () => {
           });
           setIsAuthenticated(true);
         } else if (email) {
-          supabase.from('staff').select('*').then(({ data }) => {
-            if (data && data.length > 0) {
-              const match = data.find((s: any) => s.email?.toLowerCase() === email.toLowerCase());
+          // Check residents FIRST (morador takes priority over staff)
+          supabase.from('residents').select('*').then(({ data: rData }) => {
+            if (rData && rData.length > 0) {
+              const match = rData.find((r: any) => r.email?.toLowerCase() === email.toLowerCase());
               if (match) {
-                const staffProfile = unflattenData('staff', match);
+                const unflat = unflattenData('residents', match);
                 setCurrentUser({
-                  ...staffProfile,
-                  avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`
+                  id: unflat.id,
+                  name: unflat.name,
+                  role: 'Morador',
+                  resident: unflat,
+                  avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(unflat.name)}&background=22C55E&color=fff`
                 });
                 setIsAuthenticated(true);
                 return;
               }
             }
-            // Check residents
-            supabase.from('residents').select('*').then(({ data: rData }) => {
-              if (rData && rData.length > 0) {
-                const match = rData.find((r: any) => r.email?.toLowerCase() === email.toLowerCase());
+            // Check staff
+            supabase.from('staff').select('*').then(({ data }) => {
+              if (data && data.length > 0) {
+                const match = data.find((s: any) => s.email?.toLowerCase() === email.toLowerCase());
                 if (match) {
-                  const unflat = unflattenData('residents', match);
+                  const staffProfile = unflattenData('staff', match);
                   setCurrentUser({
-                    id: unflat.id,
-                    name: unflat.name,
-                    role: 'Morador',
-                    resident: unflat,
-                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(unflat.name)}&background=22C55E&color=fff`
+                    ...staffProfile,
+                    avatar: staffProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffProfile.name)}&background=0D8ABC&color=fff`
                   });
                   setIsAuthenticated(true);
                 }
