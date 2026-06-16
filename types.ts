@@ -284,6 +284,7 @@ export interface EntryLog {
   type: LogEntryType;
   name: string; // Visitor name or Recipient Name (if mail)
   document?: string;
+  unit?: string;
   vehicleModel?: string;
   vehiclePlate?: string;
   timestamp: string; // ISO DateTime when registered

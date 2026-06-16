@@ -356,6 +356,7 @@ const App: React.FC = () => {
         type: d('type') as LogEntryType,
         name: d('name'),
         document: d('document'),
+        unit: d('unit'),
         vehicleModel: d('vehiclemodel'),
         vehiclePlate: d('vehicleplate'),
         timestamp: d('timestamp'),

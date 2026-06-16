@@ -86,6 +86,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
     type: 'Visitor',
     name: '',
     document: '',
+    unit: '',
     vehicleModel: '',
     vehiclePlate: '',
     notes: ''
@@ -101,6 +102,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
         type: newLog.type as LogEntryType,
         name: newLog.name,
         document: newLog.document,
+        unit: newLog.unit,
         vehicleModel: newLog.vehicleModel,
         vehiclePlate: newLog.vehiclePlate,
         notes: newLog.notes,
@@ -112,6 +114,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
         type: 'Visitor',
         name: '',
         document: '',
+        unit: '',
         vehicleModel: '',
         vehiclePlate: '',
         notes: ''
@@ -486,6 +489,18 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     />
                                 </div>
 
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">Unidade / Morador</label>
+                                    <input type="text" list="log-resident-list" className={darkInputClass}
+                                        placeholder="Digite ou selecione a unidade"
+                                        value={newLog.unit || ''} onChange={e => setNewLog({...newLog, unit: e.target.value})} />
+                                    <datalist id="log-resident-list">
+                                      {residents.filter(r => r.isActive).map(r => (
+                                        <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                      ))}
+                                    </datalist>
+                                </div>
+
                                 {newLog.type === 'Visitor' && (
                                     <>
                                         <div className="space-y-1.5">
@@ -561,6 +576,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                             
                                             {log.type === 'Visitor' && (
                                                 <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-slate-600">
+                                                    {log.unit && <span className="text-blue-600 font-medium">{log.unit}</span>}
                                                     {log.document && <span>Doc: {log.document}</span>}
                                                     {log.vehicleModel && (
                                                         <span className="flex items-center gap-1">
@@ -635,23 +651,17 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     <form onSubmit={handleCreateGuestList} className="flex flex-col md:flex-row gap-4 items-end">
                                         <div className="flex-1 w-full space-y-1.5">
                                             <label className="text-sm font-medium text-slate-700">Unidade / Morador</label>
-                                            {residents.length > 0 && (
-                                              <select className="w-full px-3 py-2 mb-1.5 border border-slate-300 dark:border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                                                onChange={e => { if (e.target.value) setNewGuestList({...newGuestList, residentName: e.target.value}) }}
-                                                value=""
-                                              >
-                                                <option value="">-- Selecionar morador cadastrado --</option>
-                                                {residents.filter(r => r.isActive).map(r => (
-                                                  <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
-                                                ))}
-                                              </select>
-                                            )}
                                             <input 
-                                                required type="text" 
-                                                placeholder="Ex: Apto 304 - Sra. Helena"
+                                                required type="text" list="guest-resident-list"
+                                                placeholder="Digite o nº da casa ou nome do morador"
                                                 className={darkInputClass}
                                                 value={newGuestList.residentName} onChange={e => setNewGuestList({...newGuestList, residentName: e.target.value})}
                                             />
+                                            <datalist id="guest-resident-list">
+                                              {residents.filter(r => r.isActive).map(r => (
+                                                <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                              ))}
+                                            </datalist>
                                         </div>
                                         <div className="flex-1 w-full space-y-1.5">
                                             <label className="text-sm font-medium text-slate-700">Nome do Evento</label>
@@ -851,23 +861,17 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-medium text-slate-700">Morador / Unidade</label>
-                                        {residents.length > 0 && (
-                                          <select className="w-full px-3 py-2 mb-1.5 border border-slate-300 dark:border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                                            onChange={e => { if (e.target.value) setNewRes({...newRes, reservedBy: e.target.value}) }}
-                                            value=""
-                                          >
-                                            <option value="">-- Selecionar morador cadastrado --</option>
-                                            {residents.filter(r => r.isActive).map(r => (
-                                              <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
-                                            ))}
-                                          </select>
-                                        )}
                                         <input 
-                                            required type="text" 
-                                            placeholder="Ex: Apto 101 - Sr. João"
+                                            required type="text" list="reservation-resident-list"
+                                            placeholder="Digite o nº da casa ou nome do morador"
                                             className={darkInputClass}
                                             value={newRes.reservedBy} onChange={e => setNewRes({...newRes, reservedBy: e.target.value})}
                                         />
+                                        <datalist id="reservation-resident-list">
+                                          {residents.filter(r => r.isActive).map(r => (
+                                            <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                          ))}
+                                        </datalist>
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-medium text-slate-700">Data</label>
@@ -1117,19 +1121,13 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Unidade/Morador</label>
-                                    {residents.length > 0 && (
-                                      <select className="w-full px-3 py-2 mb-1.5 border border-slate-300 dark:border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                                        onChange={e => { if (e.target.value) setNewPackage({...newPackage, recipientUnit: e.target.value}) }}
-                                        value=""
-                                      >
-                                        <option value="">-- Selecionar morador cadastrado --</option>
-                                        {residents.filter(r => r.isActive).map(r => (
-                                          <option key={r.id} value={`${r.unit} - ${r.name}`}>{r.unit} - {r.name}</option>
-                                        ))}
-                                      </select>
-                                    )}
-                                    <input type="text" placeholder="Ex: Bloco A, Apt 101" className={darkInputClass}
+                                    <input type="text" list="package-resident-list" placeholder="Digite o nº da casa ou nome do morador" className={darkInputClass}
                                         value={newPackage.recipientUnit} onChange={e => setNewPackage({...newPackage, recipientUnit: e.target.value})} />
+                                    <datalist id="package-resident-list">
+                                      {residents.filter(r => r.isActive).map(r => (
+                                        <option key={r.id} value={`${r.unit} - ${r.name}`} />
+                                      ))}
+                                    </datalist>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Descrição</label>

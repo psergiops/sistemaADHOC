@@ -308,6 +308,7 @@ CREATE TABLE entry_logs (
     type text,
     name text NOT NULL,
     document text,
+    unit text,
     vehiclemodel text,
     vehicleplate text,
     timestamp text,
