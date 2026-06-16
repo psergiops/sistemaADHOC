@@ -198,41 +198,38 @@ const ShiftHandoverView: React.FC<ShiftHandoverViewProps> = ({
                       <tr className="border-b border-slate-200 text-slate-500 font-semibold">
                         <th className="text-left py-2 px-3">Colaborador</th>
                         <th className="text-left py-2 px-3">Horário</th>
-                        <th className="text-left py-2 px-3">Posto</th>
-                        <th className="text-left py-2 px-3">Cliente</th>
-                        <th className="text-center py-2 px-3">Início</th>
-                        <th className="text-center py-2 px-3">Fim</th>
+                        <th className="text-left py-2 px-3">Local</th>
+                        <th className="text-center py-2 px-3">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {allTodayShifts.map(shift => {
                         const staffMember = staff.find(s => s.id === shift.staffId);
+                        const client = clients.find(c => c.id === shift.locationId);
                         const inicio = handovers.find(h => h.shiftId === shift.id && h.type === 'Inicio');
                         const fim = handovers.find(h => h.shiftId === shift.id && h.type === 'Fim');
+                        const hasBoth = inicio && fim;
+                        const hasPartial = inicio || fim;
                         return (
                           <tr key={shift.id} className="border-b border-slate-100 hover:bg-slate-50">
                             <td className="py-2 px-3 font-medium text-slate-700">{staffMember?.name || 'Desconhecido'}</td>
                             <td className="py-2 px-3 text-slate-600">{shift.startTime} - {shift.endTime}</td>
-                            <td className="py-2 px-3 text-slate-600">{shift.station || '-'}</td>
-                            <td className="py-2 px-3 text-slate-600">{clients.find(c => c.id === shift.locationId)?.name || '-'}</td>
+                            <td className="py-2 px-3 text-slate-600">{client?.name || shift.station || '-'}</td>
                             <td className="py-2 px-3 text-center">
-                              {inicio ? (
-                                <button onClick={() => setViewingHandover(inicio)}
-                                  className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 px-2 py-0.5 rounded transition-colors">
-                                  <CheckCircle2 size={12} /> Ver
-                                </button>
-                              ) : (
-                                <span className="text-xs text-slate-400">---</span>
-                              )}
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              {fim ? (
+                              {hasBoth ? (
                                 <button onClick={() => setViewingHandover(fim)}
-                                  className="inline-flex items-center gap-1 text-xs font-medium text-orange-700 bg-orange-50 hover:bg-orange-100 px-2 py-0.5 rounded transition-colors">
-                                  <CheckCircle2 size={12} /> Ver
+                                  className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 px-2 py-0.5 rounded transition-colors">
+                                  <CheckCircle2 size={12} /> Feito
+                                </button>
+                              ) : hasPartial ? (
+                                <button onClick={() => setViewingHandover(inicio || fim)}
+                                  className="inline-flex items-center gap-1 text-xs font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-2 py-0.5 rounded transition-colors">
+                                  <AlertCircle size={12} /> Parcial
                                 </button>
                               ) : (
-                                <span className="text-xs text-slate-400">---</span>
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                                  <AlertCircle size={12} /> Não Feito
+                                </span>
                               )}
                             </td>
                           </tr>
