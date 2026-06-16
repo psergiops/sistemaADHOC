@@ -636,7 +636,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                         <div className="flex-1 w-full space-y-1.5">
                                             <label className="text-sm font-medium text-slate-700">Unidade / Morador</label>
                                             {residents.length > 0 && (
-                                              <select className="w-full px-3 py-1.5 mb-1.5 border border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-slate-700 text-white text-xs"
+                                              <select className="w-full px-3 py-2 mb-1.5 border border-slate-300 dark:border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
                                                 onChange={e => { if (e.target.value) setNewGuestList({...newGuestList, residentName: e.target.value}) }}
                                                 value=""
                                               >
@@ -852,7 +852,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-medium text-slate-700">Morador / Unidade</label>
                                         {residents.length > 0 && (
-                                          <select className="w-full px-3 py-1.5 mb-1.5 border border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-slate-700 text-white text-xs"
+                                          <select className="w-full px-3 py-2 mb-1.5 border border-slate-300 dark:border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
                                             onChange={e => { if (e.target.value) setNewRes({...newRes, reservedBy: e.target.value}) }}
                                             value=""
                                           >
@@ -1118,7 +1118,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">Unidade/Morador</label>
                                     {residents.length > 0 && (
-                                      <select className="w-full px-3 py-1.5 mb-1.5 border border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-slate-700 text-white text-xs"
+                                      <select className="w-full px-3 py-2 mb-1.5 border border-slate-300 dark:border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
                                         onChange={e => { if (e.target.value) setNewPackage({...newPackage, recipientUnit: e.target.value}) }}
                                         value=""
                                       >
