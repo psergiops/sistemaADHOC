@@ -343,7 +343,7 @@ const ConciergeView: React.FC<ConciergeViewProps> = ({
    };
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#091D2E] transition-colors duration-200">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#000000] transition-colors duration-200">
       
       {/* Header */}
       <div className="bg-white px-6 py-5 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">

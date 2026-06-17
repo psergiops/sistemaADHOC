@@ -20,7 +20,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   onShowHelp
 }) => {
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#091D2E] transition-colors duration-200">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#000000] transition-colors duration-200">
       
       {/* Header */}
       <div className="bg-white dark:bg-[#19324B] px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-200">
@@ -151,7 +151,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 </button>
               </div>
 
-              <div className="mt-6 p-4 bg-slate-50 dark:bg-[#091D2E]/50 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="mt-6 p-4 bg-slate-50 dark:bg-[#000000]/50 rounded-lg border border-slate-200 dark:border-slate-700">
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   Este é um exemplo de como o texto ficará na aplicação. O tamanho da fonte afeta menus, cartões e textos gerais para facilitar a leitura.
                 </p>

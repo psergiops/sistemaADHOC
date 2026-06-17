@@ -98,7 +98,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
   const darkInputClass = "w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-800 transition-colors";
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#091D2E] transition-colors duration-200">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#000000] transition-colors duration-200">
       
       {/* Header */}
       <div className="bg-white px-6 py-5 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
