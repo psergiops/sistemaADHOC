@@ -46,9 +46,9 @@ html {
 
 /* === DARK MODE OVERRIDES === */
 .dark {
-  --color-dark-surface: #34495E;
-  --color-dark-elevated: #3D566E;
-  --color-dark-hover: #4A6785;
+  --color-dark-surface: #19324B;
+  --color-dark-elevated: #284664;
+  --color-dark-hover: #375A7D;
 }
 
 .dark .bg-white { background-color: var(--color-dark-surface); }
@@ -59,18 +59,18 @@ html {
 .dark .bg-\[\#EBEBEB\] { background-color: var(--color-dark-surface); }
 .dark .bg-\[\#F1F5F9\] { background-color: var(--color-dark-elevated); }
 
-.dark .border-slate-200 { border-color: #2C3E50; }
-.dark .border-slate-100 { border-color: #2C3E50; }
+.dark .border-slate-200 { border-color: #091D2E; }
+.dark .border-slate-100 { border-color: #091D2E; }
 
 .dark ::-webkit-scrollbar-track {
-  background: #2C3E50;
+  background: #091D2E;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #4A6785;
-  border-color: #2C3E50;
+  background: #375A7D;
+  border-color: #091D2E;
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #5A7A9A;
+  background: #4873A0;
 }
 
 /* Focus ring utility */
