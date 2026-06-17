@@ -44,6 +44,35 @@ html {
 
 
 
+/* === DARK MODE OVERRIDES === */
+.dark {
+  --color-dark-surface: #34495E;
+  --color-dark-elevated: #3D566E;
+  --color-dark-hover: #4A6785;
+}
+
+.dark .bg-white { background-color: var(--color-dark-surface); }
+.dark .bg-slate-50 { background-color: var(--color-dark-elevated); }
+.dark .bg-slate-100 { background-color: var(--color-dark-elevated); }
+.dark .bg-gray-50 { background-color: var(--color-dark-elevated); }
+.dark .bg-gray-100 { background-color: var(--color-dark-elevated); }
+.dark .bg-\[\#EBEBEB\] { background-color: var(--color-dark-surface); }
+.dark .bg-\[\#F1F5F9\] { background-color: var(--color-dark-elevated); }
+
+.dark .border-slate-200 { border-color: #2C3E50; }
+.dark .border-slate-100 { border-color: #2C3E50; }
+
+.dark ::-webkit-scrollbar-track {
+  background: #2C3E50;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4A6785;
+  border-color: #2C3E50;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #5A7A9A;
+}
+
 /* Focus ring utility */
 *:focus-visible {
   outline: 2px solid #3b82f6;
