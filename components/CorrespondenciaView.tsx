@@ -111,7 +111,7 @@ const CorrespondenciaView: React.FC<CorrespondenciaViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F]">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#2C3E50] transition-colors duration-200">
       {/* Header */}
       <div className="bg-white px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4 w-full md:w-auto">

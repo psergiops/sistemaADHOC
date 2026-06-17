@@ -315,7 +315,7 @@ const FinancialView: React.FC<FinancialViewProps> = ({
   const pointsExpense = chartData.map((d, i) => `${getX(i)},${getY(d.expense)}`).join(' ');
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] overflow-y-auto">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#2C3E50] transition-colors duration-200 overflow-y-auto">
         
         {/* Header */}
         <div className="bg-white px-6 py-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">

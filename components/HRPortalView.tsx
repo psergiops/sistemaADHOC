@@ -363,7 +363,7 @@ const HRPortalView: React.FC<HRPortalViewProps> = ({
   }, [shifts, effectiveUser]);
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] relative">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#2C3E50] transition-colors duration-200 relative">
       
       {/* SIMULATION BAR (Admin Only) */}
       {isRealAdmin && (

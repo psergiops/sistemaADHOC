@@ -103,7 +103,7 @@ const ClientView: React.FC<ClientViewProps> = ({ clients, staff, onAddClient, on
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F]">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#2C3E50] transition-colors duration-200">
       
       {/* Header Toolbar */}
       <div className="bg-[#EBEBEB] px-6 py-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
