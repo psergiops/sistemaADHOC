@@ -92,7 +92,7 @@ const AccessControlView: React.FC<AccessControlViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#000000] transition-colors duration-200">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#0F0F0F] transition-colors duration-200">
       
       {/* Header */}
       <div className="bg-white px-6 py-5 border-b border-slate-200 flex items-center justify-between">

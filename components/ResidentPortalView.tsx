@@ -49,7 +49,7 @@ const ResidentPortalView: React.FC<ResidentPortalViewProps> = ({
   }, [guestLists, resident.clientId]);
 
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#000000] transition-colors duration-200">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#0F0F0F] transition-colors duration-200">
       <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={onToggleMenu} className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg">

@@ -59,8 +59,8 @@ html {
 .dark .bg-\[\#EBEBEB\] { background-color: var(--color-dark-surface); }
 .dark .bg-\[\#F1F5F9\] { background-color: var(--color-dark-elevated); }
 
-.dark .border-slate-200 { border-color: #000000; }
-.dark .border-slate-100 { border-color: #000000; }
+.dark .border-slate-200 { border-color: #0F0F0F; }
+.dark .border-slate-100 { border-color: #0F0F0F; }
 
 html.dark .text-slate-900 { color: #F8FAFC; }
 html.dark .text-slate-800 { color: #F1F5F9; }
@@ -74,11 +74,11 @@ html.dark .text-gray-500 { color: #94A3B8; }
 html.dark .text-gray-400 { color: #94A3B8; }
 
 .dark ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #0F0F0F;
 }
 .dark ::-webkit-scrollbar-thumb {
   background: #375A7D;
-  border-color: #000000;
+  border-color: #0F0F0F;
 }
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #4873A0;

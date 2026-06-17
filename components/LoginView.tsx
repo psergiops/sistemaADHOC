@@ -134,7 +134,7 @@ const LoginView: React.FC<LoginViewProps> = ({ staffList, residents = [], onLogi
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#1F1F1F] dark:bg-[#000000] transition-colors duration-200">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#1F1F1F] dark:bg-[#0F0F0F] transition-colors duration-200">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
         <div className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] bg-white/10 rounded-full blur-[120px]"></div>
