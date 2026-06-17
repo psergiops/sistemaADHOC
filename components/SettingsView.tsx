@@ -20,10 +20,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   onShowHelp
 }) => {
   return (
-    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-slate-900 transition-colors duration-200">
+    <div className="flex flex-col h-full bg-[#1F1F1F] dark:bg-[#2C3E50] transition-colors duration-200">
       
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-200">
+      <div className="bg-white dark:bg-[#34495E] px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-200">
         <div className="flex items-center gap-4 w-full md:w-auto">
             <button onClick={onToggleMenu} className="md:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
                 <Menu size={24} />
@@ -49,7 +49,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="max-w-2xl mx-auto space-y-6">
           
           {/* Theme Section */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
+          <div className="bg-white dark:bg-[#34495E] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700">
               <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <Monitor size={20} className="text-blue-600 dark:text-blue-400" />
@@ -69,7 +69,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  currentTheme === 'light' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-700'
+                  currentTheme === 'light' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-[#3D566E]'
                 }`}>
                   <Sun size={20} />
                 </div>
@@ -88,7 +88,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  currentTheme === 'dark' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-700'
+                  currentTheme === 'dark' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-[#3D566E]'
                 }`}>
                   <Moon size={20} />
                 </div>
@@ -101,7 +101,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
 
           {/* Font Size Section */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
+          <div className="bg-white dark:bg-[#34495E] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700">
               <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <Type size={20} className="text-blue-600 dark:text-blue-400" />
@@ -118,12 +118,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 <span className="text-lg font-medium text-slate-500 dark:text-slate-400">Grande (20px)</span>
               </div>
               
-              <div className="bg-slate-100 dark:bg-slate-700 p-1 rounded-lg flex gap-1">
+              <div className="bg-slate-100 dark:bg-[#3D566E] p-1 rounded-lg flex gap-1">
                 <button
                   onClick={() => onFontSizeChange('small')}
                   className={`flex-1 py-3 rounded-md text-sm font-medium transition-all ${
                     currentFontSize === 'small'
-                      ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm'
+                      ? 'bg-white dark:bg-[#4A6785] text-blue-600 dark:text-blue-300 shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
                 >
@@ -133,7 +133,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                   onClick={() => onFontSizeChange('medium')}
                   className={`flex-1 py-3 rounded-md text-sm font-medium transition-all ${
                     currentFontSize === 'medium'
-                      ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm'
+                      ? 'bg-white dark:bg-[#4A6785] text-blue-600 dark:text-blue-300 shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
                 >
@@ -143,7 +143,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                   onClick={() => onFontSizeChange('large')}
                   className={`flex-1 py-3 rounded-md text-sm font-medium transition-all ${
                     currentFontSize === 'large'
-                      ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm'
+                      ? 'bg-white dark:bg-[#4A6785] text-blue-600 dark:text-blue-300 shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
                 >
@@ -151,7 +151,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 </button>
               </div>
 
-              <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="mt-6 p-4 bg-slate-50 dark:bg-[#2C3E50]/50 rounded-lg border border-slate-200 dark:border-slate-700">
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   Este é um exemplo de como o texto ficará na aplicação. O tamanho da fonte afeta menus, cartões e textos gerais para facilitar a leitura.
                 </p>

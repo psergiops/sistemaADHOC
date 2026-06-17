@@ -131,17 +131,17 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-[#EBEBEB] dark:bg-slate-800 text-slate-600 dark:text-slate-300 h-screen shadow-xl border-r border-slate-200 dark:border-slate-700 transition-transform duration-300 ease-in-out flex flex-col
+        fixed inset-y-0 left-0 z-50 w-64 bg-[#EBEBEB] dark:bg-[#34495E] text-slate-600 dark:text-slate-300 h-screen shadow-xl border-r border-slate-200 dark:border-slate-700 transition-transform duration-300 ease-in-out flex flex-col
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0 md:static
       `}>
         {/* Header - Fixed at top */}
         <div 
-          className="shrink-0 p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-[#EBEBEB] dark:bg-slate-800 transition-colors duration-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/50"
+          className="shrink-0 p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-[#EBEBEB] dark:bg-[#34495E] transition-colors duration-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-[#3D566E]/50"
           onClick={() => handleNavClick('home')}
         >
           <div className="flex items-center gap-3">
-            <div className="bg-[#EBEBEB] dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+            <div className="bg-[#EBEBEB] dark:bg-[#34495E] p-2 rounded-lg border border-slate-200 dark:border-slate-700">
               <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-red-600">
                 <defs>
                   <mask id="target-mask-sidebar">
@@ -356,7 +356,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
             </nav>
 
             {/* Footer - Part of scroll flow now */}
-            <div className="shrink-0 p-4 border-t border-slate-200 dark:border-slate-700 bg-[#EBEBEB] dark:bg-slate-800/50 transition-colors duration-200 space-y-3">
+            <div className="shrink-0 p-4 border-t border-slate-200 dark:border-slate-700 bg-[#EBEBEB] dark:bg-[#34495E]/50 transition-colors duration-200 space-y-3">
               
               {/* Help Button */}
               <button 
@@ -372,7 +372,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, on
                     {currentUser?.avatar ? (
                         <img src={currentUser.avatar} alt="Avatar" className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-600 object-cover" />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-xs text-slate-600 dark:text-slate-300">
+                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#3D566E] flex items-center justify-center font-bold text-xs text-slate-600 dark:text-slate-300">
                           {currentUser?.name?.charAt(0) || 'U'}
                         </div>
                       )}
